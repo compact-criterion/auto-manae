@@ -7,4 +7,6 @@ A phone-friendly graph theory puzzle game. It is a single file (`index.html`) wi
 - **Shortest Route**: Dijkstra shortest path
 - **Cable Layout**: minimum spanning tree (Kruskal)
 
+Each mode ends with harder "challenge" levels, outlined in orange on the menu (31 levels in total).
+
 Play: open `index.html` on a phone, or host the folder (e.g. GitHub Pages) and share the link.

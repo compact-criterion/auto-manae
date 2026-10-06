@@ -11,7 +11,7 @@
 :root{
   --bg:#0f172a; --panel:#1e293b; --panel2:#334155; --text:#f1f5f9; --muted:#94a3b8;
   --accent:#38bdf8; --good:#4ade80; --bad:#f87171; --warn:#fbbf24;
-  --c0:#f87171; --c1:#38bdf8; --c2:#4ade80; --c3:#fbbf24;
+  --c0:#f87171; --c1:#38bdf8; --c2:#4ade80; --c3:#fbbf24; --c4:#c084fc;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
@@ -32,6 +32,7 @@ h1{margin:8px 0 2px;font-size:32px}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
 .chip{width:56px;min-height:56px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
   font-weight:700;font-size:20px;line-height:1.1}
+.chip.hard{box-shadow:inset 0 0 0 2px var(--warn)}
 .chip small{font-size:12px;color:var(--warn);letter-spacing:1px;min-height:14px}
 .top{display:flex;align-items:center;gap:10px}
 .top .ttl{flex:1;min-width:0}
@@ -225,6 +226,30 @@ const mstA = {pts: circle(5, 50, 52, 38),
 const mstB = {pts: pathB.pts, edges: pathB.edges};
 const mstC = {pts: pathC.pts, edges: pathC.edges};
 
+
+// ---- challenge graphs ----
+const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const weigh = (edges, seed) => { const r = rng(seed); return edges.map(([a, b]) => [a, b, 1 + Math.floor(r() * 9)]); };
+const complete = n => { const e = []; for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) e.push([i, j]); return e; };
+const k7 = {pts: circle(7, 50, 50, 40), edges: complete(7)};
+const k7m = {pts: k7.pts, edges: complete(7).filter(([a, b]) => !(a === 0 && b === 1))};
+const k6 = {pts: circle(6, 50, 50, 40), edges: complete(6)};
+const octa = (() => {
+  const o = circle(3, 50, 50, 42), i = circle(3, 50, 50, 20, 90), e = [];
+  for (let k = 0; k < 3; k++) { e.push([k, (k + 1) % 3], [3 + k, 3 + (k + 1) % 3]); for (let j = 0; j < 3; j++) if (j !== k) e.push([j, 3 + k]); }
+  return {pts: o.concat(i), edges: e};
+})();
+const wheel6 = (() => { const e = []; for (let k = 0; k < 6; k++) e.push([k, (k + 1) % 6], [6, k]); return {pts: circle(6, 50, 50, 40).concat([[50, 50]]), edges: e}; })();
+const g34 = {pts: grid(3, 4, 12, 88, 22, 78), edges: gridEdges(3, 4)};
+const wheel7 = (() => { const e = []; for (let k = 0; k < 7; k++) e.push([k, (k + 1) % 7], [7, k]); return {pts: circle(7, 50, 50, 40).concat([[50, 50]]), edges: e}; })();
+const k5c = {pts: circle(5, 50, 52, 38), edges: complete(5)};
+const circ10 = {pts: circle(10, 50, 50, 40), edges: (() => { const e = []; for (let k = 0; k < 10; k++) e.push([k, (k + 1) % 10], [k, (k + 2) % 10]); return e; })()};
+const tri44 = (() => { const e = gridEdges(4, 4); for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) e.push([r * 4 + c, r * 4 + c + 5]); return {pts: grid(4, 4, 12, 88, 12, 88), edges: e}; })();
+const pathD = {pts: grid(4, 4, 12, 88, 12, 88), edges: weigh(gridEdges(4, 4), 43), s: 0, t: 15};
+const pathE = {pts: grid(4, 4, 12, 88, 12, 88), edges: weigh(gridEdges(4, 4), 118), s: 12, t: 3};
+const mstD = {pts: grid(4, 4, 12, 88, 12, 88), edges: weigh(gridEdges(4, 4), 99)};
+const mstE = (() => { const e = []; for (let k = 0; k < 9; k++) e.push([k, (k + 1) % 9], [k, (k + 3) % 9]); return {pts: circle(9, 50, 50, 40), edges: weigh(e, 5)}; })();
+
 const MODES = {
   euler: {
     icon: '🚶', title: 'Bridge Walker',
@@ -237,6 +262,11 @@ const MODES = {
       {name: 'Grid', g: g33},
       {name: 'Pentagram', g: k5},
       {name: 'Cube', g: cube},
+      {name: 'Octahedron', g: octa, hard: true},
+      {name: 'K6', g: k6, hard: true},
+      {name: 'Grid 3×4', g: g34, hard: true},
+      {name: 'K7 minus one', g: k7m, hard: true},
+      {name: 'Seven Stars', g: k7, hard: true},
     ],
     concept: 'Euler (1736): a connected graph has a walk using every edge exactly once if and only if it has 0 or 2 vertices of odd degree. With 2, the walk must start at one and end at the other.',
   },
@@ -249,8 +279,12 @@ const MODES = {
       {name: 'Wheel', g: wheel},
       {name: 'Petersen', g: petersen},
       {name: 'Grötzsch', g: grotzsch},
+      {name: 'Triangle Grid', g: tri44, hard: true},
+      {name: 'Seven Spokes', g: wheel7, hard: true},
+      {name: 'Ring of Ten', g: circ10, hard: true},
+      {name: 'Five Friends', g: k5c, hard: true},
     ],
-    concept: 'The smallest number of colors needed is the chromatic number χ(G). Odd cycles need 3, bipartite graphs need only 2, and a wheel with an odd rim needs 4.',
+    concept: 'The smallest number of colors needed is the chromatic number χ(G). Odd cycles need 3, bipartite graphs need only 2, a wheel with an odd rim needs 4, and the complete graph on n nodes needs n.',
   },
   path: {
     icon: '🏃', title: 'Shortest Route',
@@ -259,6 +293,8 @@ const MODES = {
       {name: 'Two Lanes', g: pathA},
       {name: 'Crossroads', g: pathB},
       {name: 'City Grid', g: pathC},
+      {name: 'Maze Run', g: pathD, hard: true},
+      {name: 'Zigzag', g: pathE, hard: true},
     ],
     concept: 'Dijkstra’s algorithm always settles the nearest unvisited node next. The route with the fewest roads is often not the cheapest one.',
   },
@@ -269,6 +305,8 @@ const MODES = {
       {name: 'Five Towns', g: mstA},
       {name: 'Eight Towns', g: mstB},
       {name: 'Big Grid', g: mstC},
+      {name: 'Metro Grid', g: mstD, hard: true},
+      {name: 'Nine Hubs', g: mstE, hard: true},
     ],
     concept: 'A spanning tree joins all n nodes with exactly n − 1 edges. Kruskal’s greedy rule works: take the cheapest edge that does not close a loop.',
   },
@@ -286,7 +324,7 @@ function buildMenu() {
     const chips = document.createElement('div'); chips.className = 'chips';
     M.levels.forEach((L, i) => {
       const s = prog[m + i] || 0, b = document.createElement('button');
-      b.className = 'chip';
+      b.className = 'chip' + (L.hard ? ' hard' : '');
       b.innerHTML = `${i + 1}<small>${s ? '★'.repeat(s) : ''}</small>`;
       b.setAttribute('aria-label', `${M.title} level ${i + 1}`);
       b.onclick = () => start(m, i);
@@ -301,7 +339,7 @@ function show(id) { document.querySelectorAll('.screen').forEach(s => s.classLis
 // ---------- game ----------
 let G = null;
 const svg = $('#svg');
-const COLORS = ['var(--c0)', 'var(--c1)', 'var(--c2)', 'var(--c3)'];
+const COLORS = ['var(--c0)', 'var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)'];
 
 function say(t, bad) {
   $('#msg').textContent = t || '';
