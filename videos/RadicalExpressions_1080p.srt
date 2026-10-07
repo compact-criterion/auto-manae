@@ -1,0 +1,248 @@
+1
+00:00:00,000 --> 00:00:03,904
+Welcome! In this video, we'll learn about radical expressions.
+
+2
+00:00:04,300 --> 00:00:13,516
+We'll start by simplifying radicals. Then we'll add, subtract, multiply, and divide them. And finally, we'll solve equations that contain radicals.
+
+3
+00:00:15,300 --> 00:00:16,884
+A radical has three parts.
+
+4
+00:00:17,283 --> 00:00:18,531
+The radical sign,
+
+5
+00:00:18,916 --> 00:00:21,412
+the index, which tells us which root to take,
+
+6
+00:00:21,800 --> 00:00:25,512
+and the radicand, which is the expression under the radical sign.
+
+7
+00:00:25,900 --> 00:00:35,452
+When no index is written, it's a square root, with index two. So the square root of nine is three, the cube root of eight is two, and the fourth root of eighty one is three.
+
+8
+00:00:37,250 --> 00:00:43,714
+The key tool is the product rule. The square root of a times b equals the square root of a times the square root of b.
+
+9
+00:00:44,100 --> 00:00:46,276
+A similar rule works for quotients.
+
+10
+00:00:46,666 --> 00:00:54,314
+To simplify a square root, look for the largest perfect square that divides the radicand. These are the perfect squares worth knowing by heart.
+
+11
+00:00:55,700 --> 00:00:58,180
+Let's simplify the square root of seventy two.
+
+12
+00:00:58,566 --> 00:01:05,254
+The largest perfect square that divides seventy two is thirty six. So we write seventy two as thirty six times two.
+
+13
+00:01:05,650 --> 00:01:08,690
+Using the product rule, we split it into two roots.
+
+14
+00:01:09,083 --> 00:01:14,539
+The square root of thirty six is six. So the square root of seventy two simplifies to six root two.
+
+15
+00:01:14,933 --> 00:01:20,197
+A square root is fully simplified when the radicand has no perfect square factors other than one.
+
+16
+00:01:21,583 --> 00:01:27,311
+For cube roots, look for perfect cubes instead, like eight, twenty seven, and sixty four.
+
+17
+00:01:27,700 --> 00:01:35,812
+Fifty four is twenty seven times two, and the cube root of twenty seven is three. So the cube root of fifty four is three times the cube root of two.
+
+18
+00:01:36,200 --> 00:01:43,672
+Variables work the same way. Assuming x is not negative, eighteen x cubed is nine x squared, times two x.
+
+19
+00:01:44,066 --> 00:01:50,178
+Nine x squared is a perfect square whose root is three x. So the answer is three x, root two x.
+
+20
+00:01:51,966 --> 00:01:58,366
+A simplified expression also has no radicals in the denominator. Removing them is called rationalizing the denominator.
+
+21
+00:01:58,766 --> 00:02:05,470
+To clear root three from six over root three, multiply the top and bottom by root three. That's just multiplying by one.
+
+22
+00:02:05,866 --> 00:02:11,178
+Root three times root three is three. Then six root three over three reduces to two root three.
+
+23
+00:02:12,566 --> 00:02:19,510
+When the denominator is a sum or difference, like three minus root five, multiply by its conjugate: three plus root five.
+
+24
+00:02:19,900 --> 00:02:24,188
+The bottom becomes a difference of squares: nine minus five, which is four.
+
+25
+00:02:24,583 --> 00:02:27,431
+The fours cancel, leaving three plus root five.
+
+26
+00:02:29,216 --> 00:02:35,152
+You can only add or subtract like radicals, meaning radicals with the same index and the same radicand.
+
+27
+00:02:35,550 --> 00:02:42,622
+Treat them like like terms. Three root two plus five root two is eight root two, just as three x plus five x is eight x.
+
+28
+00:02:43,016 --> 00:02:49,848
+Sometimes radicals only look unlike. Root twelve and root twenty seven seem different, so simplify each one first.
+
+29
+00:02:50,233 --> 00:02:57,561
+Root twelve is two root three, and root twenty seven is three root three. Now they're like radicals, and the sum is five root three.
+
+30
+00:02:58,950 --> 00:03:10,598
+Be careful. Root two plus root three is not root five. Check with decimals: the left side is about three point one four, but root five is only about two point two four. Unlike radicals cannot be combined.
+
+31
+00:03:12,383 --> 00:03:18,591
+To multiply, use the product rule in reverse. Root six times root fifteen is root ninety.
+
+32
+00:03:18,983 --> 00:03:23,159
+Ninety is nine times ten, so the product simplifies to three root ten.
+
+33
+00:03:23,550 --> 00:03:32,046
+To divide, use the quotient rule. Root fifty over root two is the root of fifty over two. That's root twenty five, which is simply five.
+
+34
+00:03:33,433 --> 00:03:36,761
+For binomials, distribute just like you would with polynomials.
+
+35
+00:03:37,150 --> 00:03:38,318
+Two times four is eight.
+
+36
+00:03:38,716 --> 00:03:41,900
+Two times negative root three is negative two root three.
+
+37
+00:03:42,300 --> 00:03:44,716
+Root three times four is four root three.
+
+38
+00:03:45,100 --> 00:03:48,412
+And root three times negative root three is negative three.
+
+39
+00:03:48,800 --> 00:03:57,584
+Combine like terms. Eight minus three is five, and negative two root three plus four root three is two root three. The answer is five plus two root three.
+
+40
+00:03:59,383 --> 00:04:05,159
+To solve an equation with a radical, follow four steps. First, isolate the radical on one side.
+
+41
+00:04:05,550 --> 00:04:11,534
+Second, raise both sides to the power that matches the index. For a square root, square both sides.
+
+42
+00:04:11,933 --> 00:04:14,509
+Third, solve the equation that results.
+
+43
+00:04:14,900 --> 00:04:18,468
+And fourth, always check your answers in the original equation.
+
+44
+00:04:19,866 --> 00:04:24,970
+Let's solve: the square root of x plus three, minus two, equals three.
+
+45
+00:04:25,366 --> 00:04:30,374
+Add two to both sides to isolate the radical. The square root of x plus three equals five.
+
+46
+00:04:30,766 --> 00:04:35,262
+Square both sides. x plus three equals twenty five, so x equals twenty two.
+
+47
+00:04:35,650 --> 00:04:41,154
+Check it: the square root of twenty five is five, and five minus two is three. It works.
+
+48
+00:04:42,550 --> 00:04:51,398
+For a cube root, cube both sides. The cube root of two x minus one equals three becomes two x minus one equals twenty seven. So x equals fourteen.
+
+49
+00:04:51,783 --> 00:04:58,935
+Cubing both sides never creates false solutions, but checking is still a good habit. Squaring is a different story, as we'll see next.
+
+50
+00:05:00,733 --> 00:05:05,453
+Here's why checking matters. Solve: the square root of x plus six equals x.
+
+51
+00:05:05,850 --> 00:05:11,482
+The radical is already isolated, so square both sides: x plus six equals x squared.
+
+52
+00:05:11,866 --> 00:05:19,242
+Rearranging gives x squared minus x minus six equals zero, which factors as x minus three, times x plus two.
+
+53
+00:05:19,633 --> 00:05:22,769
+So x equals three, or x equals negative two.
+
+54
+00:05:23,166 --> 00:05:28,142
+Now check both. If x equals three, the square root of nine is three. True.
+
+55
+00:05:28,533 --> 00:05:34,005
+If x equals negative two, the square root of four is two, not negative two. That's false.
+
+56
+00:05:34,400 --> 00:05:42,592
+So negative two is an extraneous solution. It appeared only because we squared both sides, which hides the difference between two and negative two.
+
+57
+00:05:42,983 --> 00:05:45,303
+The only solution is x equals three.
+
+58
+00:05:47,100 --> 00:05:52,620
+To recap. Simplify radicals by pulling out perfect square factors, using the product rule.
+
+59
+00:05:53,016 --> 00:05:57,304
+Rationalize denominators by multiplying by the radical, or by the conjugate.
+
+60
+00:05:57,700 --> 00:06:03,540
+Add and subtract only like radicals, and multiply or divide with the product and quotient rules.
+
+61
+00:06:03,933 --> 00:06:10,733
+To solve radical equations: isolate, raise to a power, solve, and always check for extraneous solutions.
+
+62
+00:06:11,733 --> 00:06:12,805
+Thanks for watching!
+
