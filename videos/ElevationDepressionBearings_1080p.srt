@@ -1,0 +1,216 @@
+1
+00:00:00,000 --> 00:00:08,944
+Welcome! In this video we'll use trigonometry to measure things we can't reach directly: the height of a building, the distance to a ship, and the direction of travel.
+
+2
+00:00:09,333 --> 00:00:13,461
+We'll cover angles of elevation and depression first, and then bearings.
+
+3
+00:00:15,250 --> 00:00:18,978
+Imagine you're standing on level ground, looking up at the top of a tower.
+
+4
+00:00:19,366 --> 00:00:22,582
+First, picture a horizontal line straight out from your eye.
+
+5
+00:00:22,966 --> 00:00:25,414
+Your line of sight goes up to the top of the tower.
+
+6
+00:00:25,800 --> 00:00:32,168
+The angle between the horizontal and the line of sight is called the angle of elevation. You raise your eyes to see the object.
+
+7
+00:00:32,566 --> 00:00:38,454
+Remember: an angle of elevation is always measured upward from the horizontal, never from the vertical.
+
+8
+00:00:40,250 --> 00:00:43,978
+Now you're standing on top of a cliff, looking down at a boat on the sea.
+
+9
+00:00:44,366 --> 00:00:49,438
+Again, start with the horizontal line from your eye, and draw the line of sight down to the boat.
+
+10
+00:00:49,833 --> 00:00:57,241
+The angle between them is the angle of depression. You lower your eyes to see the object. It's still measured from the horizontal, but downward.
+
+11
+00:00:57,633 --> 00:01:02,001
+Here's a useful fact. Someone in the boat looking up at you sees an angle of elevation.
+
+12
+00:01:02,400 --> 00:01:11,632
+Because the two horizontal lines are parallel, these are alternate angles, so they're equal. The angle of depression from the top equals the angle of elevation from the bottom.
+
+13
+00:01:13,416 --> 00:01:21,032
+Let's try an example. You stand thirty meters from a building. The angle of elevation to the top is forty degrees. How tall is the building?
+
+14
+00:01:21,416 --> 00:01:28,312
+Sketch a right triangle. The ground distance of thirty meters is the side adjacent to the angle, and the height h is the side opposite.
+
+15
+00:01:28,700 --> 00:01:34,172
+Opposite and adjacent means we use tangent. Tangent of forty degrees equals h over thirty.
+
+16
+00:01:34,566 --> 00:01:41,494
+Multiply both sides by thirty. h equals thirty times tangent forty, which is about thirty times zero point eight three nine one.
+
+17
+00:01:41,883 --> 00:01:44,731
+So the building is about twenty five point two meters tall.
+
+18
+00:01:46,516 --> 00:01:53,412
+From the top of an eighty meter lighthouse, the angle of depression to a boat is twenty five degrees. How far is the boat from the lighthouse?
+
+19
+00:01:53,800 --> 00:02:00,280
+The angle of depression equals the angle of elevation from the boat, so the angle at the boat is also twenty five degrees.
+
+20
+00:02:00,666 --> 00:02:05,642
+From the boat's corner, the eighty meter height is opposite, and the distance d is adjacent.
+
+21
+00:02:06,033 --> 00:02:09,233
+So tangent of twenty five degrees equals eighty over d.
+
+22
+00:02:09,633 --> 00:02:16,209
+This time d is in the denominator, so rearrange: d equals eighty divided by tangent twenty five degrees.
+
+23
+00:02:16,600 --> 00:02:22,264
+That's eighty over zero point four six six three, or about one hundred seventy one point six meters.
+
+24
+00:02:24,050 --> 00:02:32,242
+Sometimes we need the angle itself. A kite is flying on a fifty meter string, thirty five meters above your hand. What is the angle of elevation of the kite?
+
+25
+00:02:32,633 --> 00:02:40,169
+The thirty five meters is opposite the angle, and the fifty meter string is the hypotenuse. Opposite over hypotenuse means sine.
+
+26
+00:02:40,566 --> 00:02:47,366
+To undo sine, use the inverse sine button on your calculator. The angle of elevation is about forty four point four degrees.
+
+27
+00:02:49,150 --> 00:02:54,462
+A bearing describes a direction as an angle. Navigators, pilots, and hikers all use them.
+
+28
+00:02:54,850 --> 00:02:59,474
+There are three rules for a three figure bearing. One: always start from north.
+
+29
+00:02:59,866 --> 00:03:02,186
+Two: measure the angle clockwise.
+
+30
+00:03:02,583 --> 00:03:08,055
+And three: always write it with three digits, so forty five degrees becomes zero four five.
+
+31
+00:03:08,450 --> 00:03:13,138
+Watch the bearing as the direction turns. North east is zero four five degrees.
+
+32
+00:03:13,533 --> 00:03:16,061
+Due east is zero nine zero degrees.
+
+33
+00:03:16,450 --> 00:03:19,602
+South is one eighty, and south west is two two five.
+
+34
+00:03:20,000 --> 00:03:26,384
+West is two seven zero. And a direction just west of north, like here, is three three zero degrees.
+
+35
+00:03:26,783 --> 00:03:40,879
+You may also see compass bearings, which start from north or south and turn toward east or west. North thirty degrees west is the same as three three zero. South forty degrees east means start at south and turn forty degrees toward east, which is one four zero.
+
+36
+00:03:42,666 --> 00:03:47,674
+Suppose B is on a bearing of zero six zero degrees from A. What is the bearing of A from B?
+
+37
+00:03:48,066 --> 00:03:52,450
+Draw a new north line at B, and turn clockwise from it until you face A.
+
+38
+00:03:52,850 --> 00:04:00,338
+Facing the opposite way is a half turn, so the back bearing is the bearing plus one hundred eighty degrees. Sixty plus one eighty is two four zero.
+
+39
+00:04:00,733 --> 00:04:07,965
+If the original bearing is already more than one eighty, subtract one eighty instead, so the answer stays between zero and three sixty.
+
+40
+00:04:09,750 --> 00:04:18,758
+Bearings combine with right triangles too. A ship sails fifty kilometers on a bearing of zero six zero. How far east, and how far north, has it travelled?
+
+41
+00:04:19,150 --> 00:04:24,494
+Drop a vertical line from the ship to make a right triangle. The sixty degree angle is measured from north.
+
+42
+00:04:24,883 --> 00:04:31,555
+The east distance is opposite the sixty degree angle, so it's fifty times sine sixty, about forty three point three kilometers.
+
+43
+00:04:31,950 --> 00:04:38,142
+The north distance is adjacent, so it's fifty times cosine sixty, which is exactly twenty five kilometers.
+
+44
+00:04:39,933 --> 00:04:51,837
+Finally, a two leg journey. A boat sails twelve kilometers from A to B on a bearing of zero four zero, then nine kilometers from B to C on a bearing of one three zero. How far is C from A, and on what bearing?
+
+45
+00:04:52,233 --> 00:05:04,985
+First, find the angle at B. The back bearing of A from B is two two zero degrees. The boat leaves B on one three zero, so the angle between the two legs is two twenty minus one thirty: ninety degrees. A right angle!
+
+46
+00:05:05,383 --> 00:05:15,431
+With a right angle, Pythagoras gives the distance. A C is the square root of twelve squared plus nine squared, which is the square root of two hundred twenty five: fifteen kilometers.
+
+47
+00:05:15,816 --> 00:05:23,336
+For the direction, find angle alpha at A. Tangent alpha is nine over twelve, so alpha is about thirty six point nine degrees.
+
+48
+00:05:23,733 --> 00:05:29,205
+Add this to the first bearing. The bearing of C from A is about zero seven six point nine degrees.
+
+49
+00:05:31,000 --> 00:05:34,456
+To recap. An angle of elevation is measured up from the horizontal.
+
+50
+00:05:34,850 --> 00:05:37,714
+An angle of depression is measured down from the horizontal.
+
+51
+00:05:38,100 --> 00:05:42,292
+The angle of depression from the top equals the angle of elevation from the bottom.
+
+52
+00:05:42,683 --> 00:05:46,235
+Bearings are measured from north, clockwise, and written with three digits.
+
+53
+00:05:46,633 --> 00:05:56,105
+And a back bearing is found by adding or subtracting one hundred eighty degrees. In every problem, sketch the right triangle first, then choose sine, cosine, or tangent.
+
+54
+00:05:57,100 --> 00:05:58,172
+Thanks for watching!
+
