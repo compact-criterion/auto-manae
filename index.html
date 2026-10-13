@@ -235,7 +235,7 @@ const k7 = {pts: circle(7, 50, 50, 40), edges: complete(7)};
 const k7m = {pts: k7.pts, edges: complete(7).filter(([a, b]) => !(a === 0 && b === 1))};
 const k6 = {pts: circle(6, 50, 50, 40), edges: complete(6)};
 const octa = (() => {
-  const o = circle(3, 50, 50, 42), i = circle(3, 50, 50, 20, 90), e = [];
+  const o = circle(3, 50, 58, 46), i = circle(3, 50, 58, 13, 90), e = [];
   for (let k = 0; k < 3; k++) { e.push([k, (k + 1) % 3], [3 + k, 3 + (k + 1) % 3]); for (let j = 0; j < 3; j++) if (j !== k) e.push([j, 3 + k]); }
   return {pts: o.concat(i), edges: e};
 })();
