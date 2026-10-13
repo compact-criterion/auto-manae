@@ -50,6 +50,8 @@ svg{width:100%;height:100%;touch-action:manipulation;user-select:none;-webkit-us
 .bar{display:flex;gap:8px;margin-bottom:8px}
 .bar button{flex:1;white-space:nowrap;padding:0 8px}
 #status{display:flex;justify-content:space-between;font-size:18px;margin-bottom:8px}
+.eq{font-size:28px;font-weight:700;margin-bottom:4px;line-height:1.25}
+#ops button{font-size:22px;font-weight:700;background:#0c4a6e}
 #win{position:fixed;inset:0;background:rgba(2,6,23,.8);display:none;align-items:center;justify-content:center;padding:20px;z-index:5}
 #win.on{display:flex}
 #win .box{background:var(--panel);border-radius:22px;padding:20px;max-width:420px;width:100%;text-align:center}
@@ -63,7 +65,7 @@ svg{width:100%;height:100%;touch-action:manipulation;user-select:none;-webkit-us
 
 <div id="menu" class="screen on">
   <h1>🕸️ Graph Quest</h1>
-  <p class="sub">Four puzzles from graph theory. Tap a level to play. Best played on your phone.</p>
+  <p class="sub">Puzzles from graph theory and modular algebra. Tap a level to play. Best played on your phone.</p>
   <div id="modes"></div>
   <div class="bar"><button id="shareBtn">📲 Share with a friend</button><button id="resetAll">Reset progress</button></div>
 </div>
@@ -78,10 +80,12 @@ svg{width:100%;height:100%;touch-action:manipulation;user-select:none;-webkit-us
   <div id="board"><svg id="svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"></svg></div>
   <div id="msg"></div>
   <div id="status"><span id="s1"></span><span id="s2"></span></div>
+  <div class="bar" id="ops" style="display:none"></div>
   <div class="bar">
     <button id="undo">↶ Undo</button>
     <button id="reset">⟲ Reset</button>
     <button id="extra" style="display:none"></button>
+    <button id="extra2" style="display:none"></button>
   </div>
 </div>
 
@@ -250,6 +254,29 @@ const pathE = {pts: grid(4, 4, 12, 88, 12, 88), edges: weigh(gridEdges(4, 4), 11
 const mstD = {pts: grid(4, 4, 12, 88, 12, 88), edges: weigh(gridEdges(4, 4), 99)};
 const mstE = (() => { const e = []; for (let k = 0; k < 9; k++) e.push([k, (k + 1) % 9], [k, (k + 3) % 9]); return {pts: circle(9, 50, 50, 40), edges: weigh(e, 5)}; })();
 
+// ---- modular arithmetic ----
+const SUP = {2: '²', 3: '³', 6: '⁶'};
+const mpow = (x, k, n) => { let r = 1 % n; for (let i = 0; i < k; i++) r = r * x % n; return r; };
+const lin = (a, b, n, more) => ({type: 'solve', n, eq: `${a}x ≡ ${b} (mod ${n})`, test: x => a * x % n === b % n,
+  show: x => `${a}·${x} = ${a * x} ≡ ${a * x % n}`, map: x => a * x % n, goal: [b % n],
+  tip: `Arrows show x → ${a}x mod ${n}. Which arrows land on ${b}?`, ...more});
+const pw = (k, b, n, more) => ({type: 'solve', n, eq: `x${SUP[k]} ≡ ${b} (mod ${n})`, test: x => mpow(x, k, n) === b % n,
+  show: x => `${x}${SUP[k]} = ${x ** k} ≡ ${mpow(x, k, n)}`, map: x => mpow(x, k, n), goal: [b % n],
+  tip: `Arrows show x → x${SUP[k]} mod ${n}. Which arrows land on ${b}?`, ...more});
+const WALK_NOTE = 'Each number is a node and each button is an arrow, so the moves form a graph on ℤₙ. The fewest moves is a shortest path, found by breadth-first search.';
+const walk = (n, s, t, ops, more) => ({type: 'walk', n, s, t, note: WALK_NOTE, ...more,
+  ops: ops.map(o => { const v = +o.slice(1);
+    return [o.replace('*', '×').replace('-', '−'), o[0] === '+' ? x => (x + v) % n : o[0] === '-' ? x => ((x - v) % n + n) % n : x => x * v % n]; })});
+function bfsWalk(L, from) {
+  const d = Array(L.n).fill(-1), first = Array(L.n).fill(-1), q = [from];
+  d[from] = 0;
+  while (q.length) {
+    const u = q.shift();
+    L.ops.forEach(([, f], oi) => { const v = f(u); if (d[v] < 0) { d[v] = d[u] + 1; first[v] = u === from ? oi : first[u]; q.push(v); } });
+  }
+  return {d, first};
+}
+
 const MODES = {
   euler: {
     icon: '🚶', title: 'Bridge Walker',
@@ -310,6 +337,32 @@ const MODES = {
     ],
     concept: 'A spanning tree joins all n nodes with exactly n − 1 edges. Kruskal’s greedy rule works: take the cheapest edge that does not close a loop.',
   },
+  mod: {
+    icon: '🕐', title: 'Clock Algebra',
+    desc: 'Modular arithmetic on a clock. Solve congruences in ℤₙ and race around the circle.',
+    levels: [
+      {name: 'Clock Jumps', ...walk(12, 0, 7, ['+5', '+3'])},
+      {name: 'First Congruence', ...lin(3, 5, 7, {note: 'x = 4, because 3·4 = 12 = 7 + 5. Since gcd(3, 7) = 1, there is exactly one solution.'})},
+      {name: 'Inverse', ...lin(5, 1, 12, {note: '5 is its own inverse mod 12: 5·5 = 25 = 2·12 + 1. An inverse of a exists exactly when gcd(a, n) = 1.'})},
+      {name: 'Two Answers', ...lin(4, 6, 10, {note: 'gcd(4, 10) = 2 divides 6, so there are exactly 2 solutions, 4 and 9, spaced 10 ÷ 2 = 5 apart.'})},
+      {name: 'The Trap', ...lin(6, 4, 9, {note: 'gcd(6, 9) = 3 does not divide 4, so there is no solution: 6x mod 9 can only be 0, 3 or 6.'})},
+      {name: 'Multiply & Add', ...walk(10, 2, 5, ['*3', '+1'])},
+      {name: 'Four Roots', hard: true, ...pw(2, 1, 8, {note: 'Mod 8 the number 1 has four square roots: 1, 3, 5 and 7. When n is not prime, a quadratic can have more than 2 roots.'})},
+      {name: 'Square Hunt', hard: true, ...pw(2, 4, 12, {note: 'x² ≡ 4 (mod 12) has four solutions: 2, 4, 8 and 10. For example 8² = 64 = 5·12 + 4.'})},
+      {name: 'Chinese Remainder', hard: true, type: 'solve', n: 15, eq: 'x ≡ 2 (mod 3)<br>x ≡ 3 (mod 5)',
+        test: x => x % 3 === 2 && x % 5 === 3, show: x => `${x} mod 3 = ${x % 3}, ${x} mod 5 = ${x % 5}`,
+        hl: x => x % 3 === 2, tip: 'Highlighted: the x with x ≡ 2 (mod 3). Which of them is also ≡ 3 (mod 5)?',
+        note: 'Chinese Remainder Theorem: since gcd(3, 5) = 1, the system has exactly one solution mod 15, namely x = 8.'},
+      {name: 'No Square', hard: true, ...pw(2, 3, 7, {note: 'The squares mod 7 are only 0, 1, 2 and 4 (the quadratic residues), so x² ≡ 3 (mod 7) has no solution.'})},
+      {name: 'Long Way Round', hard: true, ...walk(13, 1, 10, ['*2', '+5'])},
+      {name: 'Everyone Wins', hard: true, type: 'solve', n: 6, eq: 'x³ ≡ x (mod 6)', test: x => mpow(x, 3, 6) === x,
+        show: x => `${x}³ = ${x ** 3} ≡ ${mpow(x, 3, 6)}`, map: x => mpow(x, 3, 6),
+        tip: 'Arrows show x → x³ mod 6. Look for nodes whose arrow loops back to themselves.',
+        note: 'x³ − x = (x − 1)·x·(x + 1) is a product of 3 consecutive integers, so it is always divisible by 6. Every x works!'},
+      {name: 'Fermat', hard: true, ...pw(6, 1, 7, {note: 'Fermat’s Little Theorem: if p is prime and p does not divide x, then x^(p−1) ≡ 1 (mod p). Here p = 7.'})},
+    ],
+    concept: 'In ℤₙ, ax ≡ b has a solution exactly when gcd(a, n) divides b, and then it has gcd(a, n) solutions.',
+  },
 };
 const MODE_KEYS = Object.keys(MODES);
 
@@ -347,7 +400,7 @@ function say(t, bad) {
 }
 
 function start(mode, idx) {
-  const M = MODES[mode], L = M.levels[idx], g = L.g, n = g.pts.length;
+  const M = MODES[mode], L = M.levels[idx], g = L.g || {pts: circle(L.n, 50, 50, 40), edges: []}, n = g.pts.length;
   G = {mode, idx, L, g, n, edges: g.edges, mistakes: 0, moves: 0, done: false, hist: [], showDeg: false};
   if (mode === 'euler') {
     G.path = []; G.used = new Set(); G.odd = oddVertices(n, g.edges);
@@ -356,8 +409,12 @@ function start(mode, idx) {
     G.col = Array(n).fill(-1); G.k = chromatic(n, g.edges);
   } else if (mode === 'path') {
     G.best = dijkstra(n, g.edges, g.s, g.t); G.path = [g.s];
-  } else {
+  } else if (mode === 'mst') {
     G.best = kruskal(n, g.edges); G.sel = new Set();
+  } else {
+    G.sel = new Set(); G.showMap = false;
+    if (L.type === 'walk') { G.best = bfsWalk(L, L.s).d[L.t]; G.cur = L.s; G.path = [L.s]; }
+    else G.sol = [...Array(n).keys()].filter(L.test);
   }
   $('#gtitle').textContent = `${M.icon} ${M.title}`;
   $('#glevel').textContent = `Level ${idx + 1}: ${L.name}`;
@@ -367,10 +424,19 @@ function start(mode, idx) {
     path: `Travel from the start to the goal. Edge numbers are costs.`,
     mst: `Connect all ${n} nodes using exactly ${n - 1} edges for the lowest total cost.`
   };
-  $('#goal').textContent = goals[mode];
+  if (mode === 'mod') $('#goal').innerHTML = `<div class="eq">${L.type === 'walk' ? `${L.s} → ${L.t} (mod ${n})` : L.eq}</div>` +
+    (L.type === 'walk' ? 'Use the move buttons to reach the red node in as few moves as possible.' : `Tap every x in ℤ<sub>${n}</sub> that works, then press Check.`);
+  else $('#goal').textContent = goals[mode];
   const ex = $('#extra');
-  ex.style.display = mode === 'euler' ? '' : 'none';
-  ex.textContent = 'Impossible!';
+  const solve = mode === 'mod' && L.type === 'solve', walking = mode === 'mod' && L.type === 'walk', ex2 = $('#extra2');
+  ex.style.display = mode === 'euler' || solve ? '' : 'none';
+  ex.textContent = solve ? '✓ Check' : 'Impossible!';
+  ex2.style.display = solve ? '' : 'none';
+  ex2.textContent = 'No solution';
+  $('#undo').style.display = solve ? 'none' : '';
+  const ops = $('#ops');
+  ops.innerHTML = ''; ops.style.display = walking ? '' : 'none';
+  if (walking) L.ops.forEach(([lbl, f]) => { const b = document.createElement('button'); b.textContent = lbl; b.onclick = () => doOp(f); ops.appendChild(b); });
   $('#hint').textContent = mode === 'euler' ? '🔢' : '💡';
   $('#hint').setAttribute('aria-label', mode === 'euler' ? 'Show degrees' : 'Hint');
   say('');
@@ -384,7 +450,16 @@ function buildBoard() {
   svg.innerHTML = '';
   const {g, mode} = G;
   G.edgeEls = []; G.nodeEls = [];
-  const eg = el('g', {}, svg), ng = el('g', {}, svg);
+  const R = G.n > 13 ? 6 : 7;
+  G.R = R;
+  const defs = el('defs', {}, svg);
+  [['ahA', '#38bdf8'], ['ahM', '#94a3b8']].forEach(([id, c]) => {
+    const m = el('marker', {id, viewBox: '0 0 10 10', refX: 8, refY: 5, markerWidth: 3.2, markerHeight: 3.2, orient: 'auto'}, defs);
+    el('path', {d: 'M0,0L10,5L0,10z', fill: c}, m);
+  });
+  const eg = el('g', {}, svg);
+  G.arrowG = el('g', {}, svg);
+  const ng = el('g', {}, svg);
   g.edges.forEach(([a, b, w], i) => {
     const [x1, y1] = g.pts[a], [x2, y2] = g.pts[b];
     const grp = el('g', {}, eg);
@@ -405,9 +480,9 @@ function buildBoard() {
   });
   g.pts.forEach(([x, y], i) => {
     const grp = el('g', {class: 'node'}, ng);
-    const halo = el('circle', {cx: x, cy: y, r: 9.5, fill: 'none', 'stroke-width': 1.4}, grp);
-    const c = el('circle', {cx: x, cy: y, r: 7, stroke: '#0f172a', 'stroke-width': 1}, grp);
-    const hit = el('circle', {cx: x, cy: y, r: 11, fill: 'transparent'}, grp);
+    const halo = el('circle', {cx: x, cy: y, r: R + 2.5, fill: 'none', 'stroke-width': 1.4}, grp);
+    const c = el('circle', {cx: x, cy: y, r: R, stroke: '#0f172a', 'stroke-width': 1}, grp);
+    const hit = el('circle', {cx: x, cy: y, r: R + 4, fill: 'transparent'}, grp);
     const t = el('text', {x, y}, grp);
     if (mode !== 'mst') grp.addEventListener('click', () => tapNode(i));
     G.nodeEls.push({halo, c, t});
@@ -423,7 +498,7 @@ function render() {
   G.nodeEls.forEach((N, i) => {
     N.halo.setAttribute('stroke', 'none');
     N.c.setAttribute('fill', '#cbd5e1');
-    N.t.textContent = LET(i);
+    N.t.textContent = mode === 'mod' ? i : LET(i);
   });
   const E = (i, color, w) => { G.edgeEls[i].line.setAttribute('stroke', color); G.edgeEls[i].line.setAttribute('stroke-width', w); };
   const eIdx = (a, b) => g.edges.findIndex(([x, y]) => (x === a && y === b) || (x === b && y === a));
@@ -453,6 +528,22 @@ function render() {
     G.cost = pathCost();
     $('#s1').textContent = `Cost so far: ${G.cost}`;
     $('#s2').textContent = '';
+  } else if (mode === 'mod') {
+    G.arrowG.innerHTML = '';
+    const L = G.L;
+    if (L.type === 'walk') {
+      for (let i = 1; i < G.path.length; i++) arrow(G.path[i - 1], G.path[i], 'A', 1.6);
+      G.nodeEls[L.s].c.setAttribute('fill', 'var(--good)'); G.nodeEls[L.t].c.setAttribute('fill', 'var(--bad)');
+      G.nodeEls[G.cur].halo.setAttribute('stroke', 'var(--accent)');
+      $('#s1').textContent = `Moves: ${G.path.length - 1}`;
+      $('#s2').textContent = `At: ${G.cur}`;
+    } else {
+      if (G.showMap && L.map) for (let x = 0; x < n; x++) arrow(x, L.map(x), 'M', 1);
+      if (G.showMap) G.nodeEls.forEach((N, x) => { if ((L.map && L.goal && L.goal.includes(x)) || (L.hl && L.hl(x))) N.halo.setAttribute('stroke', 'var(--warn)'); });
+      G.sel.forEach(x => G.nodeEls[x].c.setAttribute('fill', 'var(--accent)'));
+      $('#s1').textContent = `Picked: ${G.sel.size ? [...G.sel].sort((a, b) => a - b).join(', ') : 'none'}`;
+      $('#s2').textContent = `mod ${n}`;
+    }
   } else {
     let cost = 0;
     G.sel.forEach(i => { E(i, 'var(--good)', 3); cost += g.edges[i][2]; });
@@ -462,6 +553,18 @@ function render() {
     $('#s2').textContent = `Cost: ${cost}`;
   }
   $('#undo').disabled = !G.hist.length || G.done;
+}
+function arrow(a, b, kind, w) {
+  const P = G.g.pts, R = G.R, [x1, y1] = P[a], [x2, y2] = P[b], color = kind === 'A' ? '#38bdf8' : '#94a3b8';
+  if (a === b) {
+    const dx = x1 - 50, dy = y1 - 50, d = Math.hypot(dx, dy) || 1;
+    el('circle', {cx: x1 + dx / d * (R + 3), cy: y1 + dy / d * (R + 3), r: 3.2, fill: 'none', stroke: color, 'stroke-width': w}, G.arrowG);
+    return;
+  }
+  const dx = x2 - x1, dy = y2 - y1, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d;
+  const sx = x1 + ux * (R + .8), sy = y1 + uy * (R + .8), ex = x2 - ux * (R + 1.8), ey = y2 - uy * (R + 1.8);
+  const bend = Math.min(6, d * .15), cx = (sx + ex) / 2 - uy * bend, cy = (sy + ey) / 2 + ux * bend;
+  el('path', {d: `M${sx},${sy}Q${cx},${cy} ${ex},${ey}`, fill: 'none', stroke: color, 'stroke-width': w, 'marker-end': `url(#ah${kind})`}, G.arrowG);
 }
 function pathCost() {
   let c = 0;
@@ -507,8 +610,26 @@ function tapNode(v) {
       else { G.mistakes++; say(`Cost ${pathCost()}. A cheaper route exists. Undo and try again.`); }
     }
     return;
+  } else if (mode === 'mod') {
+    if (G.L.type === 'walk') { say('Use the move buttons below.'); return; }
+    if (G.sel.has(v)) G.sel.delete(v); else G.sel.add(v);
+    buzz(10);
   }
   render();
+}
+function doOp(f) {
+  if (G.done) return;
+  say('');
+  G.cur = f(G.cur); G.path.push(G.cur); G.hist.push(1); G.moves++; buzz(10);
+  render();
+  if (G.cur === G.L.t) win();
+}
+function checkMod() {
+  const L = G.L, sel = [...G.sel].sort((a, b) => a - b), wrong = sel.filter(x => !L.test(x));
+  if (!sel.length) { say('Tap at least one number first, or press “No solution”.', true); return; }
+  if (wrong.length) { G.mistakes++; say(`✗ x = ${wrong[0]}: ${L.show(wrong[0])} (mod ${L.n})`, true); return; }
+  if (sel.length < G.sol.length) { G.mistakes++; say(`Those work, but ${G.sol.length - sel.length === 1 ? 'one more solution is' : 'more solutions are'} missing.`, true); return; }
+  win();
 }
 function tapEdge(i) {
   if (G.done) return;
@@ -531,21 +652,34 @@ $('#undo').onclick = () => {
   if (m === 'euler') { if (h !== null) G.used.delete(h); G.path.pop(); }
   else if (m === 'color') { G.col[h[0]] = h[1]; }
   else if (m === 'path') { G.path.pop(); }
+  else if (m === 'mod') { G.path.pop(); G.cur = G.path[G.path.length - 1]; }
   else { if (G.sel.has(h)) G.sel.delete(h); else G.sel.add(h); }
   render();
 };
 $('#reset').onclick = () => { if (G) start(G.mode, G.idx); };
 $('#back').onclick = () => { buildMenu(); show('menu'); };
 $('#extra').onclick = () => {
-  if (!G || G.done || G.mode !== 'euler') return;
+  if (!G || G.done) return;
+  if (G.mode === 'mod') return checkMod();
+  if (G.mode !== 'euler') return;
   if (!G.possible) win('Correct! This graph has ' + G.odd.length + ' odd nodes (' + G.odd.map(LET).join(', ') + '), and more than 2 means no walk can exist.');
   else { G.mistakes++; say(`Not so fast: only ${G.odd.length} odd nodes, so a walk exists.`, true); }
+};
+$('#extra2').onclick = () => {
+  if (!G || G.done || G.mode !== 'mod') return;
+  if (!G.sol.length) win('Correct: no x in ℤ' + G.n + ' works.');
+  else { G.mistakes++; say(`There ${G.sol.length === 1 ? 'is a solution' : 'are solutions'}. Keep looking!`, true); }
 };
 $('#hint').onclick = () => {
   if (!G || G.done) return;
   const m = G.mode;
   if (m === 'euler') { G.showDeg = !G.showDeg; render(); say(G.showDeg ? 'Numbers show how many roads meet at each node.' : ''); return; }
   G.mistakes++;
+  if (m === 'mod') {
+    if (G.L.type === 'walk') { const b = bfsWalk(G.L, G.cur); say(`Fewest moves from here: ${b.d[G.L.t]}. Try ${G.L.ops[b.first[G.L.t]][0]} first.`); }
+    else { G.showMap = true; render(); say(G.L.tip); }
+    return;
+  }
   if (m === 'color') {
     const adj = adjacency(G.n, G.edges), v = [...Array(G.n).keys()].sort((a, b) => adj[b].length - adj[a].length)[0];
     say(`Start with ${LET(v)}: it touches ${adj[v].length} others.`);
@@ -566,6 +700,7 @@ function win(customText) {
   G.done = true; render(); buzz([30, 40, 60]);
   let stars;
   if (G.mode === 'color') stars = G.moves <= 2 * G.n ? 3 : G.moves <= 3 * G.n ? 2 : 1;
+  else if (G.mode === 'mod' && G.L.type === 'walk') { const over = G.path.length - 1 - G.best; stars = 3 - Math.min(2, (over > 0 ? (over <= 2 ? 1 : 2) : 0) + G.mistakes); }
   else stars = 3 - Math.min(2, G.mistakes);
   const prog = save.get(), key = G.mode + G.idx;
   if ((prog[key] || 0) < stars) { prog[key] = stars; save.set(prog); }
@@ -576,8 +711,9 @@ function win(customText) {
   if (G.mode === 'path') extra = `Cheapest cost: ${G.best.cost}. `;
   if (G.mode === 'mst') extra = `Minimum cost: ${G.best.cost}. `;
   if (G.mode === 'color') extra = `Chromatic number: ${G.k}. `;
+  if (G.mode === 'mod') extra = G.L.type === 'walk' ? `Fewest moves: ${G.best}. ` : `Solutions: ${G.sol.join(', ')}. `;
   $('#wtitle').textContent = 'Solved!';
-  $('#wtext').textContent = (customText ? customText + ' ' : extra) + M.concept;
+  $('#wtext').textContent = (customText ? customText + ' ' : extra) + (G.L.note || M.concept);
   const last = G.idx === M.levels.length - 1;
   $('#wnext').textContent = last ? 'Menu' : 'Next ▶';
   $('#win').classList.add('on');
