@@ -1,81 +1,84 @@
 # Standing on the Promises (tune: PROMISES)
-# Words and music: R. Kelso Carter (1886). Public domain.
+# Words and music: R. Kelso Carter, 1886. Public domain.
 #
-# verified: false -> NOT CHECKED AGAINST A HYMNAL.
-# The words are Carter's text. The notes are placeholder harmonies in A-flat that
-# fit the syllable counts and test the program's features (dotted rhythms,
-# split soprano/alto parts with their own words, a fermata).
-# Replace the music with Carter's tune from your hymnal before using it in a service.
+# Notes transcribed from a hymnal page (Hymn 395) by reading the scan.
+# verified: false until someone proofreads every note against the page
+# (or listens to the MIDI in milestone 3).
 verified: false
 
 title: Standing on the Promises
-number: ""
-scripture: "For all the promises of God in him are yea, and in him Amen. (2 Corinthians 1:20)"
-words: R. Kelso Carter, 1886
-music: R. Kelso Carter, 1886
+number: 395
+scripture: "Whereby are given unto us exceeding great and precious promises. (2 Peter 1:4)"
+words: R. Kelso Carter, 1849-1928
+music: R. Kelso Carter, 1849-1928
 copyright_status: public_domain
 key: Ab
 time: 4/4
 
 phrases:
-  - name: S1
+  # Treble = soprano + alto, bass = tenor + bass. A single pitch on a staff
+  # means both voices sing the same note.
+  - name: S1   # measures 1-2
     treble: |
-      e.:Eb4,C4 s:Eb4,C4 e.:Eb4,C4 s:F4,Db4 e.:Ab4,Eb4 s:Ab4,Eb4 e.:Ab4,Eb4 s:Bb4,Eb4
-      q:C5,Eb4 q:Bb4,Db4 h:Ab4,C4
+      e.:Eb4,C4 s:Eb4,C4 e.:Eb4,C4 s:F4,Db4 e.:Eb4,C4 s:Db4,Bb3 e.:C4,Ab3 s:Db4,Bb3
+      q:Eb4,C4 q:Ab4,C4 h:Ab4,C4
     bass: |
-      e.:Ab3,Ab2 s:Ab3,Ab2 e.:Ab3,Ab2 s:Ab3,Db3 e.:C4,Ab2 s:C4,Ab2 e.:C4,Ab2 s:Db4,G2
-      q:Ab3,Ab2 q:G3,Eb3 h:Ab3,Ab2
-  - name: S2
+      e.:Ab3,Ab2 s:Ab3,Ab2 e.:Ab3,Ab2 s:Ab3,Ab2 e.:Ab3,Ab2 s:Ab3,Ab2 e.:Eb3,Ab2 s:Eb3,Ab2
+      q:Ab3,Ab2 q:Ab3,Ab2 h:Ab3,Ab2
+  - name: S2   # measures 3-4
     treble: |
-      e.:F4,Db4 s:F4,Db4 e.:F4,Db4 s:Ab4,Db4 e.:C5,F4 s:C5,F4 e.:Bb4,F4 s:Ab4,F4
-      q:Ab4,Eb4 q:C5,Eb4 h:Bb4,Eb4
+      e.:F4,Db4 s:F4,Db4 e.:F4,Db4 s:G4,Eb4 e.:Ab4,F4 s:Ab4,F4 e.:G4,Eb4 s:F4,Db4
+      q:F4,Db4 q:Eb4,C4 h:Eb4,C4
     bass: |
-      e.:Ab3,Db3 s:Ab3,Db3 e.:Ab3,Db3 s:Ab3,Db3 e.:Ab3,F3 s:Ab3,F3 e.:Db4,F3 s:Db4,F3
-      q:C4,Ab2 q:Ab3,Ab2 h:G3,Eb3
-  - name: S3
+      e.:Ab3,Db3 s:Ab3,Db3 e.:Ab3,Db3 s:Ab3,Db3 e.:Db4,Db3 s:Db4,Db3 e.:Ab3,Db3 s:Ab3,Db3
+      q:Ab3,Ab2 q:Ab3,Ab2 h:Ab3,Ab2
+  - name: S3   # measures 5-6
     treble: |
-      e.:Eb4,C4 s:Eb4,C4 e.:Eb4,C4 s:F4,Db4 e.:Ab4,Eb4 s:Ab4,Eb4 e.:Ab4,Eb4 s:Bb4,Eb4
-      q:C5,Eb4 q:Db5,F4 h:C5,Eb4
+      e.:Eb4,C4 s:Eb4,C4 e.:Eb4,C4 s:F4,Db4 e.:Eb4,C4 s:Db4,Bb3 e.:C4,Ab3 s:Db4,Bb3
+      q:Eb4,C4 q:Ab4,C4 h:Ab4,C4
     bass: |
-      e.:Ab3,Ab2 s:Ab3,Ab2 e.:Ab3,Ab2 s:Ab3,Db3 e.:C4,Ab2 s:C4,Ab2 e.:C4,Ab2 s:Db4,G2
-      q:Ab3,Ab2 q:Ab3,Db3 h:Ab3,Ab2
-  - name: S4
+      e.:Ab3,Ab2 s:Ab3,Ab2 e.:Ab3,Ab2 s:Ab3,Ab2 e.:Ab3,Ab2 s:Eb3,Ab2 e.:Eb3,Ab2 s:Eb3,Ab2
+      q:Ab3,Ab2 q:Eb3,Ab2 h:Eb3,Ab2
+  - name: S4   # measures 7-8
     treble: |
-      e.:Eb4,C4 s:Eb4,C4 e.:F4,Db4 s:Eb4,C4 e.:Ab4,C4 s:C5,Eb4 e.:Bb4,Db4 s:G4,Db4
+      e.:C5,Eb4 s:C5,Eb4 e.:Ab4,Eb4 s:Ab4,Eb4 e.:Bb4,Db4 s:Bb4,Db4 e.:G4,Db4 s:G4,Db4
       w:Ab4,C4
     bass: |
-      e.:Ab3,Ab2 s:Ab3,Ab2 e.:Ab3,Db3 s:Ab3,Ab2 e.:Ab3,Eb3 s:Ab3,Eb3 e.:G3,Eb3 s:Bb3,Eb3
-      w:Ab3,Ab2
-  # Refrain: the soprano holds "Stand - ing" (layer 1) while the alto sings
-  # "Standing on the promises" (layer 2, after //) with its own words.
-  - name: R1
+      e.:Ab3,Ab2 s:Ab3,Ab2 e.:Ab3,C3 s:Ab3,C3 e.:F3,Db3 s:F3,Db3 e.:Eb3 s:Eb3
+      w:Eb3,Ab2
+
+  # Refrain. In R1 and R3 the soprano holds "Stand - ing" (layer 1) while the
+  # alto sings "Standing on the promises" (layer 2, after //) with its own words.
+  - name: R1   # measures 9-10
     treble: |
-      h:C5 h:C5 // e.:Eb4 s:Eb4 e.:Eb4 s:F4 e.:Eb4 s:C4 q:Eb4
-      h:Db5 h:C5 // e.:F4 s:F4 e.:F4 s:Ab4 e.:F4 s:Db4 q:Eb4
+      h:C5 h:Ab4 // e.:Eb4 s:Eb4 e.:Eb4 s:Eb4 e.:C4 s:C4 q:C4
+      h:F4 h:Ab4 // e.:Db4 s:Db4 e.:Db4 s:Db4 e.:C4 s:C4 q:C4
     bass: |
-      h:Ab3,Ab2 h:Ab3,Ab2
-      h:Ab3,Db3 h:Ab3,Ab2
-  - name: R2
+      e.:Ab3,Ab2 s:Ab3,Ab2 e.:Ab3,Ab2 s:Ab3,Ab2 e.:Ab3,Ab2 s:Ab3,Ab2 q:Ab3,Ab2
+      e.:Ab3,Db3 s:Ab3,Db3 e.:Ab3,Db3 s:Ab3,Db3 e.:Ab3,F3 s:Ab3,F3 q:Ab3,F3
+  - name: R2   # measures 11-12
     treble: |
-      e.:Eb4,C4 s:Eb4,C4 e.:Eb4,C4 s:F4,Db4 e.:Ab4,Eb4 s:Ab4,Eb4 e.:Ab4,Eb4 s:Bb4,Eb4
-      q:C5,Eb4 q:Ab4,Eb4 q:C5,Eb4 q:Bb4,Eb4
+      e.:Bb4,Eb4 s:Bb4,Eb4 e.:Bb4,Eb4 s:Bb4,Eb4 e.:Bb4,Eb4 s:Bb4,Eb4 e.:G4,Eb4 s:Bb4,Eb4
+      q:C5,Eb4 q:Ab4,C4 q:F4,Db4 q:Ab4,C4
     bass: |
-      e.:Ab3,Ab2 s:Ab3,Ab2 e.:Ab3,Ab2 s:Ab3,Db3 e.:C4,Ab2 s:C4,Ab2 e.:C4,Ab2 s:Db4,G2
-      q:Ab3,Ab2 q:C4,Ab2 q:Ab3,Ab2 q:G3,Eb3
-  - name: R3
+      e.:G3,Eb3 s:G3,Eb3 e.:G3,Eb3 s:G3,Eb3 e.:G3,Eb3 s:G3,Eb3 e.:F3,Eb3 s:G3,Eb3
+      q:Ab3 q:Eb3,Ab2 q:Ab3,Ab2 q:Eb3,Ab2
+  - name: R3   # measure 13 and measure 14 up to the fermata
     treble: |
-      h:C5 h:C5 // e.:Eb4 s:Eb4 e.:Eb4 s:F4 e.:Eb4 s:C4 q:Eb4
-      h:Db5 h!:C5 // e.:F4 s:F4 e.:F4 s:Ab4 e.:F4 s:Db4 q:Eb4
+      h:C5 h:Ab4 // e.:Eb4 s:Eb4 e.:Eb4 s:Eb4 e.:C4 s:C4 q:C4
+      h:F4 q.!:Db5 // e.:Db4 s:Db4 e.:Db4 s:Db4 e.:F4 s:F4 e!:F4
     bass: |
-      h:Ab3,Ab2 h:Ab3,Ab2
-      h:Ab3,Db3 h!:Ab3,Ab2
-  - name: R4
+      e.:Ab3,Ab2 s:Ab3,Ab2 e.:Ab3,Ab2 s:Ab3,Ab2 e.:Ab3,Ab2 s:Ab3,Ab2 q:Ab3,Ab2
+      e.:Ab3,Db3 s:Ab3,Db3 e.:Ab3,Db3 s:Ab3,Db3 e.:Ab3,Db3 s:Ab3,Db3 e!:Ab3,Db3
+  - name: R4   # pickup "I'm" (end of measure 14), measures 15-16
     treble: |
-      e.:Eb4,C4 s:Eb4,C4 e.:F4,Db4 s:Eb4,C4 e.:Ab4,C4 s:C5,Eb4 e.:Bb4,Db4 s:G4,Db4
-      h:G4,Db4 h:Ab4,C4
+      e:Bb4,Db4
+      e.:Ab4,C4 s:Ab4,C4 e.:Ab4,C4 s:Bb4,Db4 e.:C5,Eb4 s:C5,Eb4 e.:Bb4,Db4 s:Bb4,Db4
+      w:Ab4,C4
     bass: |
-      e.:Ab3,Ab2 s:Ab3,Ab2 e.:Ab3,Db3 s:Ab3,Ab2 e.:Ab3,Eb3 s:Ab3,Eb3 e.:G3,Eb3 s:Bb3,Eb3
-      h:Bb3,Eb3 h:Ab3,Ab2
+      e:F3,Db3
+      e.:Ab3,Eb3 s:Ab3,Eb3 e.:Ab3,Eb3 s:G3,Eb3 e.:Ab3,Eb3 s:Ab3,Eb3 e.:G3,Eb3 s:G3,Eb3
+      w:Eb3,Ab2
 
 lyrics:
   stanza1:
@@ -89,20 +92,27 @@ lyrics:
     S3: "By the liv-ing Word of God I shall pre-vail,"
     S4: "Stand-ing on the prom-is-es of God."
   stanza3:
-    S1: "Stand-ing on the prom-is-es I now can see"
-    S2: "Per-fect, pres-ent cleans-ing in the blood for me;"
-    S3: "Stand-ing in the lib-er-ty where Christ makes free,"
+    S1: "Stand-ing on the prom-is-es of Christ the Lord,"
+    S2: "Bound to Him e-ter-nal-ly by love's strong cord,"
+    S3: "O-ver-com-ing dai-ly with the Spir-it's sword,"
+    S4: "Stand-ing on the prom-is-es of God."
+  stanza4:
+    S1: "Stand-ing on the prom-is-es I can-not fall,"
+    S2: "Lis-t'ning ev-'ry mo-ment to the Spir-it's call,"
+    S3: "Rest-ing in my Sav-ior as my all in all,"
     S4: "Stand-ing on the prom-is-es of God."
   refrain:
     R1: "Stand-ing, stand-ing,"
-    R1.alto: "Stand-ing on the prom-is-es, stand-ing on the prom-is-es,"
+    R1.alto: "Stand-ing on the prom-is-es, Stand-ing on the prom-is-es,"
     R2: "Stand-ing on the prom-is-es of God my Sav-ior;"
     R3: "Stand-ing, stand-ing,"
-    R3.alto: "Stand-ing on the prom-is-es, stand-ing on the prom-is-es,"
+    R3.alto: "Stand-ing on the prom-is-es, Stand-ing on the prom-is-es,"
     R4: "I'm stand-ing on the prom-is-es of God."
 
+# The refrain is repeated after every stanza automatically.
 structure:
   - { label: "Stanza 1", phrases: [S1, S2, S3, S4], lyrics: stanza1 }
   - { label: "Refrain",  phrases: [R1, R2, R3, R4], lyrics: refrain }
   - { label: "Stanza 2", phrases: [S1, S2, S3, S4], lyrics: stanza2 }
   - { label: "Stanza 3", phrases: [S1, S2, S3, S4], lyrics: stanza3 }
+  - { label: "Stanza 4", phrases: [S1, S2, S3, S4], lyrics: stanza4 }

@@ -7,9 +7,10 @@ and large lyrics (at least 30 pt on the slide).
 themes, and template mode. MIDI and a window (GUI) come in Milestone 3; reading
 MusicXML files and scanned pages comes in Milestone 4.
 
-> **The two example songs are not checked against a hymnal.** Their words are the
-> real public-domain texts, but the notes are stand-ins so the program can be
-> tested. Type the real music from your hymnal before using them in a service.
+> **Check the example songs before using them in a service.**
+> "Standing on the Promises" was transcribed from a hymnal page (Hymn 395) and
+> still needs proofreading. "Blessed Assurance" has the real words but stand-in
+> notes; type the real music from your hymnal before using it.
 The full plan is in [`prompts/hymnslides-prompt.md`](prompts/hymnslides-prompt.md).
 
 ## Install (Windows)

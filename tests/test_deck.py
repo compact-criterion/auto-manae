@@ -47,10 +47,12 @@ def test_all_text_at_least_30pt(deck):
 
 
 def test_refrain_after_every_stanza(deck):
-    _, _, prs = deck
+    song, _, prs = deck
     labels = [s.notes_slide.notes_text_frame.text.splitlines()[0] for s in list(prs.slides)[1:]]
     sections = [l for i, l in enumerate(labels) if i == 0 or labels[i - 1] != l]
-    assert sections == ["Stanza 1", "Refrain", "Stanza 2", "Refrain", "Stanza 3", "Refrain"]
+    stanzas = [s.label for s in song.structure if s.label.startswith("Stanza")]
+    assert len(stanzas) >= 3
+    assert sections == [x for st in stanzas for x in (st, "Refrain")]
 
 
 def _tiny_song(**meta):
