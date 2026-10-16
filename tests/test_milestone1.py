@@ -17,9 +17,18 @@ def test_key_signature_accidentals_are_hidden():
     song = load_song(EXAMPLE)
     mei = build_mei(song, lines_for(song, 0))
     assert 'accid.ges="s"' in mei          # F# and C# come from the key
-    assert ' accid="' not in mei            # nothing outside the key is printed
-    assert 'tie="i"' in mei and 'tie="t"' in mei
+    assert mei.count(' accid="') == 1       # only the G# in "di-vine" is printed
+    assert ' accid="s"' in mei
     assert 'right="end"' in mei
+
+
+def test_ties():
+    song = song_from_dict({
+        "title": "t", "key": "C", "time": "4/4",
+        "phrases": [{"name": "A", "treble": "h:C4 h:D4~\nw:D4", "bass": "w:C3\nw:C3"}],
+    })
+    mei = build_mei(song, [Line("A", None)])
+    assert 'tie="i"' in mei and 'tie="t"' in mei
 
 
 def test_out_of_key_accidental_printed_once_per_measure():
