@@ -240,12 +240,46 @@ def song_from_dict(data: dict) -> Song:
               for k, v in (data.get("lyrics") or {}).items()}
     structure = [Section(str(s["label"]), [str(x) for x in s["phrases"]], str(s.get("lyrics", "")))
                  for s in data.get("structure") or []]
+    if data.get("repeat_refrain", True):
+        structure = _repeat_refrain(structure)
     meta = {k: v for k, v in data.items() if k not in ("phrases", "lyrics", "structure")}
 
     song = Song(str(data["title"]), str(data["key"]), parse_time(data["time"]),
                 parse_key(str(data["key"])), phrases, lyrics, structure, meta)
     validate(song)
     return song
+
+
+def _repeat_refrain(structure: list[Section]) -> list[Section]:
+    """Put the refrain after every stanza, so the deck plays straight through."""
+    refrain = next((s for s in structure if s.label.lower().startswith("refrain")), None)
+    if refrain is None:
+        return structure
+    out = []
+    for i, sec in enumerate(structure):
+        out.append(sec)
+        nxt = structure[i + 1] if i + 1 < len(structure) else None
+        if sec.label.lower().startswith("stanza") and (nxt is None or nxt.label != refrain.label):
+            out.append(refrain)
+    return out
+
+
+COPYRIGHT_STATUSES = ("public_domain", "licensed", "template_only")
+
+
+def check_copyright(meta: dict, engraving: bool = True) -> None:
+    """Stop when a licensed song is missing its copyright and CCLI lines."""
+    status = str(meta.get("copyright_status", "public_domain"))
+    if status not in COPYRIGHT_STATUSES:
+        raise SongError(f'copyright_status must be one of {", ".join(COPYRIGHT_STATUSES)}, not "{status}".')
+    if status == "licensed":
+        missing = [k for k in ("copyright", "ccli_song", "ccli_license") if not str(meta.get(k) or "").strip()]
+        if missing:
+            raise SongError("This song is marked licensed, so the title slide must show "
+                            f'{", ".join(missing)}. Fill in: ' + ", ".join(f"{k}:" for k in missing))
+    if status == "template_only" and engraving:
+        raise SongError("This song is marked template_only, so its music cannot be engraved. "
+                        "Use `hymnslides template` instead.")
 
 
 def validate(song: Song) -> None:
@@ -285,6 +319,13 @@ def validate(song: Song) -> None:
             if len(syls) != len(notes):
                 raise SongError(f"{sec.label} line {name} has {len(syls)} syllables "
                                 f"but {len(notes)} notes.")
+            alto = song.lyrics.get(sec.lyrics, {}).get(f"{name}.alto")
+            if alto is not None:
+                alto_notes = sung_notes(song.phrases[name].treble, layer=1)
+                if len(parse_lyrics(alto)) != len(alto_notes):
+                    raise SongError(f"{sec.label} line {name}: the alto words have "
+                                    f"{len(parse_lyrics(alto))} syllables but the alto part "
+                                    f"(after //) has {len(alto_notes)} notes.")
 
 
 def _describe(length: Fraction, song: Song) -> str:

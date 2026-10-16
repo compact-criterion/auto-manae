@@ -16,7 +16,7 @@ import resvg_py
 import verovio
 from PIL import Image
 
-from .songformat import Event, Measure, Song, SongError, parse_lyrics
+from .songformat import Event, Measure, Song, SongError, parse_lyrics, sung_notes
 
 FONT_DIR = Path(__file__).parent / "fonts"
 LYRIC_FONT = "Fira Sans"
@@ -51,9 +51,35 @@ ACCID = {1: "s", -1: "f", 0: "n"}
 
 @dataclass
 class Line:
-    """One system: a phrase plus the lyric line sung to it."""
+    """One system: a phrase (or part of it) plus the lyric lines sung to it."""
     phrase: str
     lyrics: str | None
+    alto: str | None = None     # lyrics for the second treble layer, if any
+    start: int = 0              # first measure of the phrase on this system
+    end: int | None = None      # one past the last measure (None = to the end)
+
+    def measures(self, song: Song) -> tuple[list[Measure], list[Measure]]:
+        ph = song.phrases[self.phrase]
+        return ph.treble[self.start:self.end], ph.bass[self.start:self.end]
+
+    def split(self, song: Song) -> list["Line"]:
+        """Cut the line into two systems at the middle measure."""
+        n = len(song.phrases[self.phrase].treble[self.start:self.end])
+        if n < 2:
+            return [self]
+        mid = self.start + (n + 1) // 2
+        return [Line(self.phrase, self.lyrics, self.alto, self.start, mid),
+                Line(self.phrase, self.lyrics, self.alto, mid, self.end)]
+
+
+def _syllables_from(text: str | None, before: list[Measure], layer: int):
+    """Syllables for this system, skipping those sung in earlier measures."""
+    if not text:
+        return None
+    syl = iter(parse_lyrics(text))
+    for _ in sung_notes(before, layer):
+        next(syl, None)
+    return syl
 
 
 def build_mei(song: Song, lines: list[Line], final: bool = True) -> str:
@@ -64,7 +90,7 @@ def build_mei(song: Song, lines: list[Line], final: bool = True) -> str:
         f"<meiHead><fileDesc><titleStmt><title>{escape(song.title)}</title></titleStmt>"
         "<pubStmt/></fileDesc></meiHead>",
         "<music><body><mdiv><score>",
-        f'<scoreDef><keySig sig="{_keysig(song.fifths)}"/>'
+        f'<scoreDef mnum.visible="false"><keySig sig="{_keysig(song.fifths)}"/>'
         f'<meterSig count="{song.time[0]}" unit="{song.time[1]}"/>'
         '<staffGrp symbol="brace" bar.thru="true">'
         '<staffDef n="1" lines="5"><clef shape="G" line="2"/></staffDef>'
@@ -75,15 +101,17 @@ def build_mei(song: Song, lines: list[Line], final: bool = True) -> str:
     number = 0
     for li, line in enumerate(lines):
         phrase = song.phrases[line.phrase]
-        syllables = parse_lyrics(line.lyrics) if line.lyrics else []
-        syl_iter = iter(syllables)
+        treble, bass = line.measures(song)
+        before = phrase.treble[:line.start]
+        syl_iters = {1: _syllables_from(line.lyrics, before, 0),
+                     2: _syllables_from(line.alto, before, 1)}
         if li > 0:
             out.append("<sb/>")
         ties: dict[tuple[int, int, str, int], bool] = {}
-        for mi, (tm, bm) in enumerate(zip(phrase.treble, phrase.bass)):
+        for mi, (tm, bm) in enumerate(zip(treble, bass)):
             number += 1
             partial = tm.length < song.measure_length
-            last = mi == len(phrase.treble) - 1
+            last = mi == len(treble) - 1
             attrs = f'n="{number}"'
             if partial:
                 attrs += ' metcon="false"'
@@ -91,23 +119,22 @@ def build_mei(song: Song, lines: list[Line], final: bool = True) -> str:
                 attrs += ' right="end"'
             out.append(f"<measure {attrs}>")
             controls: list[str] = []
-            out.append(_staff(song, 1, tm, ids, syl_iter, ties, controls))
-            out.append(_staff(song, 2, bm, ids, None, ties, controls))
+            out.append(_staff(song, 1, tm, ids, syl_iters, ties, controls))
+            out.append(_staff(song, 2, bm, ids, {}, ties, controls))
             out.extend(controls)
             out.append("</measure>")
     out.append("</section></score></mdiv></body></music></mei>")
     return "\n".join(out)
 
 
-def _staff(song, n, measure: Measure, ids, syl_iter, ties, controls) -> str:
+def _staff(song, n, measure: Measure, ids, syl_iters, ties, controls) -> str:
     parts = [f'<staff n="{n}">']
     accid_state: dict[tuple[str, int], int] = {}
     two = len(measure.layers) > 1
     for ln, layer in enumerate(measure.layers, start=1):
         stem = ("up" if ln == 1 else "down") if two else None
-        lyr = syl_iter if (ln == 1 and syl_iter is not None) else None
         parts.append(f'<layer n="{ln}">')
-        parts.append(_layer(song, n, ln, layer, ids, lyr, stem, accid_state, ties, controls))
+        parts.append(_layer(song, n, ln, layer, ids, syl_iters.get(ln), stem, accid_state, ties, controls))
         parts.append("</layer>")
     parts.append("</staff>")
     return "".join(parts)
@@ -192,7 +219,7 @@ def _event(song, staff_n, layer_n, ev: Event, ids, syl_iter, stem, accid_state, 
                 sattr += ' con="d"'
             elif syl.extend:
                 sattr += ' con="u"'
-            verse = f'<verse n="1"><syl{sattr}>{escape(syl.text)}</syl></verse>'
+            verse = f'<verse n="{layer_n}"><syl{sattr}>{escape(syl.text)}</syl></verse>'
 
     stem_attr = f' stem.dir="{stem}"' if stem else ""
     if len(notes) == 1:
@@ -238,13 +265,22 @@ def _toolkit(lyric_size: float, page_width: int) -> verovio.toolkit:
         "pageMarginBottom": 20,
         "minLastJustification": 0,
         "mnumInterval": 0,
-        "lyricSize": lyric_size,
+        "lyricSize": min(8.0, lyric_size * LYRIC_WIDTH_FACTOR),
         "lyricTopMinMargin": 3.0,
-        "spacingSystem": 10,
+        "spacingSystem": 6,
         "spacingStaff": 8,
         "scale": 100,
     })
     return tk
+
+
+# Fira Sans is up to ~23% wider than the Times-like metrics Verovio uses to space
+# lyrics, so Verovio lays the lyrics out this much larger and we draw them at the
+# true size afterwards. Without this, syllables collide on crowded lines.
+LYRIC_WIDTH_FACTOR = 1.25
+MAX_LYRIC_SIZE = 8.0 / LYRIC_WIDTH_FACTOR  # Verovio allows lyricSize up to 8
+
+_SYL_SIZE = re.compile(r'(class="syl"[^>]*>\s*<text[^>]*>\s*<tspan[^>]*>\s*<tspan font-size=")([\d.]+)(px")')
 
 
 def render_svg(mei: str, lyric_size: float, page_width: int) -> str:
@@ -254,6 +290,7 @@ def render_svg(mei: str, lyric_size: float, page_width: int) -> str:
     if tk.getPageCount() != 1:
         raise SongError("The music did not fit on one page.")
     svg = tk.renderToSVG(1)
+    svg = _SYL_SIZE.sub(lambda m: f"{m.group(1)}{float(m.group(2)) / LYRIC_WIDTH_FACTOR:.1f}{m.group(3)}", svg)
     # Draw text in the bundled lyric font.
     return svg.replace('font-family="Times, serif"', f'font-family="{LYRIC_FONT}" font-weight="500"')
 
@@ -300,19 +337,23 @@ def engrave(song: Song, lines: list[Line], color: str = "#111111",
     the 30 pt target is met.
     """
     mei = build_mei(song, lines, final)
-    best = None
-    for lyric_size in [4.5 + 0.25 * i for i in range(15)]:  # 4.5 .. 8 (Verovio's maximum)
-        natural = _natural_width(mei, lyric_size)
-        page_width = int(natural * 1.04) + 40
+    chosen = None
+    sizes = [4.0 + 0.2 * i for i in range(int((MAX_LYRIC_SIZE - 4.0) / 0.2) + 1)]
+    for lyric_size in sizes:
+        page_width = int(_natural_width(mei, lyric_size)) + 10
         svg = render_svg(mei, lyric_size, page_width)
-        full = svg_to_png(svg)
-        ratio = _lyric_ratio(svg)
-        png = recolor_crop(full, color)
-        result = Engraving(png, ratio * full.width, lyric_size)
-        best = result
-        if result.lyric_pt(box) >= MIN_LYRIC_PT:
-            return result
-    return best
+        # Measure at low resolution; the proportions are the same at full size.
+        trial = _engraving(svg, 900, color, lyric_size)
+        chosen = (svg, lyric_size)
+        if trial.lyric_pt(box) >= MIN_LYRIC_PT:
+            break
+    return _engraving(chosen[0], PNG_WIDTH, color, chosen[1])
+
+
+def _engraving(svg: str, width: int, color: str, lyric_size: float) -> Engraving:
+    full = svg_to_png(svg, width)
+    png = recolor_crop(full, color, margin=max(2, width // 150))
+    return Engraving(png, _lyric_ratio(svg) * full.width, lyric_size)
 
 
 def _natural_width(mei: str, lyric_size: float) -> float:
@@ -328,22 +369,23 @@ def _natural_width(mei: str, lyric_size: float) -> float:
 def lines_for(song: Song, section_index: int) -> list[Line]:
     sec = song.structure[section_index]
     words = song.lyrics.get(sec.lyrics, {})
-    return [Line(name, words.get(name)) for name in sec.phrases]
+    return [Line(name, words.get(name), words.get(f"{name}.alto")) for name in sec.phrases]
 
 
 def preview_line(song: Song, phrase: str, out: str | Path, color: str = "#111111",
                  background: str = "#FFFFFF") -> Engraving:
     """Engrave one phrase (with the first stanza that sings it) to a PNG."""
-    words = None
+    words = alto = None
     for sec in song.structure:
         if phrase in sec.phrases:
             words = song.lyrics.get(sec.lyrics, {}).get(phrase)
+            alto = song.lyrics.get(sec.lyrics, {}).get(f"{phrase}.alto")
             break
     if phrase not in song.phrases:
         raise SongError(f'There is no line named "{phrase}". Lines: {", ".join(song.phrases)}')
     # One line takes half the slide height (slides hold two systems).
     box = (SLIDE_MUSIC_BOX[0], SLIDE_MUSIC_BOX[1] / 2)
-    result = engrave(song, [Line(phrase, words)], color, box)
+    result = engrave(song, [Line(phrase, words, alto)], color, box)
     canvas = Image.new("RGBA", result.png.size, background)
     canvas.alpha_composite(result.png)
     canvas.convert("RGB").save(out)
