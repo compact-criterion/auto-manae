@@ -1,67 +1,98 @@
 # Blessed Assurance (tune: ASSURANCE)
 # Words: Fanny J. Crosby (1873). Music: Phoebe P. Knapp (1873). Public domain.
 #
-# verified: false -> NOT CHECKED AGAINST A HYMNAL.
-# The words are Crosby's text. The notes are a stand-in: line A1 was typed from
-# memory and the other lines are simple placeholder harmonies that fit the
-# syllable counts, so every feature of the program can be tested.
-# Replace the music with Knapp's tune from your hymnal before using it in a service.
+# Notes transcribed from a hymnal page (Hymn 381) by reading the scan.
+# verified: false until someone proofreads every note against the page
+# (or listens to the MIDI in milestone 3).
 verified: false
 
 title: Blessed Assurance
-number: ""
-scripture: "Let us draw near with a true heart in full assurance of faith. (Hebrews 10:22)"
-words: Fanny J. Crosby, 1873
-music: Phoebe P. Knapp, 1873
+number: 381
+scripture: "The effect of righteousness [shall be] quietness and assurance forever. (Isaiah 32:17)"
+words: Fanny J. Crosby, 1820-1915
+music: Phoebe P. Knapp, 1839-1908
 copyright_status: public_domain
 key: D
 time: 9/8
 
+# Every line starts with a three-eighth pickup and ends on a dotted half, so
+# each phrase is: pickup (3/8) | full measure (9/8) | last note (6/8).
+# Pitches are absolute: write F#4 even though D major already has F-sharp.
+# Treble = soprano + alto, bass = tenor + bass. A single pitch on a staff
+# means both voices sing the same note.
 phrases:
-  # Pitches are absolute: write F#4 even though D major already has F-sharp.
-  # Treble = soprano + alto, bass = tenor + bass, written as chords.
-  - name: A1
+  - name: A1   # Blessed assurance, Jesus is mine!
     treble: |
-      q:F#4,D4  e:G4,D4   q:F#4,D4  e:E4,C#4  q.:D4,A3
-      q:C#4,A3  e:B3,G3   q:C#4,A3  e:D4~,A3~ q.:D4,A3
+      e:F#4,D4 e:E4,D4 e:D4
+      q.:A4,D4 q.:A4,F#4 e:G4,D4 e:A4,D4 e:B4,D4
+      h.:A4,D4
     bass: |
-      q:A3,D3   e:B3,D3   q:A3,D3   e:A3,A2   q.:F#3,D3
-      q:G3,A2   e:G3,A2   q:G3,A2   e:F#3,D3  q.:F#3,D3
-  - name: A2
+      e:A3,D3 e:G3,D3 e:F#3,D3
+      q.:F#3,D3 q.:A3,D3 e:B3,D3 e:F#3,D3 e:G3,D3
+      h.:F#3,D3
+  - name: A2   # O what a foretaste of glory divine!
     treble: |
-      q:F#4,D4  e:G4,D4   q:A4,D4   e:B4,D4   q.:A4,D4
-      q:F#4,D4  e:E4,C#4  q:D4,B3   e:F#4,D4  q.:E4,C#4
+      e:A4,F#4 e:F#4,D4 e:A4,F#4
+      q.:D5,F#4 q:C#5,E4 e:C#5,E4 e:B4,E4 e:A4,E4 e:G#4,E4
+      h.:A4,E4
     bass: |
-      q:A3,D3   e:B3,G2   q:A3,F#3  e:G3,G2   q.:F#3,D3
-      q:A3,D3   e:A3,A2   q:F#3,B2  e:A3,D3   q.:A3,A2
-  - name: A3
+      e:A3,D3 e:A3,D3 e:A3,D3
+      q.:A3,D3 q:A3,E3 e:A3,E3 e:D4,E3 e:C#4,E3 e:B3,E3
+      h.:C#4,A2
+  - name: A3   # Heir of salvation, purchase of God,
     treble: |
-      q:F#4,D4  e:G4,D4   q:F#4,D4  e:E4,C#4  q.:D4,A3
-      q:B4,D4   e:A4,D4   q:G4,D4   e:F#4~,D4~ q.:F#4,D4
+      e:F#4,D4 e:E4,D4 e:D4
+      q.:A4,D4 q.:A4,F#4 e:G4,D4 e:A4,D4 e:B4,D4
+      h.:A4,D4
     bass: |
-      q:A3,D3   e:B3,D3   q:A3,D3   e:A3,A2   q.:F#3,D3
-      q:B3,G2   e:A3,F#2  q:B3,G2   e:A3,D3   q.:A3,D3
-  - name: A4
+      e:A3,D3 e:G3,D3 e:F#3,D3
+      q.:F#3,D3 q.:A3,D3 e:B3,D3 e:F#3,D3 e:G3,D3
+      h.:F#3,D3
+  - name: A4   # Born of His Spirit, washed in His blood.
     treble: |
-      q:A4,D4   e:A4,D4   q:B4,D4   e:A4,D4   q.:F#4,D4
-      q:E4,C#4  e:F#4,D4  q:E4,C#4  e:D4~,A3~ q.:D4,A3
+      e:D4 e:E4,D4 e:F#4,D4
+      q.:G4,D4 q.:E4,B3 e:D4 e:E4,C#4 e:C#4,A3
+      h.:D4,A3
     bass: |
-      q:F#3,D3  e:F#3,D3  q:G3,G2   e:F#3,D3  q.:A3,D3
-      q:A3,A2   e:A3,D3   q:G3,A2   e:F#3,D3  q.:F#3,D3
-  - name: R1
+      e:F#3,D3 e:G3,D3 e:A3,D3
+      q.:B3,G2 q.:G3,G2 e:F#3,A2 e:G3,A2 e:E3,A2
+      h.:F#3,D3
+  - name: R1   # This is my story, this is my song,
     treble: |
-      q:A4,F#4  e:A4,F#4  q:A4,F#4  e:B4,G4   q.:A4,F#4
-      q:G4,E4   e:F#4,D4  q:E4,C#4  e:A4~,E4~ q.:A4,E4
+      e:A4,F#4 e:A4,F#4 e:A4,F#4
+      q.:D5,F#4 q.:A4,F#4 e:B4,G4 e:B4,G4 e:B4,G4
+      h.:A4,F#4
     bass: |
-      q:D4,D3   e:D4,D3   q:D4,D3   e:D4,G2   q.:D4,D3
-      q:A3,A2   e:A3,D3   q:A3,A2   e:C#4,A2  q.:C#4,A2
-  - name: R2
+      e:D4,D3 e:D4,D3 e:D4,D3
+      q.:A3,D3 q.:D4,D3 e:D4,G3 e:D4,G3 e:D4,G3
+      h.:D4,D3
+  - name: R2   # Praising my Savior all the day long;
     treble: |
-      q:A4,F#4  e:A4,F#4  q:B4,G4   e:A4,F#4  q.:F#4,D4
-      q:E4,C#4  e:F#4,D4  q:E4,C#4  e:D4~,A3~ q.:D4,A3
+      e:A4,F#4 e:A4,F#4 e:A4,F#4
+      q.:B4,G4 q.:D5,A4 e:C#5,A4 e:C#5,A4 e:B4,G#4
+      h.:C#5,A4
     bass: |
-      q:D4,D3   e:D4,D3   q:D4,G2   e:D4,D3   q.:A3,D3
-      q:A3,A2   e:A3,D3   q:G3,A2   e:F#3,D3  q.:F#3,D3
+      e:D4,D3 e:D4,D3 e:D4,D3
+      q.:D4,G3 q.:D4,F#3 e:E4,E3 e:E4,E3 e:E4,E3
+      h.:E4,A3
+  - name: R3   # This is my story, this is my song,
+    treble: |
+      e:C#5,G4 e:D5,G4 e:E5,G4
+      q.:D5,F#4 q.:A4,F#4 e:B4,G4 e:A4,F#4 e:B4,G4
+      h.:A4,F#4
+    bass: |
+      e:A3 e:B3,A3 e:C#4,A3
+      q.:D4,D3 q.:D4,D3 e:D4,D3 e:D4,D3 e:D4,D3
+      h.:D4,D3
+  - name: R4   # Praising my Savior all the day long.
+    treble: |
+      e:D4 e:E4,D4 e:F#4,D4
+      q.:G4,D4 q.:E4,B3 e:D4 e:E4,C#4 e:C#4,A3
+      h.:D4,A3
+    bass: |
+      e:A3,F#3 e:A3,E3 e:A3,D3
+      q.:B3,G2 q.:G3,G2 e:F#3,A2 e:G3,A2 e:E3,A2
+      h.:F#3,D3
 
 lyrics:
   stanza1:
@@ -70,23 +101,24 @@ lyrics:
     A3: "Heir of sal-va-tion, pur-chase of God,"
     A4: "Born of His Spir-it, washed in His blood."
   stanza2:
-    A1: "Per-fect sub-mis-sion, per-fect de-light,"
+    A1: "Per-fect sub-mis-sion, per-fect de-light!"
     A2: "Vi-sions of rap-ture now burst on my sight;"
     A3: "An-gels de-scend-ing bring from a-bove"
     A4: "Ech-oes of mer-cy, whis-pers of love."
   stanza3:
-    A1: "Per-fect sub-mis-sion, all is at rest,"
-    A2: "I in my Sav-ior am hap-py and blest,"
+    A1: "Per-fect sub-mis-sion— all is at rest,"
+    A2: "I in my Sav-ior am hap-py and blest;"
     A3: "Watch-ing and wait-ing, look-ing a-bove,"
     A4: "Filled with His good-ness, lost in His love."
   refrain:
     R1: "This is my sto-ry, this is my song,"
     R2: "Prais-ing my Sav-ior all the day long;"
+    R3: "This is my sto-ry, this is my song,"
+    R4: "Prais-ing my Sav-ior all the day long."
 
-# The refrain is listed once; it is repeated after every stanza automatically
-# (set repeat_refrain: false to write the order out yourself).
+# The refrain is listed once; it is repeated after every stanza automatically.
 structure:
   - { label: "Stanza 1", phrases: [A1, A2, A3, A4], lyrics: stanza1 }
-  - { label: "Refrain",  phrases: [R1, R2, R1, R2], lyrics: refrain }
+  - { label: "Refrain",  phrases: [R1, R2, R3, R4], lyrics: refrain }
   - { label: "Stanza 2", phrases: [A1, A2, A3, A4], lyrics: stanza2 }
   - { label: "Stanza 3", phrases: [A1, A2, A3, A4], lyrics: stanza3 }

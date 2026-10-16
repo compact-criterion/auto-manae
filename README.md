@@ -8,9 +8,8 @@ themes, and template mode. MIDI and a window (GUI) come in Milestone 3; reading
 MusicXML files and scanned pages comes in Milestone 4.
 
 > **Check the example songs before using them in a service.**
-> "Standing on the Promises" was transcribed from a hymnal page (Hymn 395) and
-> still needs proofreading. "Blessed Assurance" has the real words but stand-in
-> notes; type the real music from your hymnal before using it.
+> Both songs were transcribed from hymnal pages ("Blessed Assurance", Hymn 381;
+> "Standing on the Promises", Hymn 395) and still need proofreading.
 The full plan is in [`prompts/hymnslides-prompt.md`](prompts/hymnslides-prompt.md).
 
 ## Install (Windows)
