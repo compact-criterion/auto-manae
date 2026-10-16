@@ -1,0 +1,34 @@
+# Blessed Assurance (tune: ASSURANCE)
+# Words: Fanny J. Crosby (1873). Music: Phoebe P. Knapp (1873). Public domain.
+#
+# MILESTONE 1: only the first line is entered so far.
+# verified: false -> these notes were typed from memory and have NOT been checked
+# against a printed hymnal yet. Check every note before using this in a service.
+verified: false
+
+title: Blessed Assurance
+number: ""
+scripture: "Hebrews 10:22"
+words: Fanny J. Crosby, 1873
+music: Phoebe P. Knapp, 1873
+copyright_status: public_domain
+key: D
+time: 9/8
+
+phrases:
+  - name: A1
+    # Pitches are absolute: write F#4 even though D major already has F-sharp.
+    # Treble = soprano + alto, bass = tenor + bass, written as chords.
+    treble: |
+      q:F#4,D4  e:G4,D4  q:F#4,D4  e:E4,C#4  q.:D4,A3
+      q:C#4,A3  e:B3,G3  q:C#4,A3  e:D4~,A3~ q.:D4,A3
+    bass: |
+      q:A3,D3   e:B3,D3  q:A3,D3   e:A3,A2   q.:F#3,D3
+      q:G3,A2   e:G3,A2  q:G3,A2   e:F#3,D3  q.:F#3,D3
+
+lyrics:
+  stanza1:
+    A1: "Bless-ed as-sur-ance, Je-sus is mine!"
+
+structure:
+  - { label: "Stanza 1", phrases: [A1], lyrics: stanza1 }
