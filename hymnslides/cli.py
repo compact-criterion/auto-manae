@@ -8,6 +8,7 @@ from pathlib import Path
 
 from .deck import build_deck, build_template
 from .engrave import preview_line
+from .midi import SOUNDS, VOICES, write_midi
 from .songformat import SongError, load_song
 
 
@@ -28,6 +29,16 @@ def main(argv: list[str] | None = None) -> int:
     _theme_args(b)
     b.add_argument("--out", help="the .pptx to write (default: <song>-<theme>.pptx)")
 
+    m = sub.add_parser("midi", help="write a MIDI file to listen for wrong notes")
+    m.add_argument("song")
+    m.add_argument("--voice", choices=VOICES, help="make this voice loud and the others soft")
+    m.add_argument("--tempo", type=int, help="beats per minute (dotted quarters in 6/8 and 9/8)")
+    m.add_argument("--all", action="store_true", help="play every stanza, not just one stanza and the refrain")
+    m.add_argument("--sound", default="piano", choices=list(SOUNDS))
+    m.add_argument("--out", help="the .mid file to write (default: <song>.mid)")
+
+    sub.add_parser("gui", help="open the HymnSlides window")
+
     t = sub.add_parser("template", help="make a deck of empty panels to paste music into")
     t.add_argument("--title", required=True)
     t.add_argument("--sections", required=True, help='for example "Stanza 1:2,Refrain:2"')
@@ -39,6 +50,10 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--out", help="the .pptx to write (default: <title>-template.pptx)")
 
     args = parser.parse_args(argv)
+    if args.command == "gui":
+        from .gui import run
+        run()
+        return 0
     try:
         if args.command == "template":
             meta = {"title": args.title, "number": args.number, "scripture": args.scripture,
@@ -58,6 +73,11 @@ def main(argv: list[str] | None = None) -> int:
             out = Path(args.out or f"{Path(args.song).stem}-{args.line}.png")
             result = preview_line(song, args.line, out)
             print(f"Wrote {out}  (lyrics {result.lyric_pt((12.9, 3.2)):.1f} pt on a slide with 2 lines)")
+        elif args.command == "midi":
+            suffix = f"-{args.voice}" if args.voice else ""
+            out = Path(args.out or f"{Path(args.song).stem}{suffix}.mid")
+            write_midi(song, out, args.tempo, args.all, args.voice, args.sound)
+            print(f"Wrote {out}")
         elif args.command == "build":
             out = Path(args.out or f"{Path(args.song).stem}-{args.theme}.pptx")
             print(f"Building {song.title} ({args.theme} theme)...")

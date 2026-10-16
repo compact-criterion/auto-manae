@@ -3,9 +3,9 @@
 Makes PowerPoint slides for congregational singing with engraved SATB music
 and large lyrics (at least 30 pt on the slide).
 
-**Status: Milestone 2 of 4**: song files, engraving, full slide decks in three
-themes, and template mode. MIDI and a window (GUI) come in Milestone 3; reading
-MusicXML files and scanned pages comes in Milestone 4.
+**Status: Milestone 3 of 4**: song files, engraving, slide decks in three themes,
+template mode, MIDI files for listening, and a simple window. Reading MusicXML
+files and scanned pages comes in Milestone 4.
 
 > **Check the example songs before using them in a service.**
 > Both songs were transcribed from hymnal pages ("Blessed Assurance", Hymn 381;
@@ -25,6 +25,33 @@ hymnslides check examples/blessed_assurance.yaml
 hymnslides preview examples/blessed_assurance.yaml --line A1
 ```
 The second command writes `blessed_assurance-A1.png`.
+
+## The HymnSlides window
+Double-click **`HymnSlides.bat`** (or type `hymnslides gui`). In the window:
+
+- **Song details**: title, hymn number, scripture, credits and copyright. These
+  are the lines of the song file shown on the title slide; typing here updates
+  the song file below, and editing the song file updates these fields.
+- **Song file**: the notes, words and order (see "Writing a song file").
+- **Theme**: light, dark, or a colour you choose with **Choose colour…**.
+- **Preview**: engraves one line, so you can check it quickly.
+- **Build slides**: makes the `.pptx` next to your song file (about a minute).
+- **Make MIDI (listen)**: makes a MIDI file and plays it. Choose one voice
+  (soprano, alto, tenor or bass) to hear that part loud and the others soft.
+- **Open output folder**: shows the files you made.
+
+New songs that are not saved yet go to `Documents\HymnSlides`.
+
+## Listen for wrong notes (MIDI)
+```
+hymnslides midi examples/blessed_assurance.yaml
+hymnslides midi examples/blessed_assurance.yaml --voice alto
+```
+Each voice is on its own track (soprano, alto, tenor, bass). `--voice` makes one
+part loud and the others soft, which is the easiest way to proofread a part.
+By default you hear one stanza and the refrain; add `--all` for every stanza.
+Other options: `--tempo 72` (beats per minute; dotted quarters in 6/8 and 9/8),
+`--sound organ` or `--sound choir`. You can also put `tempo: 72` in the song file.
 
 ## Make a slide deck
 ```

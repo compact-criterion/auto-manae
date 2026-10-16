@@ -27,6 +27,9 @@ MIN_LYRIC_PT = 30.0
 SLIDE_MUSIC_BOX = (12.9, 6.4)
 
 verovio.enableLog(verovio.LOG_ERROR)
+# Verovio only finds its fonts by itself on the main thread, so give every
+# toolkit the path (the window engraves on a background thread).
+VEROVIO_DATA = str(Path(verovio.__file__).parent / "data")
 
 
 # ---------------------------------------------------------------- MEI building
@@ -251,7 +254,8 @@ class Engraving:
 
 
 def _toolkit(lyric_size: float, page_width: int) -> verovio.toolkit:
-    tk = verovio.toolkit()
+    tk = verovio.toolkit(False)
+    tk.setResourcePath(VEROVIO_DATA)
     tk.setOptions({
         "breaks": "encoded",
         "header": "none",
