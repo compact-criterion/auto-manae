@@ -189,6 +189,7 @@ class App:
         self.line.pack(side="left", padx=6)
         ttk.Button(row, text="Preview", command=self.preview).pack(side="left")
         ttk.Button(act, text="Build slides", style="Big.TButton", command=self.build).pack(fill="x", padx=6, pady=4)
+        ttk.Button(act, text="Picture slides from a scan…", command=self.picture_slides).pack(fill="x", padx=6, pady=4)
         row = ttk.Frame(act)
         row.pack(fill="x", padx=6, pady=4)
         self.voice = ttk.Combobox(row, width=10, state="readonly", values=["all voices", *VOICES])
@@ -415,6 +416,38 @@ class App:
         self.run_in_background(f"Building {song.title} ({theme})… this takes about a minute.",
                                lambda: build_deck(song, out, theme, bg, log=self.say),
                                lambda slides: self.say(f"Done: {out}  ({len(slides) + 1} slides)"))
+
+    def picture_slides(self):
+        """Slides with the printed music cut straight from scans; uses the song details above."""
+        names = filedialog.askopenfilenames(
+            title="Choose the scanned pages, in order",
+            filetypes=[("Scans and photos", "*.pdf *.png *.jpg *.jpeg"), ("All files", "*.*")])
+        if not names:
+            return
+        sources = [Path(n) for n in names]
+        pages = None
+        if any(p.suffix.lower() == ".pdf" for p in sources):
+            pages = simpledialog.askstring("Pages", "Which pages? For example 20-21 (leave empty for all):",
+                                           parent=self.root) or None
+        verses = simpledialog.askinteger(
+            "Verses", "How many verses? The music is shown once for each verse\n"
+            "(labelled Stanza 1, 2, …). Type 1 to show it once.",
+            parent=self.root, initialvalue=1, minvalue=1, maxvalue=12)
+        if verses is None:
+            return
+        self._fields_to_text()
+        meta = {key: var.get() for key, var in self.vars.items()}
+        if not meta.get("title"):
+            meta["title"] = sources[0].stem
+        theme = self.theme.get()
+        bg = self.bg_color if theme == "color" else None
+        safe = re.sub(r"[^A-Za-z0-9]+", "_", meta["title"]).strip("_") or "hymn"
+        out = self.output_folder() / f"{safe}-pictures-{theme}.pptx"
+        from .picture import build_picture_deck
+        self.run_in_background(
+            f"Making picture slides for {meta['title']}…",
+            lambda: build_picture_deck(sources, out, meta, theme, bg, pages, verses=verses, log=self.say),
+            lambda n: self.say(f"Done: {out}  ({n + 1} slides). The title slide uses the song details above."))
 
     def make_midi(self):
         song = self.load_song()

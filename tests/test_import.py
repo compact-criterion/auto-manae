@@ -105,3 +105,27 @@ def test_scan_like_rhythms_are_rounded_not_fatal(tmp_path):
     assert any("Only one staff" in w for w in result.warnings)
     song = song_from_dict(yaml.safe_load(result.yaml_text), check=False)
     assert song.phrases["S1"].treble[0].length == 1
+
+
+def test_picture_slides(tmp_path):
+    from PIL import Image, ImageDraw
+    from pptx import Presentation
+    from pptx.enum.shapes import MSO_SHAPE_TYPE
+
+    from hymnslides.picture import build_picture_deck
+    img = Image.new("L", (1000, 900), 255)
+    d = ImageDraw.Draw(img)
+    d.text((60, 20), "A heading that should be left out", fill=0)
+    for top in (100, 260, 500, 660):
+        for k in range(5):
+            d.line([(50, top + 12 * k), (950, top + 12 * k)], fill=0, width=2)
+    page = tmp_path / "page.png"
+    img.save(page)
+    out = tmp_path / "pics.pptx"
+    n = build_picture_deck([page], out, {"title": "Test Hymn", "copyright_status": "public_domain"},
+                           "dark", verses=3, log=lambda *_: None)
+    prs = Presentation(str(out))
+    assert n == 3 and len(prs.slides) == 4
+    for slide in list(prs.slides)[1:]:
+        assert sum(1 for s in slide.shapes if s.shape_type == MSO_SHAPE_TYPE.PICTURE) == 1
+    assert "Stanza 3" in [s.text_frame.text for s in prs.slides[3].shapes if s.has_text_frame]

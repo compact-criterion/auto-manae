@@ -38,6 +38,20 @@ def main(argv: list[str] | None = None) -> int:
     m.add_argument("--out", help="the .mid file to write (default: <song>.mid)")
 
     sub.add_parser("gui", help="open the HymnSlides window")
+    pic = sub.add_parser("pictures", help="slides with the printed music cut from scans (no note reading)")
+    pic.add_argument("scans", nargs="+", help="scanned pages or photos (.pdf, .png, .jpg), in order")
+    pic.add_argument("--title", required=True)
+    pic.add_argument("--pages", help='PDF pages, for example "20-21"')
+    pic.add_argument("--verses", type=int, default=1,
+                     help="repeat the music once per verse, labelled Stanza 1, 2, …")
+    pic.add_argument("--per-slide", type=int, default=2, help="lines of music on each slide")
+    for field in ("number", "scripture", "words", "music", "copyright", "ccli-song", "ccli-license"):
+        pic.add_argument(f"--{field}", default="")
+    pic.add_argument("--status", default="public_domain",
+                     choices=["public_domain", "licensed", "template_only"], help="copyright status")
+    _theme_args(pic)
+    pic.add_argument("--out", help="the .pptx to write")
+
     sub.add_parser("install-omr", help="install oemer, the music reader for scanned pages")
 
     im = sub.add_parser("import", help="make a song file from MusicXML or a scanned page")
@@ -69,6 +83,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "install-omr":
         return install_omr()
     try:
+        if args.command == "pictures":
+            from .picture import build_picture_deck
+            meta = {"title": args.title, "number": args.number, "scripture": args.scripture,
+                    "words": args.words, "music": args.music, "copyright": args.copyright,
+                    "ccli_song": args.ccli_song, "ccli_license": args.ccli_license,
+                    "copyright_status": args.status}
+            out = Path(args.out or f"{_safe(args.title)}-pictures-{args.theme}.pptx")
+            build_picture_deck(args.scans, out, meta, args.theme, args.bg, args.pages,
+                               args.per_slide, args.verses)
+            return 0
         if args.command == "import":
             from .importer import import_file
             from .songformat import parse_time

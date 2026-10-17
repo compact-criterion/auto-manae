@@ -172,6 +172,18 @@ def recognize_page(png: Path, engine: str, work: Path) -> Path:
 
 # ---------------------------------------------------------------- systems on the page (for review.html)
 
+def _blank_row(ink: np.ndarray, start: float, step: int, limit: float) -> float:
+    """From a staff edge, the first row with no ink at all (going up or down), so text
+    printed above or below the music is left out but high and low notes are kept."""
+    y = int(start) + step * 2
+    end = int(start + step * limit)
+    while 0 <= y < ink.shape[0] and (y - end) * step < 0:
+        if not ink[y].any():
+            return y
+        y += step
+    return max(0, min(ink.shape[0], end))
+
+
 def find_systems(png: Path) -> list[Image.Image]:
     """Crops of each system (treble + bass staff pair) on a page, top to bottom."""
     img = Image.open(png).convert("L")
@@ -218,7 +230,9 @@ def find_systems(png: Path) -> list[Image.Image]:
         systems.append((top, bottom, sp))
     crops = []
     for k, (top, bottom, sp) in enumerate(systems):
-        upper = (systems[k - 1][1] + top) / 2 if k else top - 5 * sp
-        lower = (bottom + systems[k + 1][0]) / 2 if k + 1 < len(systems) else bottom + 7 * sp
+        # Above the first and below the last system there is often a heading or
+        # credits; keep only room for high notes, ledger lines and stems.
+        upper = (systems[k - 1][1] + top) / 2 if k else _blank_row(a, top, -1, 4 * sp)
+        lower = (bottom + systems[k + 1][0]) / 2 if k + 1 < len(systems) else _blank_row(a, bottom, 1, 4 * sp)
         crops.append(img.crop((0, max(0, int(upper)), img.width, min(img.height, int(lower)))))
     return crops

@@ -102,6 +102,23 @@ such spot is listed as a warning on the review page. For hymns you will use
 often, entering them in MuseScore (or typing the song file) is usually faster
 than fixing a poor scan.
 
+## Picture slides (straight from a scan, no note reading)
+When you just need the hymn on screen quickly, HymnSlides can cut each line of
+music out of a scanned page and put it on the slides exactly as printed: no
+notes are read, so none can be misread. In the window: fill in the song details
+(title, credits), then click **Picture slides from a scan…**, choose the pages
+in order, and say how many verses. Or type:
+```
+hymnslides pictures page1.jpg page2.jpg --title "Blessed Assurance" --verses 3 --theme dark
+hymnslides pictures hymnal.pdf --pages 20-21 --title "Blessed Assurance"
+```
+The words stay the size the hymnal printed them (smaller than on engraved
+slides), and all the verses stay under each line, as in the book. With
+`--verses 3` the music is shown three times, labelled Stanza 1, 2 and 3, so the
+operator can follow along. For copyrighted hymns, projecting the printed page
+needs the right license (for example CCLI); set `--status licensed` with the
+copyright and CCLI numbers so they are shown on the title slide.
+
 ## Make a slide deck
 ```
 hymnslides build examples/blessed_assurance.yaml --theme light
