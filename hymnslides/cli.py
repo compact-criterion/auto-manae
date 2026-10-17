@@ -112,8 +112,8 @@ def main(argv: list[str] | None = None) -> int:
 
 
 # oemer asks for the newest onnxruntime-gpu, whose newer versions refuse oemer's
-# model files; install oemer with a CPU onnxruntime version that works instead.
-OMR_PACKAGES = ["onnxruntime==1.20.1", "opencv-python-headless", "scikit-learn", "scipy",
+# model files, and breaks with OpenCV 5; install it with versions that work.
+OMR_PACKAGES = ["onnxruntime==1.20.1", "opencv-python-headless<5", "scikit-learn", "scipy",
                 "matplotlib", "typing-extensions"]
 
 
