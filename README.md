@@ -12,12 +12,19 @@ from MuseScore (MusicXML) or scanned hymnal pages.
 > "Standing on the Promises", Hymn 395) and still need proofreading.
 The full plan is in [`prompts/hymnslides-prompt.md`](prompts/hymnslides-prompt.md).
 
-## Install (Windows)
-1. Install Python 3.12 from python.org. On the first screen, tick **"Add python.exe to PATH"**.
-2. Open **Command Prompt** in this folder and type:
-   ```
-   pip install -e .
-   ```
+## Install (Windows), the easy way
+1. **Download** the program as a ZIP file from GitHub (green **Code** button →
+   **Download ZIP**), then right-click the ZIP → **Extract All…** → **Extract**.
+2. In the extracted folder, **double-click `INSTALL.bat`**. It installs Python if
+   needed (then asks you to double-click it once more), installs everything
+   HymnSlides needs, and puts a **HymnSlides** icon on your Desktop.
+3. **Double-click the HymnSlides icon** on your Desktop to open the window.
+
+If Windows shows a blue box "Windows protected your PC", click **More info**,
+then **Run anyway**: it appears for any file downloaded from the internet.
+
+The commands below (`hymnslides …`) are typed in a Command Prompt; you only need
+them if you prefer typing to the window.
 
 ## Try it
 ```
