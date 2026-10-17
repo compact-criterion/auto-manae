@@ -315,6 +315,26 @@ class App:
         if source.suffix.lower() == ".pdf":
             pages = simpledialog.askstring("Pages", "Which pages? For example 20-21 (leave empty for all):",
                                            parent=self.root) or None
+        from . import omr
+        from .importer import MUSICXML, import_file
+
+        if source.suffix.lower() not in MUSICXML and not (omr.has_oemer() or omr.find_audiveris()):
+            if not messagebox.askyesno(
+                    "Install the music reader?",
+                    "To read a scanned page, HymnSlides needs its music reader (oemer).\n\n"
+                    "Install it now? It downloads about 200 MB and takes a few minutes. "
+                    "Reading the first page then downloads its models once more.\n\n"
+                    "Please note: music readers make many mistakes on hymn pages. You will "
+                    "need to check and correct the result."):
+                return
+            self.run_in_background("Installing the music reader… (a few minutes)",
+                                   lambda: omr.install_oemer(log=self.say),
+                                   lambda _: (self.say("Music reader installed."),
+                                              self._start_import(source, pages)))
+            return
+        self._start_import(source, pages)
+
+    def _start_import(self, source: Path, pages):
         from .importer import import_file
 
         def done(outcome):

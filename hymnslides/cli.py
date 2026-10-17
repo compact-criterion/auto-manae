@@ -116,22 +116,13 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
-# oemer asks for the newest onnxruntime-gpu, whose newer versions refuse oemer's
-# model files, and breaks with OpenCV 5; install it with versions that work.
-OMR_PACKAGES = ["onnxruntime==1.20.1", "opencv-python-headless<5", "scikit-learn", "scipy",
-                "matplotlib", "typing-extensions"]
-
-
 def install_omr() -> int:
-    import subprocess
-    pip = [sys.executable, "-m", "pip", "install"]
+    from .omr import install_oemer
     print("Installing the music reader (oemer). This downloads about 200 MB…")
     try:
-        subprocess.check_call(pip + OMR_PACKAGES)
-        subprocess.check_call(pip + ["--no-deps", "oemer"])
-    except subprocess.CalledProcessError:
-        print("Problem: the installation did not finish. Check the internet connection and try again.",
-              file=sys.stderr)
+        install_oemer()
+    except SongError as exc:
+        print(f"Problem: {exc}", file=sys.stderr)
         return 1
     print("Done. The first scan you import also downloads oemer's models once.")
     return 0

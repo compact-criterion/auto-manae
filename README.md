@@ -88,12 +88,9 @@ become the lines of the slides; without them HymnSlides uses about 8 beats per
 line (`--measures-per-line 3` to choose). Verses must be entered as verse 1, 2, 3…
 Lines where only verse 1 has words become the refrain.
 
-**From a scan or PDF page** (needs proofreading): first install the music reader
-once:
-```
-hymnslides install-omr
-```
-This installs oemer. Reading one page takes a few minutes. If you install
+**From a scan or PDF page** (needs proofreading): the first time you import a
+scan, the window asks to install the music reader (oemer, about 200 MB); click
+**Yes**. (Typing `hymnslides install-omr` does the same.) Reading one page takes a few minutes. If you install
 [Audiveris](https://audiveris.github.io) (free, usually more accurate),
 HymnSlides uses it instead; choose with `--engine oemer` or `--engine audiveris`.
 Scan at 300 dpi or more, straight and well lit. If the reader gets the time

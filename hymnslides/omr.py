@@ -86,6 +86,29 @@ def find_audiveris() -> str | None:
     return None
 
 
+# oemer asks for the newest onnxruntime-gpu, whose newer versions refuse oemer's
+# model files, and breaks with OpenCV 5; install it with versions that work.
+OMR_PACKAGES = ["onnxruntime==1.20.1", "opencv-python-headless<5", "scikit-learn", "scipy",
+                "matplotlib", "typing-extensions"]
+
+
+def install_oemer(log=print) -> None:
+    """Install oemer (about 200 MB) with pip, showing pip's progress through `log`."""
+    import importlib
+
+    pip = [sys.executable, "-m", "pip", "install", "--only-binary=:all:"]
+    for cmd in (pip + OMR_PACKAGES, pip + ["--no-deps", "oemer"]):
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        for line in proc.stdout:
+            line = line.strip()
+            if line.startswith(("Collecting", "Downloading", "Installing", "Successfully", "ERROR")):
+                log(line)
+        if proc.wait() != 0:
+            raise SongError("Installing the music reader did not finish. Check the internet "
+                            "connection and try again.")
+    importlib.invalidate_caches()
+
+
 def has_oemer() -> bool:
     try:
         import oemer  # noqa: F401
@@ -102,8 +125,8 @@ def choose_engine(engine: str) -> str:
         return "audiveris"
     if engine in ("oemer", "auto"):
         if not has_oemer():
-            raise SongError("No music reader is installed. Run:  pip install hymnslides[omr]  "
-                            "(or install Audiveris).")
+            raise SongError("No music reader is installed. In the HymnSlides window, choose Import… "
+                            "again and click Yes to install it (or type: hymnslides install-omr).")
         return "oemer"
     raise SongError(f'Unknown engine "{engine}". Use auto, oemer or audiveris.')
 
