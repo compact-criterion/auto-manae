@@ -131,11 +131,22 @@ def choose_engine(engine: str) -> str:
     raise SongError(f'Unknown engine "{engine}". Use auto, oemer or audiveris.')
 
 
-def _run(cmd: list[str], what: str):
+GAVE_UP = ("{what} could not read this page. Music readers often fail on hymn pages "
+           "(four voices and several verses of words).\n\n"
+           "Other ways to get this hymn into HymnSlides:\n"
+           "  1. Send a photo of the page to Claude and ask for a HymnSlides song file.\n"
+           "  2. Find or enter the hymn in MuseScore, export it as MusicXML, and use Import.\n"
+           "  3. Install Audiveris (free), a stronger reader that HymnSlides uses automatically.\n\n"
+           "Technical detail: {detail}")
+
+
+def _run(cmd: list[str]) -> str | None:
+    """Run a command; return None if it worked, else the last line of its error."""
     result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        tail = (result.stderr or result.stdout).strip().splitlines()[-5:]
-        raise SongError(f"{what} could not read the page:\n" + "\n".join(tail))
+    if result.returncode == 0:
+        return None
+    lines = (result.stderr or result.stdout).strip().splitlines()
+    return lines[-1] if lines else f"exit code {result.returncode}"
 
 
 def recognize_page(png: Path, engine: str, work: Path) -> Path:
@@ -143,9 +154,16 @@ def recognize_page(png: Path, engine: str, work: Path) -> Path:
     out = work / f"{png.stem}-{engine}"
     out.mkdir(parents=True, exist_ok=True)
     if engine == "oemer":
-        _run([sys.executable, "-m", "oemer.ete", str(png), "-o", str(out)], "oemer")
+        cmd = [sys.executable, "-m", "oemer.ete", str(png), "-o", str(out)]
+        error = _run(cmd)
+        if error:  # oemer's page-straightening step crashes on some scans; try without it
+            error = _run(cmd + ["--without-deskew"])
+        what = "oemer"
     else:
-        _run([find_audiveris(), "-batch", "-export", "-output", str(out), "--", str(png)], "Audiveris")
+        error = _run([find_audiveris(), "-batch", "-export", "-output", str(out), "--", str(png)])
+        what = "Audiveris"
+    if error:
+        raise SongError(GAVE_UP.format(what=what, detail=error))
     found = sorted(out.rglob("*.mxl")) + sorted(out.rglob("*.musicxml")) + sorted(out.rglob("*.xml"))
     if not found:
         raise SongError(f"{engine} finished but wrote no MusicXML for {png.name}.")
