@@ -20,7 +20,7 @@ import tempfile
 import threading
 import tkinter as tk
 from pathlib import Path
-from tkinter import colorchooser, filedialog, messagebox, ttk
+from tkinter import colorchooser, filedialog, messagebox, simpledialog, ttk
 
 import yaml
 from PIL import Image, ImageTk
@@ -131,7 +131,7 @@ class App:
         bar = ttk.Frame(self.root)
         bar.pack(fill="x", padx=8, pady=8)
         for label, cmd in (("New", self.new), ("Open…", self.open), ("Save", self.save),
-                           ("Save as…", self.save_as)):
+                           ("Save as…", self.save_as), ("Import…", self.import_music)):
             ttk.Button(bar, text=label, command=cmd).pack(side="left", padx=(0, 6))
         self.path_label = ttk.Label(bar, text="(not saved yet)", foreground="#555")
         self.path_label.pack(side="left", padx=12)
@@ -298,6 +298,40 @@ class App:
         self.path = Path(name)
         self.path_label.configure(text=str(self.path))
         return self.save()
+
+    def import_music(self):
+        """MusicXML or a scanned page -> a new song file, plus review.html to check it."""
+        if not self._confirm_discard():
+            return
+        name = filedialog.askopenfilename(
+            title="Import music",
+            filetypes=[("Music files", "*.musicxml *.mxl *.xml *.pdf *.png *.jpg *.jpeg"),
+                       ("MusicXML from MuseScore", "*.musicxml *.mxl *.xml"),
+                       ("Scanned pages", "*.pdf *.png *.jpg *.jpeg"), ("All files", "*.*")])
+        if not name:
+            return
+        source = Path(name)
+        pages = None
+        if source.suffix.lower() == ".pdf":
+            pages = simpledialog.askstring("Pages", "Which pages? For example 20-21 (leave empty for all):",
+                                           parent=self.root) or None
+        from .importer import import_file
+
+        def done(outcome):
+            self.path = outcome.song_path
+            self.path_label.configure(text=str(self.path))
+            self.set_text(self.path.read_text(encoding="utf-8"))
+            self.text.edit_modified(False)
+            for w in outcome.warnings:
+                self.say(f"Warning: {w}")
+            for p in outcome.problems:
+                self.say(f"Problem to fix: {p}")
+            self.say("Check every line in the review page, fix the song file, then change "
+                     "'reviewed: false' to 'reviewed: true'.")
+            open_path(outcome.review_path)
+
+        self.run_in_background(f"Importing {source.name}…",
+                               lambda: import_file(source, pages=pages, log=self.say), done)
 
     def _confirm_discard(self) -> bool:
         if not self.text.edit_modified():

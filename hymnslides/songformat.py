@@ -220,7 +220,7 @@ def load_song(path: str | Path) -> Song:
     return song_from_dict(data)
 
 
-def song_from_dict(data: dict) -> Song:
+def song_from_dict(data: dict, check: bool = True) -> Song:
     for required in ("title", "key", "time", "phrases"):
         if required not in data:
             raise SongError(f'The song file needs a "{required}:" line.')
@@ -246,7 +246,8 @@ def song_from_dict(data: dict) -> Song:
 
     song = Song(str(data["title"]), str(data["key"]), parse_time(data["time"]),
                 parse_key(str(data["key"])), phrases, lyrics, structure, meta)
-    validate(song)
+    if check:
+        validate(song)
     return song
 
 

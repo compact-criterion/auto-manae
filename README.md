@@ -3,9 +3,9 @@
 Makes PowerPoint slides for congregational singing with engraved SATB music
 and large lyrics (at least 30 pt on the slide).
 
-**Status: Milestone 3 of 4**: song files, engraving, slide decks in three themes,
-template mode, MIDI files for listening, and a simple window. Reading MusicXML
-files and scanned pages comes in Milestone 4.
+**Status: all 4 milestones**: song files, engraving, slide decks in three themes,
+template mode, MIDI files for listening, a simple window, and importing music
+from MuseScore (MusicXML) or scanned hymnal pages.
 
 > **Check the example songs before using them in a service.**
 > Both songs were transcribed from hymnal pages ("Blessed Assurance", Hymn 381;
@@ -52,6 +52,42 @@ part loud and the others soft, which is the easiest way to proofread a part.
 By default you hear one stanza and the refrain; add `--all` for every stanza.
 Other options: `--tempo 72` (beats per minute; dotted quarters in 6/8 and 9/8),
 `--sound organ` or `--sound choir`. You can also put `tempo: 72` in the song file.
+
+## Import music instead of typing it
+```
+hymnslides import "Great Hymn.mxl"
+hymnslides import hymnal.pdf --pages 20-21
+hymnslides import page.jpg
+```
+(or the **Import…** button in the window). This writes three things next to the
+file you import:
+
+- **the song file** (`.yaml`) with the notes, the words of every verse, and the
+  order (stanzas, with the refrain after each one);
+- **a MIDI file** to listen for wrong notes;
+- **a review page** (`…-review/review.html`): every line as HymnSlides read it,
+  next to that part of the page for scans. Open it in your web browser.
+
+Imported songs start with `reviewed: false`, and **slides cannot be built until
+you have checked them**: compare each line with the page, fix the song file, and
+then change it to `reviewed: true`. Also check the title, credits and
+`copyright_status`.
+
+**From MuseScore** (most reliable): open or type the hymn in MuseScore, then
+*File → Export → MusicXML* (`.mxl` or `.musicxml`). MuseScore's line breaks
+become the lines of the slides; without them HymnSlides uses about 8 beats per
+line (`--measures-per-line 3` to choose). Verses must be entered as verse 1, 2, 3…
+Lines where only verse 1 has words become the refrain.
+
+**From a scan or PDF page** (needs proofreading): first install the music reader
+once:
+```
+hymnslides install-omr
+```
+This installs oemer. Reading one page takes a few minutes. If you install
+[Audiveris](https://audiveris.github.io) (free, usually more accurate),
+HymnSlides uses it instead; choose with `--engine oemer` or `--engine audiveris`.
+Scan at 300 dpi or more, straight and well lit.
 
 ## Make a slide deck
 ```
@@ -105,6 +141,14 @@ Every song file has `copyright_status:`
 - `structure:` lists the sections in order; each names its lines and its lyrics.
 - If something is wrong, the program tells you where, for example:
   `Line A1 (treble), measure 2 has 8 eighths but 9/8 needs 9`.
+
+## Common errors
+- **"has 8 eighths but 9/8 needs 9"**: a measure is too short or too long. Count
+  the durations in that measure.
+- **"has 11 syllables but 12 notes"**: add or remove a syllable, or use `_` for a
+  note that holds the previous syllable.
+- **"has not been checked yet"**: an imported song; see "Import music".
+- **"No music reader is installed"**: run `hymnslides install-omr`.
 
 ## Run the tests
 ```

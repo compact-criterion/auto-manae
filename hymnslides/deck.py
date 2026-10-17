@@ -218,6 +218,10 @@ def _music_slide(prs, theme: Theme, ms: MusicSlide):
 def build_deck(song: Song, out: str | Path, theme_name: str = "light", bg: str | None = None,
                log=print) -> list[MusicSlide]:
     check_copyright(song.meta, engraving=True)
+    if song.meta.get("reviewed") is False:
+        raise SongError("This song was imported automatically and has not been checked yet. "
+                        "Open its review.html, compare every line with the page, fix the song file, "
+                        "and then change 'reviewed: false' to 'reviewed: true'.")
     theme = make_theme(theme_name, bg)
     prs = _new_deck()
     meta = dict(song.meta, title=song.title)

@@ -38,6 +38,16 @@ def main(argv: list[str] | None = None) -> int:
     m.add_argument("--out", help="the .mid file to write (default: <song>.mid)")
 
     sub.add_parser("gui", help="open the HymnSlides window")
+    sub.add_parser("install-omr", help="install oemer, the music reader for scanned pages")
+
+    im = sub.add_parser("import", help="make a song file from MusicXML or a scanned page")
+    im.add_argument("source", help=".musicxml / .mxl from MuseScore, or a scan (.pdf, .png, .jpg)")
+    im.add_argument("--pages", help='PDF pages to read, for example "20-21"')
+    im.add_argument("--engine", default="auto", choices=["auto", "oemer", "audiveris"],
+                    help="music reader for scans (auto uses Audiveris if installed, else oemer)")
+    im.add_argument("--measures-per-line", type=int,
+                    help="measures in each line (default: the file's line breaks, or about 8 beats)")
+    im.add_argument("--out", help="the song file to write (default: next to the source)")
 
     t = sub.add_parser("template", help="make a deck of empty panels to paste music into")
     t.add_argument("--title", required=True)
@@ -54,7 +64,19 @@ def main(argv: list[str] | None = None) -> int:
         from .gui import run
         run()
         return 0
+    if args.command == "install-omr":
+        return install_omr()
     try:
+        if args.command == "import":
+            from .importer import import_file
+            outcome = import_file(args.source, args.out, args.pages, args.engine, args.measures_per_line)
+            for w in outcome.warnings:
+                print(f"Warning: {w}")
+            for p in outcome.problems:
+                print(f"Problem to fix: {p}")
+            print(f"\nNext: open {outcome.review_path} and check every line against the page.")
+            print(f"Fix {outcome.song_path.name}, then change 'reviewed: false' to 'reviewed: true'.")
+            return 0
         if args.command == "template":
             meta = {"title": args.title, "number": args.number, "scripture": args.scripture,
                     "words": args.words, "music": args.music, "copyright": args.copyright,
@@ -86,6 +108,27 @@ def main(argv: list[str] | None = None) -> int:
     except SongError as exc:
         print(f"Problem: {exc}", file=sys.stderr)
         return 1
+    return 0
+
+
+# oemer asks for the newest onnxruntime-gpu, whose newer versions refuse oemer's
+# model files; install oemer with a CPU onnxruntime version that works instead.
+OMR_PACKAGES = ["onnxruntime==1.20.1", "opencv-python-headless", "scikit-learn", "scipy",
+                "matplotlib", "typing-extensions"]
+
+
+def install_omr() -> int:
+    import subprocess
+    pip = [sys.executable, "-m", "pip", "install"]
+    print("Installing the music reader (oemer). This downloads about 200 MB…")
+    try:
+        subprocess.check_call(pip + OMR_PACKAGES)
+        subprocess.check_call(pip + ["--no-deps", "oemer"])
+    except subprocess.CalledProcessError:
+        print("Problem: the installation did not finish. Check the internet connection and try again.",
+              file=sys.stderr)
+        return 1
+    print("Done. The first scan you import also downloads oemer's models once.")
     return 0
 
 
