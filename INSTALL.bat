@@ -8,35 +8,41 @@ echo      Installing HymnSlides - please wait
 echo   ==========================================
 echo.
 
-rem 1. Find Python (3.10 or newer).
-set "PY="
-python -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)" >nul 2>nul && set "PY=python"
-if not defined PY py -3 -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)" >nul 2>nul && set "PY=py -3"
+rem HymnSlides needs Python 3.11, 3.12 or 3.13. Newer versions (3.14, 3.15)
+rem do not have all the parts it needs yet, so they are skipped.
+call :findpython
+if defined PY goto install
 
-if not defined PY (
-  echo Python is not on this computer yet. Installing it now...
-  echo If Windows asks "Do you want to allow this app to make changes", click YES.
-  echo.
-  where winget >nul 2>nul || goto nowinget
-  winget install -e --id Python.Python.3.12 --scope user --accept-package-agreements --accept-source-agreements
-  echo.
-  echo   ------------------------------------------------------------
-  echo   Python is installed.
-  echo   Now CLOSE this window and DOUBLE-CLICK INSTALL.bat AGAIN.
-  echo   ------------------------------------------------------------
-  pause
-  exit /b 0
-)
+echo Installing Python 3.12 for HymnSlides (your other Python stays as it is).
+echo If Windows asks "Do you want to allow this app to make changes", click YES.
+echo.
+py install 3.12 >nul 2>nul
+call :findpython
+if defined PY goto install
+where winget >nul 2>nul || goto nowinget
+winget install -e --id Python.Python.3.12 --scope user --accept-package-agreements --accept-source-agreements
+call :findpython
+if defined PY goto install
+echo.
+echo   ------------------------------------------------------------
+echo   Python 3.12 is installed.
+echo   Now CLOSE this window and DOUBLE-CLICK INSTALL.bat AGAIN.
+echo   ------------------------------------------------------------
+pause
+exit /b 0
 
-rem 2. Install HymnSlides and the parts it needs.
-echo Python found. Installing the parts HymnSlides needs.
+:install
+echo Using Python: %PY%
+echo Installing the parts HymnSlides needs.
 echo This takes a few minutes; lots of text will scroll by. That is normal.
 echo.
 %PY% -m pip install --upgrade pip
-%PY% -m pip install -e .
+%PY% -m pip install --only-binary=:all: -e .
 if errorlevel 1 goto failed
+rem Remember which Python to use, for HymnSlides.bat.
+%PY% -c "import sys; print(sys.executable)" > python-path.txt
 
-rem 3. Put a HymnSlides icon on the Desktop.
+rem Put a HymnSlides icon on the Desktop.
 powershell -NoProfile -Command "$s = (New-Object -ComObject WScript.Shell).CreateShortcut([Environment]::GetFolderPath('Desktop') + '\HymnSlides.lnk'); $s.TargetPath = '%~dp0HymnSlides.bat'; $s.WorkingDirectory = '%~dp0'; $s.Save()" >nul 2>nul
 
 echo.
@@ -49,11 +55,20 @@ echo.
 pause
 exit /b 0
 
+:findpython
+set "PY="
+for %%V in (3.12 3.13 3.11) do (
+  if not defined PY py -%%V -c "import sys" >nul 2>nul && set "PY=py -%%V"
+)
+if not defined PY python -c "import sys; sys.exit(0 if (3, 11) <= sys.version_info[:2] <= (3, 13) else 1)" >nul 2>nul && set "PY=python"
+if not defined PY if exist "%LocalAppData%\Programs\Python\Python312\python.exe" set "PY="%LocalAppData%\Programs\Python\Python312\python.exe""
+exit /b 0
+
 :nowinget
 echo.
-echo   This computer cannot install Python by itself. Please:
-echo   1. Go to https://www.python.org/downloads/
-echo   2. Click the yellow "Download Python" button and run the file.
+echo   This computer cannot install Python 3.12 by itself. Please:
+echo   1. Go to https://www.python.org/downloads/release/python-31210/
+echo   2. Scroll down and click "Windows installer (64-bit)", then run the file.
 echo   3. On the FIRST screen, tick "Add python.exe to PATH", then "Install Now".
 echo   4. Then double-click INSTALL.bat again.
 echo.

@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "hymnslides"
 version = "0.1.0"
 description = "Turn hymn music into PowerPoint slides with engraved notation"
-requires-python = ">=3.10"
+requires-python = ">=3.10"  # Windows: 3.11-3.13 have ready-made packages for everything
 dependencies = [
     "verovio>=4.3",
     "resvg-py>=0.2",

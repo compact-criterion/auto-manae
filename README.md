@@ -15,9 +15,11 @@ The full plan is in [`prompts/hymnslides-prompt.md`](prompts/hymnslides-prompt.m
 ## Install (Windows), the easy way
 1. **Download** the program as a ZIP file from GitHub (green **Code** button →
    **Download ZIP**), then right-click the ZIP → **Extract All…** → **Extract**.
-2. In the extracted folder, **double-click `INSTALL.bat`**. It installs Python if
-   needed (then asks you to double-click it once more), installs everything
-   HymnSlides needs, and puts a **HymnSlides** icon on your Desktop.
+2. In the extracted folder, **double-click `INSTALL.bat`**. It uses Python 3.12
+   (installing it if needed, next to any other Python you have; then it may ask
+   you to double-click it once more), installs everything HymnSlides needs, and
+   puts a **HymnSlides** icon on your Desktop. Very new Python versions (3.14,
+   3.15) are skipped because some parts are not ready for them yet.
 3. **Double-click the HymnSlides icon** on your Desktop to open the window.
 
 If Windows shows a blue box "Windows protected your PC", click **More info**,
