@@ -28,7 +28,8 @@ class ImportOutcome:
 
 
 def import_file(path: str | Path, out: str | Path | None = None, pages: str | None = None,
-                engine: str = "auto", per_line: int | None = None, log=print) -> ImportOutcome:
+                engine: str = "auto", per_line: int | None = None, log=print,
+                time: tuple[int, int] | None = None, key: str | None = None) -> ImportOutcome:
     path = Path(path)
     if not path.exists():
         raise SongError(f"{path} does not exist.")
@@ -57,7 +58,11 @@ def import_file(path: str | Path, out: str | Path | None = None, pages: str | No
         raise SongError(f"I can import MusicXML ({', '.join(sorted(MUSICXML))}) or scans "
                         f"({', '.join(sorted(SCANS))}), not {suffix} files.")
 
-    result = import_score(score, path.name, per_line)
+    fifths = None
+    if key:
+        from .songformat import parse_key
+        fifths = parse_key(key)
+    result = import_score(score, path.name, per_line, time, fifths)
     song_path.write_text(result.yaml_text, encoding="utf-8")
     log(f"Wrote {song_path}")
 

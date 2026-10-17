@@ -47,6 +47,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="music reader for scans (auto uses Audiveris if installed, else oemer)")
     im.add_argument("--measures-per-line", type=int,
                     help="measures in each line (default: the file's line breaks, or about 8 beats)")
+    im.add_argument("--time", help="the time signature, if the scan reader got it wrong (for example 9/8)")
+    im.add_argument("--key", help="the key, if the scan reader got it wrong (for example D or Ab)")
     im.add_argument("--out", help="the song file to write (default: next to the source)")
 
     t = sub.add_parser("template", help="make a deck of empty panels to paste music into")
@@ -69,7 +71,10 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "import":
             from .importer import import_file
-            outcome = import_file(args.source, args.out, args.pages, args.engine, args.measures_per_line)
+            from .songformat import parse_time
+            time = parse_time(args.time) if args.time else None
+            outcome = import_file(args.source, args.out, args.pages, args.engine, args.measures_per_line,
+                                  time=time, key=args.key)
             for w in outcome.warnings:
                 print(f"Warning: {w}")
             for p in outcome.problems:

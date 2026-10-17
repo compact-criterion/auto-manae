@@ -87,3 +87,21 @@ def test_find_systems_on_a_hymnal_page(tmp_path):
     png = tmp_path / "page.png"
     img.save(png)
     assert len(find_systems(png)) == 2
+
+
+def test_scan_like_rhythms_are_rounded_not_fatal(tmp_path):
+    xml = tmp_path / "omr.musicxml"
+    xml.write_text(
+        '<score-partwise><part-list><score-part id="P1"/></part-list><part id="P1">'
+        '<measure number="1"><attributes><divisions>16</divisions><key><fifths>2</fifths></key>'
+        "<time><beats>4</beats><beat-type>4</beat-type></time></attributes>"
+        "<note><pitch><step>D</step><octave>4</octave></pitch><duration>3</duration></note>"
+        "<note><pitch><step>E</step><octave>4</octave></pitch><duration>61</duration></note>"
+        "<note><pitch><step>F</step><alter>1</alter><octave>4</octave></pitch><duration>32</duration></note>"
+        "</measure></part></score-partwise>")
+    result = import_musicxml(xml, time=(4, 4))
+    assert any("rounded" in w for w in result.warnings)
+    assert any("past the end" in w for w in result.warnings)
+    assert any("Only one staff" in w for w in result.warnings)
+    song = song_from_dict(yaml.safe_load(result.yaml_text), check=False)
+    assert song.phrases["S1"].treble[0].length == 1

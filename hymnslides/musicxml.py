@@ -465,12 +465,59 @@ def _q(s: str) -> str:
     return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
-def import_score(score: XScore, source: str, per_line: int | None = None) -> ImportResult:
+GRID = Fraction(1, 16)
+
+
+def _snap(t: Fraction) -> Fraction:
+    return round(t / GRID) * GRID
+
+
+def clean_score(score: XScore, time: tuple[int, int] | None = None, fifths: int | None = None):
+    """Make music read by OMR writable: rhythms on a sixteenth grid, no measure
+    longer than the time signature. Every change is reported as a warning."""
+    if time:
+        score.time = time
+        for m in score.measures:
+            m.full = Fraction(time[0], time[1])
+    if fifths is not None:
+        score.fifths = fifths
+    for number, m in enumerate(score.measures, start=1):
+        rounded = clipped = False
+        for key, notes in list(m.streams.items()):
+            kept = []
+            for n in notes:
+                start, end = _snap(n.offset), _snap(n.end)
+                if (start, end) != (n.offset, n.end):
+                    rounded = True
+                if start < 0 or start >= m.full:
+                    clipped = clipped or not n.is_rest
+                    continue
+                if end > m.full:
+                    end, clipped = m.full, True
+                if end <= start:
+                    continue
+                n.offset, n.dur = start, end - start
+                kept.append(n)
+            m.streams[key] = kept
+        if rounded:
+            score.warnings.append(f"Measure {number}: rhythms rounded to the nearest sixteenth. Check them.")
+        if clipped:
+            score.warnings.append(f"Measure {number}: notes past the end of the measure were left out. Check it.")
+    if len(score.staves) == 1:
+        score.warnings.append("Only one staff was found, so the bass staff is empty. Add the tenor and bass "
+                              "by hand, or import from MuseScore instead.")
+
+
+def import_score(score: XScore, source: str, per_line: int | None = None,
+                 time: tuple[int, int] | None = None, fifths: int | None = None) -> ImportResult:
+    clean_score(score, time, fifths)
     treble_staves, bass_staves = staff_groups(score)
     merged = []
     for i, m in enumerate(score.measures):
         tre = merge_staff(m, treble_staves, i + 1)
         bas = merge_staff(m, bass_staves, i + 1) if bass_staves else [[Ev(Fraction(0), m.length, [])]]
+        if not m.streams:  # an empty measure (OMR found nothing): rests
+            tre = [[Ev(Fraction(0), m.full, [])]]
         merged.append((tre, bas))
 
     lines = []
@@ -576,9 +623,9 @@ def import_score(score: XScore, source: str, per_line: int | None = None) -> Imp
     return ImportResult("\n".join(out) + "\n", lines, names, list(score.warnings))
 
 
-def import_musicxml(path: str | Path, per_line: int | None = None) -> ImportResult:
+def import_musicxml(path: str | Path, per_line: int | None = None, time=None, fifths=None) -> ImportResult:
     path = Path(path)
-    return import_score(parse_musicxml(path), path.name, per_line)
+    return import_score(parse_musicxml(path), path.name, per_line, time, fifths)
 
 
 def concat_scores(scores: list[XScore]) -> XScore:

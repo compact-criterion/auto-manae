@@ -87,7 +87,14 @@ hymnslides install-omr
 This installs oemer. Reading one page takes a few minutes. If you install
 [Audiveris](https://audiveris.github.io) (free, usually more accurate),
 HymnSlides uses it instead; choose with `--engine oemer` or `--engine audiveris`.
-Scan at 300 dpi or more, straight and well lit.
+Scan at 300 dpi or more, straight and well lit. If the reader gets the time
+signature or key wrong, tell it: `--time 9/8 --key D`.
+
+Be ready to correct a lot: music readers struggle with hymn pages (four voices,
+several verses of words). They may miss the bass staff or misread rhythms. Every
+such spot is listed as a warning on the review page. For hymns you will use
+often, entering them in MuseScore (or typing the song file) is usually faster
+than fixing a poor scan.
 
 ## Make a slide deck
 ```
