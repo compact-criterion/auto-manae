@@ -1,0 +1,71 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main, 'claude/**']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install packages
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Create Android project
+        run: |
+          npx cap add android
+          cp -r resources/android/res/* android/app/src/main/res/
+          sed -i "s/versionCode 1$/versionCode ${{ github.run_number }}/" android/app/build.gradle
+          sed -i "s/versionName \"1.0\"/versionName \"1.0.${{ github.run_number }}\"/" android/app/build.gradle
+          npx cap sync android
+
+      - name: Use the app's fixed signing key (so updates install over old versions)
+        run: |
+          mkdir -p ~/.android
+          cp signing/mathguro-debug.keystore ~/.android/debug.keystore
+
+      - name: Build APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+          cp app/build/outputs/apk/debug/app-debug.apk ../MathGuro.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MathGuro-apk
+          path: MathGuro.apk
+
+      - name: Publish download (GitHub Release)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-1.0.${{ github.run_number }}
+          name: MathGuro 1.0.${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          make_latest: true
+          files: MathGuro.apk
+          body: |
+            Download **MathGuro.apk** below on your Android phone and open it to install.
+            If Android asks, allow your browser or Files app to "install unknown apps".
+            Installing a newer version keeps your data. Still, export a backup from Settings first.
