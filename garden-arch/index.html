@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1e3b2c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<!--APP-->
+<title>Garden Arch Helper</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: phone-first app — sticky header with Part A–G chips over a graph-paper ground; one part per screen; Back/Next bar at the bottom. */
+:root{
+  --paper:#f4f7f2; --surface:#ffffff; --ink:#182a1f; --muted:#4f6457; --grid:#dde7dc; --grid-strong:#c2d3c3;
+  --navy:#1e3b2c; --on-navy:#ffffff; --hl:#a85d0c; --hl-ink:#ffffff; --hl-soft:#fbeedb;
+  --arch:#2e7d32; --arch-soft:#e3f1e3; --alt:#c9541a; --alt-soft:#fdebe1; --cart:#2257c7; --cart-soft:#e5edfd; --brace:#6b4a2b;
+  --good:#1f7a43; --good-soft:#e2f4e8; --bad:#b3261e; --bad-soft:#fbe5e3; --btn-border:#1e3b2c;
+  --f-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0e1610; --surface:#152219; --ink:#e4efe6; --muted:#a3b8a8; --grid:#1d2c21; --grid-strong:#2e4434;
+  --navy:#173022; --on-navy:#ffffff; --hl:#f0a54a; --hl-ink:#2a1700; --hl-soft:#33240f;
+  --arch:#7fd37f; --arch-soft:#173119; --alt:#ff9a5f; --alt-soft:#3a2317; --cart:#7fa4ff; --cart-soft:#1b2950; --brace:#d8a777;
+  --good:#6fd394; --good-soft:#15301f; --bad:#ff8a80; --bad-soft:#3a1714; --btn-border:#3f5c48;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0e1610; --surface:#152219; --ink:#e4efe6; --muted:#a3b8a8; --grid:#1d2c21; --grid-strong:#2e4434;
+  --navy:#173022; --on-navy:#ffffff; --hl:#f0a54a; --hl-ink:#2a1700; --hl-soft:#33240f;
+  --arch:#7fd37f; --arch-soft:#173119; --alt:#ff9a5f; --alt-soft:#3a2317; --cart:#7fa4ff; --cart-soft:#1b2950; --brace:#d8a777;
+  --good:#6fd394; --good-soft:#15301f; --bad:#ff8a80; --bad-soft:#3a1714; --btn-border:#3f5c48;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--navy)}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.app{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--navy);color:var(--on-navy);box-shadow:0 2px 10px rgba(0,0,0,.18)}
+header.app .wrap{padding-block:10px 8px}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand h1{font-family:var(--f-display);font-weight:800;font-size:1.3rem;margin:0}
+.brand small{font-size:.78rem;opacity:.8;letter-spacing:.06em;text-transform:uppercase}
+.steps{display:flex;gap:6px;overflow-x:auto;padding-block:8px 2px;scrollbar-width:none}
+.steps::-webkit-scrollbar{display:none}
+.steps a{flex:0 0 auto;min-width:44px;height:40px;padding:0 12px;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:20px;color:var(--on-navy);text-decoration:none;font-weight:700;border:1.5px solid rgba(255,255,255,.35);font-size:.95rem}
+.steps a.on{background:var(--hl);border-color:var(--hl);color:var(--hl-ink)}
+.steps a .dot{width:7px;height:7px;border-radius:50%;background:#7be09e}
+main .wrap{padding-block:18px 110px;display:flex;flex-direction:column;gap:16px}
+.eyebrow{font-size:.78rem;letter-spacing:.09em;text-transform:uppercase;color:var(--hl);font-weight:700}
+h2{font-family:var(--f-display);font-weight:800;font-size:1.75rem;line-height:1.15;margin:2px 0 0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:1.18rem;margin:0 0 4px;text-wrap:balance}
+p{margin:0}
+.lead{color:var(--muted)}
+.pts{display:inline-block;font-size:.8rem;font-weight:700;padding:2px 9px;border-radius:10px;background:var(--hl-soft);color:var(--hl);margin-left:6px;vertical-align:middle}
+.card{background:var(--surface);border:1px solid var(--grid-strong);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.note{background:var(--hl-soft);border-radius:var(--r);padding:12px 14px;font-size:.95rem}
+.example{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--hl-soft);border:1.5px dashed var(--hl);border-radius:var(--r);padding:12px 14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.grid2{grid-template-columns:1fr}}
+label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.92rem;min-width:0}
+label .hint{font-weight:400;color:var(--muted);font-size:.85rem}
+input[type=text],input[type=number],input[type=password],textarea,select{font:inherit;font-weight:400;color:var(--ink);background:var(--paper);border:1.5px solid var(--grid-strong);border-radius:10px;padding:10px 12px;width:100%;min-height:46px}
+textarea{min-height:220px;resize:vertical;line-height:1.6}
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--hl);outline-offset:2px}
+.unit{position:relative}
+.unit input{padding-right:46px}
+.unit::after{content:attr(data-u);position:absolute;right:12px;bottom:11px;color:var(--muted);font-weight:700}
+.peso{position:relative}
+.peso::before{content:"₱";position:absolute;left:12px;bottom:11px;color:var(--muted);font-weight:700}
+.peso input{padding-left:28px}
+button,a.btn{font:inherit;font-weight:700;border-radius:10px;border:1.5px solid var(--btn-border);background:var(--surface);color:var(--ink);padding:10px 16px;min-height:46px;cursor:pointer}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+button.primary{background:var(--navy);color:var(--on-navy);border-color:var(--btn-border)}
+button.small{min-height:38px;padding:6px 12px;font-size:.9rem}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button[aria-pressed=true]{background:var(--hl);border-color:var(--hl);color:var(--hl-ink)}
+.math{font-family:var(--f-mono);font-size:.95rem;background:var(--paper);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre;line-height:1.75;border:1px solid var(--grid)}
+.eq{font-family:var(--f-mono);font-weight:600;font-size:1.15rem;overflow-x:auto;color:var(--arch)}
+.v{font-style:italic;font-family:Georgia,"Times New Roman",serif;font-weight:700}
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--grid-strong);padding:8px 10px;text-align:center}
+th{background:var(--paper);font-size:.9rem}
+td.l,th.l{text-align:left}
+td.calc{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);text-align:left;white-space:nowrap}
+table.rub td{text-align:left;vertical-align:top} table.rub td:last-child{text-align:center;white-space:nowrap}
+.figure{overflow-x:auto}
+.figure svg{display:block;width:100%;height:auto;min-width:300px}
+svg text{font-family:var(--f-body)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.9rem}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:22px;height:4px;border-radius:2px}
+.pill{display:inline-block;padding:3px 10px;border-radius:12px;font-weight:700;font-size:.86rem;white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)} .pill.bad{background:var(--bad-soft);color:var(--bad)}
+.big{font-family:var(--f-display);font-weight:800;font-size:1.5rem;line-height:1.2}
+ul.check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ul.check label{flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;font-size:.98rem}
+ul.check input{width:22px;height:22px;flex:0 0 auto;margin-top:2px;accent-color:var(--navy)}
+.timeline{display:flex;flex-direction:column;gap:10px}
+.tl{display:grid;grid-template-columns:76px 1fr auto;gap:12px;align-items:center;padding:12px;border-radius:var(--r);border:1px solid var(--grid-strong);background:var(--surface)}
+.tl .d{font-family:var(--f-display);font-weight:800;line-height:1.1;text-align:center}
+.tl .d b{display:block;font-size:1.6rem}
+.tl.next{border:2px solid var(--hl);background:var(--hl-soft)}
+.bar{height:10px;border-radius:5px;background:var(--grid);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--good);border-radius:5px}
+.prog{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.prog a{font-weight:700;color:var(--ink)}
+blockquote{margin:0;padding:14px 16px;border-left:5px solid var(--hl);background:var(--hl-soft);border-radius:0 var(--r) var(--r) 0;font-style:italic;font-size:1.05rem}
+details.card>summary{cursor:pointer;font-family:var(--f-display);font-weight:600;font-size:1.15rem;list-style-position:inside}
+.teacher-tag{display:inline-block;background:var(--ink);color:var(--paper);border-radius:8px;padding:2px 8px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+nav.pager{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--surface);border-top:1px solid var(--grid-strong);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.pager .wrap{display:flex;justify-content:space-between;gap:10px;padding-block:10px}
+nav.pager button{flex:1}
+.warn{color:var(--bad);font-weight:700}
+.muted{color:var(--muted)}
+.count{font-size:.88rem;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:20px;font-weight:700;z-index:20}
+@media (prefers-reduced-motion: no-preference){.view{animation:rise .25s ease-out}@keyframes rise{from{transform:translateY(6px)}to{transform:none}}}
+</style>
+
+<header class="app">
+  <div class="wrap">
+    <div class="brand"><h1>Garden Arch Helper</h1><small>Math 9 · Q3 PT</small></div>
+    <nav class="steps" id="steps" aria-label="Parts of the task"></nav>
+  </div>
+</header>
+<main><div class="wrap" id="view"></div></main>
+<nav class="pager"><div class="wrap"><button id="prev" type="button">‹ Back</button><button id="next" class="primary" type="button">Next ›</button></div></nav>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+var KEY="gardenArch.v1";
+var EXAMPLE={
+  example:true, w:2.4, k:2.5, step:0.3, a2:-2.5,
+  cart:{w:1.2,h:1.8}, scale:20,
+  brace:{type:"45", x:0.6},
+  price:110, priceNote:"", segs:8,
+  crew:{w0:4,d0:6,deadline:5,wage:""},
+  recommend:"", reflection:"", checks:{},
+  tc:{who:"",w:"",k:"",a2:"",scale:20,type:"45",x:"",price:""}
+};
+function clone(o){return JSON.parse(JSON.stringify(o));}
+var S=load();
+function load(){try{var t=localStorage.getItem(KEY);if(t)return Object.assign(clone(EXAMPLE),JSON.parse(t));}catch(e){}return clone(EXAMPLE);}
+var saveT=null;
+function save(){clearTimeout(saveT);saveT=setTimeout(function(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},250);}
+
+/* ---------- number helpers ---------- */
+function num(v){var n=parseFloat(v);return isFinite(n)?n:null;}
+function rd(n,d){var p=Math.pow(10,d==null?4:d);return Math.round(n*p)/p;}
+function f(n,d){if(n===null||!isFinite(n))return "?";var x=rd(n,d==null?4:d);if(Object.is(x,-0))x=0;return (x<0?"−":"")+Math.abs(x).toLocaleString("en-US",{maximumFractionDigits:d==null?4:d});}
+function f2(n){return f(n,2);}
+function peso(n){return "₱"+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function V(s){return '<span class="v">'+s+'</span>';}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=b;b=a%b;a=t;}return a||1;}
+/* exact fractions for decimals with up to 3 places */
+function Fr(n,d){if(d<0){n=-n;d=-d;}var g=gcd(n,d);return {n:n/g,d:d/g};}
+function fd(x){return Fr(Math.round(x*1000),1000);}
+function fm(a,b){return Fr(a.n*b.n,a.d*b.d);} function fdv(a,b){return Fr(a.n*b.d,a.d*b.n);}
+function fv(a){return a.n/a.d;}
+function ft(a){/* text: integer, short decimal, or fraction ≈ decimal */
+  if(a.d===1)return (a.n<0?"−":"")+Math.abs(a.n);
+  var v=fv(a),s=String(Math.abs(v));if(s.split(".")[1]&&s.split(".")[1].length<=4)return f(v);
+  return (a.n<0?"−":"")+Math.abs(a.n)+"/"+a.d+" ≈ "+f(v);}
+function fts(a){/* fraction only (for writing in equations) */return a.d===1?f(fv(a)):((a.n<0?"−":"")+Math.abs(a.n)+"/"+a.d);}
+function niceDec(v){var s=String(Math.abs(rd(v,6)));return !s.split(".")[1]||s.split(".")[1].length<=4;}
+
+/* ---------- the arch model ---------- */
+function arch(w,k){
+  if(w===null||k===null||w<=0||k<=0)return null;
+  var W=fd(w),K=fd(k),half=Fr(W.n,W.d*2),sq=fm(half,half),A=Fr(-K.n*sq.d,K.d*sq.n);
+  return {w:w,k:k,half:fv(half),Hf:half,SQ:sq,A:A,a:fv(A),K:K,y:function(x){return fv(A)*x*x+k;}};
+}
+function M(){return arch(num(S.w),num(S.k));}
+function aText(m){return niceDec(m.a)?f(m.a):fts(m.A)+" ≈ "+f(m.a);}
+function vertexForm(m){return "y = "+(niceDec(m.a)?f(m.a):"−("+Math.abs(m.A.n)+"/"+m.A.d+")")+"(x − 0)² + "+f(m.k);}
+function stdForm(m,dec){var c=dec||!niceDec(m.a)?f(m.a):f(m.a);return "y = "+(niceDec(m.a)?f(m.a):"−("+Math.abs(m.A.n)+"/"+m.A.d+")")+"x² + 0x + "+f(m.k);}
+
+/* SVG plot of arches in meters (equal scale on both axes) */
+function plot(m,opt){
+  opt=opt||{};
+  var xMax=m.half;if(opt.a2){xMax=Math.max(xMax,Math.sqrt(m.k/Math.abs(opt.a2)));}
+  if(opt.brace)xMax=Math.max(xMax,opt.brace.foot);
+  xMax=Math.ceil((xMax+0.2)*5)/5; var yMax=Math.ceil((m.k+0.3)*5)/5;
+  var W=380,padL=34,padR=12,padT=14,padB=34,u=(W-padL-padR)/(2*xMax),H=Math.round(yMax*u+padT+padB);
+  function X(x){return padL+(x+xMax)*u;} function Y(y){return padT+(yMax-y)*u;}
+  var g=['<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Graph of the arch">'];
+  g.push('<rect x="'+X(-xMax)+'" y="'+Y(yMax)+'" width="'+(2*xMax*u)+'" height="'+(yMax*u)+'" fill="var(--surface)" stroke="var(--grid-strong)"/>');
+  for(var gx=-xMax;gx<=xMax+1e-9;gx+=0.1){var major=Math.abs(Math.round(gx*10))%5===0;g.push('<line x1="'+X(gx)+'" y1="'+Y(yMax)+'" x2="'+X(gx)+'" y2="'+Y(0)+'" stroke="'+(major?'var(--grid-strong)':'var(--grid)')+'"/>');
+    if(major)g.push('<text x="'+X(gx)+'" y="'+(Y(0)+15)+'" text-anchor="middle" font-size="10" fill="var(--muted)">'+f(rd(gx,1))+'</text>');}
+  for(var gy=0;gy<=yMax+1e-9;gy+=0.1){var mj=Math.round(gy*10)%5===0;g.push('<line x1="'+X(-xMax)+'" y1="'+Y(gy)+'" x2="'+X(xMax)+'" y2="'+Y(gy)+'" stroke="'+(mj?'var(--grid-strong)':'var(--grid)')+'"/>');
+    if(mj&&gy>0)g.push('<text x="'+(X(0)-4)+'" y="'+(Y(gy)+3.5)+'" text-anchor="end" font-size="10" fill="var(--muted)">'+f(rd(gy,1))+'</text>');}
+  g.push('<line x1="'+X(-xMax)+'" y1="'+Y(0)+'" x2="'+X(xMax)+'" y2="'+Y(0)+'" stroke="var(--ink)" stroke-width="2"/><line x1="'+X(0)+'" y1="'+Y(0)+'" x2="'+X(0)+'" y2="'+Y(yMax)+'" stroke="var(--ink)" stroke-width="1.5"/>');
+  g.push('<text x="'+(X(xMax)-3)+'" y="'+(Y(0)+28)+'" text-anchor="end" font-size="11" font-weight="700" fill="var(--ink)">x (m)</text><text x="'+(X(0)-5)+'" y="'+(Y(yMax)+12)+'" text-anchor="end" font-size="11" font-weight="700" fill="var(--ink)">y (m)</text>');
+  function curve(a,col,dash){var x0=Math.sqrt(m.k/Math.abs(a)),pts=[];for(var i=0;i<=60;i++){var x=-x0+2*x0*i/60;pts.push(X(x).toFixed(1)+","+Y(a*x*x+m.k).toFixed(1));}
+    return '<polyline points="'+pts.join(" ")+'" fill="none" stroke="'+col+'" stroke-width="'+(dash?2.5:4)+'" stroke-linejoin="round"'+(dash?' stroke-dasharray="7 5"':'')+'/>';}
+  if(opt.cart){var cw=opt.cart.w/2,ch=opt.cart.h;g.push('<rect x="'+X(-cw)+'" y="'+Y(ch)+'" width="'+(2*cw*u)+'" height="'+(ch*u)+'" fill="var(--cart-soft)" stroke="var(--cart)" stroke-width="2"/>');
+    g.push('<text x="'+X(0)+'" y="'+(Y(ch/2)+4)+'" text-anchor="middle" font-size="12" font-weight="700" fill="var(--cart)">cart '+f(opt.cart.w)+' × '+f(ch)+'</text>');}
+  if(opt.a2)g.push(curve(opt.a2,"var(--alt)",true));
+  g.push(curve(m.a,"var(--arch)",false));
+  if(opt.brace){var B=opt.brace;[1,-1].forEach(function(s){g.push('<line x1="'+X(s*B.x)+'" y1="'+Y(B.h)+'" x2="'+X(s*B.foot)+'" y2="'+Y(0)+'" stroke="var(--brace)" stroke-width="4" stroke-linecap="round"/>');
+      g.push('<line x1="'+X(s*B.x)+'" y1="'+Y(B.h)+'" x2="'+X(s*B.x)+'" y2="'+Y(0)+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3"/>');});
+    g.push('<path d="M'+(X(B.x)+8)+' '+Y(0)+' v-8 h-8" fill="none" stroke="var(--muted)" stroke-width="1.5"/>');
+    g.push('<text x="'+(X((B.x+B.foot)/2)+6)+'" y="'+(Y(B.h/2)-4)+'" font-size="12" font-weight="800" fill="var(--brace)">brace '+f(B.len,2)+' m</text>');
+    g.push('<text x="'+(X(B.foot)-10)+'" y="'+(Y(0)-6)+'" text-anchor="end" font-size="11" font-weight="700" fill="var(--brace)">'+B.ground+'°</text>');}
+  if(opt.marks)opt.marks.forEach(function(p){g.push('<circle cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="4.5" fill="var(--arch)" stroke="var(--surface)" stroke-width="1.5"/>');});
+  g.push('<circle cx="'+X(0)+'" cy="'+Y(m.k)+'" r="6" fill="var(--hl)" stroke="var(--surface)" stroke-width="2"/><text x="'+(X(0)+9)+'" y="'+(Y(m.k)-6)+'" font-size="12" font-weight="800" fill="var(--hl)">vertex (0, '+f(m.k)+')</text>');
+  [-1,1].forEach(function(s){g.push('<circle cx="'+X(s*m.half)+'" cy="'+Y(0)+'" r="5" fill="var(--arch)" stroke="var(--surface)" stroke-width="2"/>');});
+  g.push('<text x="'+X(-m.half)+'" y="'+(Y(0)+28)+'" text-anchor="middle" font-size="11" font-weight="700" fill="var(--arch)">('+f(-m.half)+', 0)</text><text x="'+X(m.half)+'" y="'+(Y(0)+28)+'" text-anchor="middle" font-size="11" font-weight="700" fill="var(--arch)">('+f(m.half)+', 0)</text>');
+  g.push('</svg>');return g.join("");
+}
+
+/* braces */
+var BTYPE={"45":{label:"45-45-90 (45° with the ground)",ground:45},"60":{label:"30-60-90 (60° with the ground)",ground:60},"30":{label:"30-60-90 (30° with the ground)",ground:30}};
+function brace(m){
+  var x=num(S.brace.x),t=BTYPE[S.brace.type]?S.brace.type:"45";if(!m||x===null||x<=0||x>=m.half)return null;
+  var h=m.y(x),run,len,steps;
+  if(t==="45"){run=h;len=h*Math.SQRT2;steps="45-45-90: legs are equal, hypotenuse = leg × √2\nvertical leg (height) = "+f(h)+" m\nhorizontal leg = "+f(h)+" m\nbrace = "+f(h)+"√2 ≈ "+f(h)+" × 1.4142 ≈ "+f(len)+" m";}
+  else if(t==="60"){run=h/Math.sqrt(3);len=2*h/Math.sqrt(3);steps="30-60-90 with the 60° angle at the ground:\nthe height is the LONG leg (opposite 60°) = "+f(h)+" m\nshort leg = long leg ÷ √3 = "+f(h)+" ÷ √3 ≈ "+f(run)+" m\nbrace (hypotenuse) = 2 × short leg ≈ "+f(len)+" m";}
+  else {run=h*Math.sqrt(3);len=2*h;steps="30-60-90 with the 30° angle at the ground:\nthe height is the SHORT leg (opposite 30°) = "+f(h)+" m\nlong leg = short leg × √3 ≈ "+f(run)+" m\nbrace (hypotenuse) = 2 × short leg = "+f(len)+" m";}
+  var tanG=Math.tan(BTYPE[t].ground*Math.PI/180),slope=Math.abs(2*m.a*x);
+  return {x:x,h:h,run:run,len:len,foot:x+run,ground:BTYPE[t].ground,steps:steps,type:t,cuts:tanG>slope+1e-9,slope:slope};
+}
+/* arch length by straight segments */
+function archLen(m,n){n=Math.max(2,Math.min(40,Math.round(n||8)));var pts=[],sum=0,rows=[];
+  for(var i=0;i<=n;i++){var x=-m.half+m.w*i/n;pts.push([x,m.y(x)]);}
+  for(var j=1;j<=n;j++){var dx=pts[j][0]-pts[j-1][0],dy=pts[j][1]-pts[j-1][1],d=Math.sqrt(dx*dx+dy*dy);sum+=d;rows.push([pts[j-1],pts[j],dx,dy,d]);}
+  return {sum:sum,rows:rows,n:n};}
+
+/* ---------- views ---------- */
+var ORDER=["plan","part-a","part-b","part-c","part-d","part-e","part-f","part-g"];
+var LABEL={"plan":"Plan","part-a":"A","part-b":"B","part-c":"C","part-d":"D","part-e":"E","part-f":"F","part-g":"G"};
+var cur="plan";
+function exampleBanner(){
+  if(!S.example)return "";
+  return '<div class="example"><span><b>Example numbers are loaded.</b> Choose your own width and height in Part A.</span><span class="seg"><button class="small" type="button" data-act="clear">Start with blank form</button></span></div>'+
+    '<div class="note" id="confirmClear" hidden>Clear every answer in this app? <span class="seg" style="margin-top:8px"><button class="small primary" type="button" data-act="clearYes">Yes, clear all</button><button class="small" type="button" data-act="clearNo">Keep</button></span></div>';
+}
+function get(path){return path.split(".").reduce(function(o,k){return o==null?o:o[k];},S);}
+function set(path,v){var ks=path.split("."),o=S;for(var i=0;i<ks.length-1;i++)o=o[ks[i]];o[ks[ks.length-1]]=v;}
+function field(path,lab,hint,type,extra,unit){
+  var v=get(path);type=type||"text";var id="f-"+path.replace(/\./g,"-");
+  var inp='<input id="'+id+'" type="'+(type==="peso"?"number":type)+'" '+(type==="number"||type==="peso"?'inputmode="decimal" step="any"':'')+' data-k="'+path+'" value="'+esc(v==null?"":v)+'"'+(extra||"")+'>';
+  if(unit)inp='<span class="unit" data-u="'+unit+'">'+inp+'</span>';
+  if(type==="peso")inp='<span class="peso">'+inp+'</span>';
+  return '<label for="'+id+'">'+lab+(hint?'<span class="hint">'+hint+'</span>':'')+inp+'</label>';
+}
+function need(){return '<p class="warn">Enter a width and a height in Part A first.</p>';}
+var VIEWS={};
+var CHECKS={
+  "part-a":["My width is 2.0–3.0 m and my height is 2.4–3.0 m.","I wrote the equation in vertex form, solved for a, and wrote it in standard form.","I found the zeros by two methods and checked them against my width.","I stated and explained the vertex, axis of symmetry, opening, maximum, and the increasing and decreasing intervals."],
+  "part-b":["I made a table of values.","I graphed my arch on graph paper.","I sketched a second arch with a different a on the same plane.","I described how the shape changed."],
+  "part-c":["I found the height of the arch 0.6 m from the center, with solution.","I compared it with the cart’s height and gave my decision."],
+  "part-d":["I built my model with safe materials.","I stated the scale factor.","I listed three pairs of corresponding lengths and showed they are proportional."],
+  "part-e":["I drew a labeled diagram of the braces.","I used a 45-45-90 or 30-60-90 triangle.","I computed the length of each brace with solution."],
+  "part-f":["I used a real price per meter and cited where it came from.","I wrote the direct variation equation, made a table, and computed the cost.","I wrote the inverse variation equation and made a table for 1 to 6 workers.","I recommended a number of workers and explained why."],
+  "part-g":["I referred to 1 Corinthians 3:10.","I connected careful design and accurate computation with building my life on Christ.","I wrote the final copy in my report."]
+};
+function partProgress(p){var c=CHECKS[p];if(!c)return 0;return c.filter(function(_,i){return S.checks[p+i];}).length/c.length;}
+function checklist(p){return '<div class="card"><h3>Before you move on</h3><ul class="check">'+CHECKS[p].map(function(t,i){var id="ck-"+p+i;return '<li><label for="'+id+'"><input type="checkbox" id="'+id+'" data-check="'+p+i+'"'+(S.checks[p+i]?" checked":"")+'>'+esc(t)+'</label></li>';}).join("")+'</ul></div>';}
+function wc(s){return (s||"").trim().split(/\s+/).filter(Boolean).length;}
+
+/* PLAN */
+VIEWS["plan"]={
+  stat:function(){
+    var today=new Date();today.setHours(0,0,0,0);
+    var dl=[["2026-11-13","Checkpoint 1","Chosen dimensions, the equation in vertex form, and the graph (Parts A.1 and B)",5],
+            ["2026-12-04","Checkpoint 2","Parts A, C, and D: zeros, the cart problem, the model’s scale computations; bring the model in progress",5],
+            ["2026-12-17","Final submission","The scale model and the complete Design Report (all parts)",90]];
+    var ni=dl.findIndex(function(d){return new Date(d[0]+"T00:00:00")>=today;});
+    var tl=dl.map(function(d,i){var dt=new Date(d[0]+"T00:00:00"),days=Math.round((dt-today)/864e5);
+      var when=days<0?"done":days===0?"today":days===1?"tomorrow":"in "+days+" days";
+      return '<div class="tl'+(i===ni?' next':'')+'"><div class="d">'+dt.toLocaleDateString("en-US",{month:"short"})+'<b>'+dt.getDate()+'</b></div><div><b>'+d[1]+'</b><br><span class="muted">'+d[2]+'</span></div><div style="text-align:right"><span class="pill '+(days<0?'good':'bad')+'" style="'+(days<0?'':'background:var(--hl-soft);color:var(--hl)')+'">'+when+'</span><br><span class="count">'+d[3]+' pts</span></div></div>';}).join("");
+    return exampleBanner()+
+    '<div><div class="eyebrow">Mathematics 9 · Third Quarter Performance Task</div><h2>The Garden Arch</h2></div>'+
+    '<p class="lead">You are the <b>design engineer</b>. Design a parabolic arch for the school garden walkway, build a scale model, and report the cost and building time to the Principal.</p>'+
+    '<div class="card"><h3>How to use this app</h3><ul class="check" style="gap:6px"><li>1. Choose your arch’s width and height in <b>Part A</b>.</li><li>2. Each part shows the solutions worked out with <i>your</i> numbers.</li><li>3. Copy every step into your Design Report, draw graphs on graph paper, and build the model to match.</li></ul>'+
+    '<p class="note">The task says: <i>“If you use a calculator or an app, write the steps you used.”</i> Write every step shown here in your report.</p></div>'+
+    '<div class="card"><h3>Deadlines</h3><div class="timeline">'+tl+'</div><p class="count">Checkpoints are for feedback. Bring your work in progress; you may improve it after your teacher returns it.</p></div>'+
+    '<div class="card" id="progress"></div>'+
+    '<div class="card"><h3>How each part is scored</h3><div class="tablebox"><table class="rub"><tr><th>Level</th><th>What it looks like</th><th>Score</th></tr>'+
+    '<tr><td><b>4 Excellent</b></td><td>Complete and correct; every step shown; clear explanations with correct terms; neat and labeled.</td><td>100%</td></tr>'+
+    '<tr><td><b>3 Proficient</b></td><td>Complete with minor errors; most steps shown; mostly clear.</td><td>80%</td></tr>'+
+    '<tr><td><b>2 Developing</b></td><td>Several errors or missing parts; some steps shown; unclear.</td><td>60%</td></tr>'+
+    '<tr><td><b>1 Beginning</b></td><td>Major errors; mostly incomplete; little explanation.</td><td>40%</td></tr>'+
+    '<tr><td><b>0</b></td><td>The part is missing.</td><td>0</td></tr></table></div></div>'+
+    '<div class="card"><h3>Copy all your steps</h3><p class="muted">Copies the equations, tables, solutions, and drafts as plain text.</p><button type="button" class="primary" data-act="copyAll">Copy all as text</button><textarea id="copyBox" hidden readonly></textarea></div>'+
+    '<div class="card"><h3>For teachers</h3><p class="muted">Check a student’s answers: type in their width, height, and choices and see the full answer key.</p><a class="btn" href="#teacher">Open Teacher Check</a></div>'+
+    '<div class="card"><h3>Reminders</h3><ul class="check" style="gap:6px"><li>• This is an <b>individual</b> task. Copied work gets no points for the copied parts.</li><li>• Use long bond paper in a clear folder. All graphs on graph paper or drawn to scale.</li><li>• Build your model with safe materials: cardboard, barbecue sticks, wire.</li></ul></div>';
+  },
+  live:function(){
+    var parts=[["part-a","A. Quadratic model",20],["part-b","B. Graph",10],["part-c","C. Will it fit?",10],["part-d","D. Scale model",15],["part-e","E. Braces",10],["part-f","F. Cost and time",15],["part-g","G. Reflection",10]];
+    var rows=parts.map(function(p){return '<a href="#'+p[0]+'">'+p[1]+'</a><div class="bar"><i style="width:'+Math.round(partProgress(p[0])*100)+'%"></i></div><span class="count">'+p[2]+' pts</span>';}).join("");
+    var all=parts.reduce(function(s,p){return s+partProgress(p[0]);},0)/parts.length;
+    var el=document.getElementById("progress");if(el)el.innerHTML='<h3>Your progress · '+Math.round(all*100)+'%</h3><div class="prog">'+rows+'</div><p class="count">Progress counts the boxes you tick at the end of each part.</p>';
+    return null;
+  }
+};
+
+/* PART A */
+VIEWS["part-a"]={
+  stat:function(){
+    return exampleBanner()+
+    '<div><div class="eyebrow">Part A <span class="pts">20 pts</span></div><h2>The Quadratic Model</h2></div>'+
+    '<p class="lead">Put the ground on the x-axis and the axis of symmetry on the y-axis. The top of the arch is the vertex (0, '+V("k")+').</p>'+
+    '<div class="card"><div class="grid2">'+field("w","Width w at the ground","2.0 m to 3.0 m","number",' min="2" max="3"',"m")+field("k","Height k (highest point)","2.4 m to 3.0 m","number",' min="2.4" max="3"',"m")+'</div><div id="live"></div></div>'+
+    '<div class="card"><h3>1. Vertex form and standard form <span class="pts">6 pts</span></h3><div id="live2"></div></div>'+
+    '<div class="card"><h3>2. The zeros, two ways <span class="pts">8 pts</span></h3><div id="live3"></div></div>'+
+    '<div class="card"><h3>3. Properties of the arch <span class="pts">6 pts</span></h3><div id="live4"></div></div>'+checklist("part-a");
+  },
+  live:function(){var w=num(S.w),k=num(S.k),msg=[];
+    if(w===null||k===null)return '<p class="warn">Enter both numbers.</p>';
+    if(w<2||w>3)msg.push("The width must be from 2.0 m to 3.0 m.");if(k<2.4||k>3)msg.push("The height must be from 2.4 m to 3.0 m.");
+    return msg.length?'<p class="warn">'+msg.join(" ")+'</p>':'<p><span class="pill good">Within the limits</span> The arch touches the ground at x = −'+f(w/2)+' and x = '+f(w/2)+'.</p>';},
+  live2:function(){var m=M();if(!m)return need();
+    var s="Vertex (h, k) = (0, "+f(m.k)+"), so  y = a(x − 0)² + "+f(m.k)+"\nThe arch passes through ("+f(m.half)+", 0):\n0 = a("+f(m.half)+")² + "+f(m.k)+"\n0 = "+f(fv(m.SQ))+"a + "+f(m.k)+"\n−"+f(m.k)+" = "+f(fv(m.SQ))+"a\na = −"+f(m.k)+" ÷ "+f(fv(m.SQ))+"\na = "+aText(m);
+    return '<div class="math">'+esc(s)+'</div><p class="muted">Vertex form</p><p class="eq">'+esc(vertexForm(m))+'</p><p class="muted">Standard form y = ax² + bx + c</p><p class="eq">'+esc(stdForm(m))+'</p><p>So a = '+esc(aText(m))+', b = 0, c = '+f(m.k)+'.</p>';},
+  live3:function(){var m=M();if(!m)return need();
+    var aS=niceDec(m.a)?f(m.a):"(−"+Math.abs(m.A.n)+"/"+m.A.d+")";
+    var D=fm(Fr(-4*m.A.n,m.A.d),m.K),rt=fdv(Fr(4*m.K.n,m.K.d),fd(m.w)),den=Fr(2*m.A.n,m.A.d);
+    var s1="Method 1 · Extracting square roots\n0 = "+aS+"x² + "+f(m.k)+"\n"+(niceDec(m.a)?f(-m.a):"("+Math.abs(m.A.n)+"/"+m.A.d+")")+"x² = "+f(m.k)+"\nx² = "+f(m.k)+" ÷ "+(niceDec(m.a)?f(-m.a):"("+Math.abs(m.A.n)+"/"+m.A.d+")")+" = "+f(fv(m.SQ))+"\nx = ±√"+f(fv(m.SQ))+"\nx = "+f(m.half)+"  or  x = −"+f(m.half);
+    var s2="Method 2 · Quadratic formula, a = "+(niceDec(m.a)?f(m.a):fts(m.A))+", b = 0, c = "+f(m.k)+"\nx = [−b ± √(b² − 4ac)] / (2a)\nb² − 4ac = 0² − 4("+(niceDec(m.a)?f(m.a):fts(m.A))+")("+f(m.k)+") = "+ft(D)+"\n√(b² − 4ac) = "+ft(rt)+"\n2a = "+ft(den)+"\nx = (0 + "+ft(rt).split(" ≈")[0]+") ÷ ("+fts(den)+") = "+f(fv(fdv(rt,den)))+"\nx = (0 − "+ft(rt).split(" ≈")[0]+") ÷ ("+fts(den)+") = "+f(-fv(fdv(rt,den)));
+    var chk="Check: distance between the zeros = "+f(m.half)+" − (−"+f(m.half)+") = "+f(m.w)+" m = the width ✓";
+    return '<div class="math">'+esc(s1)+'</div><div class="math">'+esc(s2)+'</div><p class="big">Zeros: x = −'+f(m.half)+' and x = '+f(m.half)+'</p><p>'+esc(chk)+'</p>'+
+      '<p class="muted">You may use factoring instead of extracting square roots: '+aS+'(x² − '+f(fv(m.SQ))+') = 0 → '+aS+'(x − '+f(m.half)+')(x + '+f(m.half)+') = 0.</p>';},
+  live4:function(){var m=M();if(!m)return need();
+    var rows=[["Vertex","(0, "+f(m.k)+")","The top of the arch is "+f(m.k)+" m above the center of the walkway."],
+      ["Axis of symmetry","x = 0","The arch is the same on the left and right of the center line."],
+      ["Opening","Downward, since a = "+esc(aText(m))+" < 0","The arch curves down to the ground, like a real arch."],
+      ["Maximum value","y = "+f(m.k),"No part of the arch is higher than "+f(m.k)+" m."],
+      ["Increasing","−"+f(m.half)+" ≤ x ≤ 0","Walking from the left foot to the center, the arch gets higher."],
+      ["Decreasing","0 ≤ x ≤ "+f(m.half),"From the center to the right foot, the arch gets lower."]];
+    return '<div class="tablebox"><table><tr><th class="l">Property</th><th>Value</th><th class="l">Meaning for the arch</th></tr>'+rows.map(function(r){return '<tr><td class="l"><b>'+r[0]+'</b></td><td>'+r[1]+'</td><td class="l">'+r[2]+'</td></tr>';}).join("")+'</table></div>'+
+      '<p class="count">For the whole parabola the intervals are x &lt; 0 (increasing) and x &gt; 0 (decreasing). For the real arch we only use −'+f(m.half)+' ≤ x ≤ '+f(m.half)+'.</p>';}
+};
+
+/* PART B */
+function tableXs(m){var st=num(S.step);if(!st||st<=0)st=m.half/4;var xs=[],n=Math.round(m.half/st);if(n>20){n=20;st=m.half/20;}
+  for(var i=-n;i<=n;i++)xs.push(rd(i*st,4));if(Math.abs(xs[xs.length-1])<m.half-1e-9){xs.unshift(-m.half);xs.push(m.half);}return xs;}
+VIEWS["part-b"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Part B <span class="pts">10 pts</span></div><h2>The Graph</h2></div>'+
+    '<p class="lead">Make a table of values, then graph your arch on graph paper. Add a second arch with a different <span class="v">a</span> on the same plane.</p>'+
+    '<div class="card"><div class="grid2">'+field("step","Table counts by","use a step that lands on the zeros","number",' min="0.05"',"m")+field("a2","a of your second arch","any negative number different from yours","number")+'</div></div>'+
+    '<div class="card" id="live"></div>'+
+    '<div class="card"><div class="figure" id="live2"></div><div class="legend"><span><i style="background:var(--arch)"></i>Your arch</span><span><i style="background:var(--alt)"></i>Second arch</span></div><div id="live3"></div></div>'+checklist("part-b");
+  },
+  live:function(){var m=M();if(!m)return need();var xs=tableXs(m),aS=niceDec(m.a)?f(m.a):"(−"+Math.abs(m.A.n)+"/"+m.A.d+")";
+    return '<h3>Table of values: y = '+esc(aS)+'x² + '+f(m.k)+'</h3><div class="tablebox"><table><tr><th>x (m)</th><th>Solution</th><th>y (m)</th></tr>'+
+      xs.map(function(x){return '<tr><td>'+f(x)+'</td><td class="calc">'+esc(aS)+'('+f(x)+')² + '+f(m.k)+'</td><td><b>'+f(m.y(x))+'</b></td></tr>';}).join("")+'</table></div>';},
+  live2:function(){var m=M();if(!m)return "";var a2=num(S.a2);return plot(m,{a2:(a2!==null&&a2<0&&Math.abs(a2-m.a)>1e-9)?a2:null,marks:tableXs(m).map(function(x){return [x,m.y(x)];})});},
+  live3:function(){var m=M();if(!m)return "";var a2=num(S.a2);
+    if(a2===null)return '<p class="muted">Enter an a for your second arch.</p>';
+    if(a2>=0)return '<p class="warn">Use a negative a, so the second arch also opens downward.</p>';
+    if(Math.abs(a2-m.a)<1e-9)return '<p class="warn">Choose an a different from yours ('+esc(aText(m))+').</p>';
+    var z=Math.sqrt(m.k/Math.abs(a2)),nar=Math.abs(a2)>Math.abs(m.a);
+    return '<p><b>Second arch:</b> y = '+f(a2)+'x² + '+f(m.k)+'. It has the same vertex (0, '+f(m.k)+') but its zeros are x = ±√('+f(m.k)+' ÷ '+f(Math.abs(a2))+') ≈ ±'+f(z,2)+', so it is '+f(2*z,2)+' m wide.</p>'+
+      '<p><b>How the shape changes:</b> |'+f(a2)+'| is '+(nar?'greater':'less')+' than |'+esc(aText(m).split(" ≈")[0])+'|, so the second arch is <b>'+(nar?'narrower and steeper':'wider and flatter')+'</b>. The larger |a| is, the narrower the parabola.</p>';}
+};
+
+/* PART C */
+VIEWS["part-c"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Part C <span class="pts">10 pts</span></div><h2>Will It Fit?</h2></div>'+
+    '<p class="lead">A garden cart is <b>1.2 m wide</b> and <b>1.8 m tall</b>. If it goes through the middle, its top corners are 0.6 m from the center.</p>'+
+    '<div class="card" id="live"></div><div class="card"><div class="figure" id="live2"></div></div>'+checklist("part-c");
+  },
+  live:function(){var m=M();if(!m)return need();var cw=num(S.cart.w)||1.2,ch=num(S.cart.h)||1.8,x=cw/2,y=m.y(x),aS=niceDec(m.a)?f(m.a):"(−"+Math.abs(m.A.n)+"/"+m.A.d+")";
+    var s="Half of the cart’s width: "+f(cw)+" ÷ 2 = "+f(x)+" m\ny = "+aS+"("+f(x)+")² + "+f(m.k)+"\ny = "+aS+"("+f(x*x)+") + "+f(m.k)+"\ny = "+f(m.a*x*x)+" + "+f(m.k)+"\ny = "+f(y)+" m";
+    var fits=y>ch+1e-9,clr=y-ch;
+    return '<div class="math">'+esc(s)+'</div><p class="big">Height at '+f(x)+' m from the center: '+f(y)+' m</p>'+
+      '<p><span class="pill '+(fits?'good':'bad')+'">'+(fits?'The cart fits':'The cart does not fit')+'</span> '+(fits?f(y)+' m &gt; '+f(ch)+' m, so the cart’s top corners pass under the arch with '+f(clr*100,1)+' cm to spare.':f(y)+' m '+(Math.abs(clr)<1e-9?'=':'&lt;')+' '+f(ch)+' m, so the cart’s top corners would hit the arch. Make the arch taller or wider.')+'</p>'+
+      '<p class="muted">Why check at '+f(x)+' m? The arch gets lower as you move away from the center, so the corners of the cart are where it is tightest.</p>';},
+  live2:function(){var m=M();if(!m)return "";return plot(m,{cart:{w:num(S.cart.w)||1.2,h:num(S.cart.h)||1.8}});}
+};
+
+/* PART D */
+VIEWS["part-d"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Part D <span class="pts">15 pts</span></div><h2>The Scale Model</h2></div>'+
+    '<p class="lead">Build your arch at a scale such as 1:20 with cardboard, barbecue sticks, or wire. A model and the real arch are <b>similar figures</b> when all corresponding lengths are proportional.</p>'+
+    '<div class="card"><div class="grid2">'+field("scale","Scale 1 : n","n = 20 means 1 cm on the model is 20 cm in real life","number",' min="1"')+'</div></div>'+
+    '<div class="card" id="live"></div><div class="card" id="live2"></div>'+checklist("part-d");
+  },
+  live:function(){var m=M();if(!m)return need();var n=num(S.scale);if(!n||n<=0)return '<p class="warn">Enter the scale n.</p>';
+    var b=brace(m),pairs=[["Width at the ground",m.w],["Height (vertex)",m.k],["Height 0.6 m from center",m.y(0.6)]];if(b)pairs.push(["Brace length",b.len]);
+    var rows=pairs.map(function(p){var real=p[1]*100,mod=real/n;return '<tr><td class="l">'+p[0]+'</td><td>'+f(real,1)+' cm</td><td>'+f(mod,2)+' cm</td><td class="calc">'+f(mod,2)+' ÷ '+f(real,1)+' = 1/'+f(n)+'</td></tr>';}).join("");
+    return '<h3>Scale factor: 1/'+f(n)+'</h3><p>Every model length = real length ÷ '+f(n)+'.</p>'+
+      '<div class="tablebox"><table><tr><th class="l">Length</th><th>Real</th><th>Model</th><th>Model ÷ real</th></tr>'+rows+'</table></div>'+
+      '<p><b>Proportional:</b> every ratio equals 1/'+f(n)+', for example '+f(m.w*100/n,2)+'/'+f(m.w*100,1)+' = '+f(m.k*100/n,2)+'/'+f(m.k*100,1)+'. Since all corresponding lengths are in the same ratio (and the shapes match), the model and the real arch are similar figures.</p>';},
+  live2:function(){var m=M();if(!m)return "";var n=num(S.scale);if(!n||n<=0)return "";
+    var xs=tableXs(m),am=m.a*n/100,km=m.k*100/n;
+    return '<h3>Template for cutting your model</h3><p class="muted">Mark these points on cardboard (in cm), join them with a smooth curve, then cut. Model equation: y = '+f(am)+'x² + '+f(km,2)+' (x and y in cm).</p>'+
+      '<div class="tablebox"><table><tr><th>Real x (m)</th><th>Real y (m)</th><th>Model x (cm)</th><th>Model y (cm)</th></tr>'+xs.map(function(x){return '<tr><td>'+f(x)+'</td><td>'+f(m.y(x))+'</td><td><b>'+f(x*100/n,2)+'</b></td><td><b>'+f(m.y(x)*100/n,2)+'</b></td></tr>';}).join("")+'</table></div>';}
+};
+
+/* PART E */
+VIEWS["part-e"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Part E <span class="pts">10 pts</span></div><h2>The Braces</h2></div>'+
+    '<p class="lead">Each brace goes from a point on the arch straight down to the ground, outside the arch. The brace, the ground, and a vertical line make a special right triangle.</p>'+
+    '<div class="card"><b>Triangle</b><div class="seg" role="group" aria-label="Triangle">'+["45","60","30"].map(function(t){return '<button type="button" class="small" data-btype="'+t+'" aria-pressed="'+(S.brace.type===t)+'">'+BTYPE[t].label+'</button>';}).join("")+'</div>'+
+      field("brace.x","Where the brace meets the arch: x =","distance from the center, between 0 and half the width","number",' min="0"',"m")+'</div>'+
+    '<div class="card" id="live"></div><div class="card"><div class="figure" id="live2"></div></div>'+checklist("part-e");
+  },
+  live:function(){var m=M();if(!m)return need();var b=brace(m);if(!b)return '<p class="warn">Enter an x between 0 and '+f(m.half)+'.</p>';
+    var aS=niceDec(m.a)?f(m.a):"(−"+Math.abs(m.A.n)+"/"+m.A.d+")";
+    var s="Height of the arch at x = "+f(b.x)+":\ny = "+aS+"("+f(b.x)+")² + "+f(m.k)+" = "+f(b.h)+" m\n\n"+b.steps;
+    return '<div class="math">'+esc(s)+'</div><p class="big">Each brace: '+f(b.len,2)+' m · two braces: '+f(2*b.len,2)+' m</p>'+
+      '<p>Each brace reaches the ground '+f(b.run,2)+' m outside the point where it meets the arch, at x = ±'+f(b.foot,2)+' m.</p>'+
+      (b.cuts?'<p class="warn">At this point the arch is less steep than the brace, so the brace would cut into the arch. Move the point closer to the ground (a larger x) or use a gentler angle.</p>':'')+
+      '<p class="muted">Exact form: '+(b.type==="45"?f(b.h)+'√2':b.type==="60"?'2('+f(b.h)+')/√3 = '+f(2*b.h/3)+'√3':'2 × '+f(b.h))+' m.</p>';},
+  live2:function(){var m=M();if(!m)return "";var b=brace(m);if(!b)return "";return plot(m,{brace:b});}
+};
+
+/* PART F */
+VIEWS["part-f"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Part F <span class="pts">15 pts</span></div><h2>Cost and Building Time</h2></div>'+
+    '<div class="card"><h3>1. Cost varies directly with length <span class="pts">8 pts</span></h3>'+
+      '<div class="grid2">'+field("price","Price of steel bar per meter","use a real price","peso",' min="0"')+field("segs","Straight pieces to measure the arch","more pieces = closer to the real length","number",' min="2" max="40"')+'</div>'+
+      '<label for="f-priceNote">Where the price came from<input type="text" id="f-priceNote" data-k="priceNote" value="'+esc(S.priceNote)+'" placeholder="Name of hardware store or online shop, and date"></label>'+
+      '<p class="count">If the store sells a 6-meter bar, price per meter = price of one bar ÷ 6.</p><div id="live"></div></div>'+
+    '<div class="card"><h3>2. Time varies inversely with workers <span class="pts">7 pts</span></h3>'+
+      '<div class="grid2">'+field("crew.deadline","Days the school can wait (optional)","","number",' min="1"')+field("crew.wage","Daily wage per worker (optional)","to compare labor cost","peso",' min="0"')+'</div><div id="live2"></div>'+
+      '<label for="f-recommend">Your recommendation, in your own words<textarea id="f-recommend" data-k="recommend" style="min-height:120px">'+esc(S.recommend)+'</textarea></label></div>'+
+    '<div class="card"><h3>Design summary for your report</h3><div id="live3"></div></div>'+checklist("part-f");
+  },
+  live:function(){var m=M();if(!m)return need();var p=num(S.price);if(p===null)return '<p class="warn">Enter the price per meter.</p>';
+    var L=archLen(m,num(S.segs)),b=brace(m),bl=b?2*b.len:0,total=L.sum+bl;
+    var seg='<details><summary><b>Arch length by straight pieces</b> ≈ '+f(L.sum,2)+' m</summary><p class="muted">Each piece is the hypotenuse of a right triangle: √(Δx² + Δy²).</p><div class="tablebox"><table><tr><th>From</th><th>To</th><th>Length (m)</th></tr>'+
+      L.rows.map(function(r){return '<tr><td>('+f(r[0][0],2)+', '+f(r[0][1],2)+')</td><td>('+f(r[1][0],2)+', '+f(r[1][1],2)+')</td><td class="calc">√('+f(r[2],3)+'² + '+f(r[3],3)+'²) ≈ <b>'+f(r[4],3)+'</b></td></tr>';}).join("")+
+      '<tr><th colspan="2">Total</th><th>'+f(L.sum,3)+'</th></tr></table></div><p class="count">You can also measure your model’s arch with a string and multiply by the scale.</p></details>';
+    var tb=[1,2,3,4,5].map(function(x){return [f(x)+" m",x];});tb.push(["Arch",L.sum]);if(b)tb.push(["Two braces",bl]);tb.push(["Arch + braces",total]);
+    return '<p>Let '+V("C")+' = cost in pesos and '+V("L")+' = length in meters. <b>C = kL</b>, where k = price per meter = '+f2(p)+'.</p><p class="eq">C = '+f2(p)+'L</p>'+seg+
+      '<div class="tablebox"><table><tr><th class="l">Length L</th><th>Solution</th><th>Cost C</th></tr>'+tb.map(function(r){return '<tr><td class="l">'+r[0]+(typeof r[1]==="number"&&r[0].indexOf(" m")<0?' ('+f(r[1],2)+' m)':'')+'</td><td class="calc">'+f2(p)+' × '+f(r[1],2)+'</td><td><b>'+peso(p*r[1])+'</b></td></tr>';}).join("")+'</table></div>'+
+      '<p class="big">Steel cost ≈ '+peso(p*total)+'</p><p class="count">Real projects buy a little extra for cutting and joints. Mention this in your report.</p>';},
+  live2:function(){var k=num(S.crew.w0)*num(S.crew.d0);var rows=[1,2,3,4,5,6].map(function(n){return '<tr><td>'+n+'</td><td class="calc">'+k+' ÷ '+n+'</td><td><b>'+f(k/n,2)+'</b></td></tr>';}).join("");
+    var dl=num(S.crew.deadline),wage=num(S.crew.wage),rec="";
+    if(dl&&dl>0){var need=Math.ceil(k/dl-1e-9);rec='<p><b>To finish in '+f(dl)+' days or less:</b> workers ≥ '+k+' ÷ '+f(dl)+' = '+f(k/dl,2)+', so at least <b>'+need+' worker'+(need===1?'':'s')+'</b>.</p>';}
+    return '<p>Let '+V("T")+' = days and '+V("n")+' = number of workers. <b>T = k/n</b>.</p><div class="math">'+esc("4 workers finish in 6 days:\n6 = k ÷ 4\nk = 6 × 4 = 24\nT = 24/n")+'</div>'+
+      '<div class="tablebox"><table><tr><th>Workers n</th><th>Solution</th><th>Days T</th></tr>'+rows+'</table></div>'+rec+
+      '<p class="muted">Notice n × T = 24 every time: the job needs 24 worker-days.'+(wage?' At '+peso(wage)+' a day, labor costs 24 × '+peso(wage)+' = <b>'+peso(24*wage)+'</b> no matter how many workers you hire.':' So the total labor cost is the same for any number of workers; more workers only finish sooner.')+' Think also about how many people can work safely around a 2–3 m arch.</p>';},
+  live3:function(){var m=M();if(!m)return need();var b=brace(m),p=num(S.price),L=archLen(m,num(S.segs)),fit=m.y((num(S.cart.w)||1.2)/2);
+    var t=[["Arch","width "+f(m.w)+" m, height "+f(m.k)+" m"],["Equation",vertexForm(m)],["Cart test","height at 0.6 m = "+f(fit,2)+" m → "+(fit>(num(S.cart.h)||1.8)?"fits":"does not fit")],["Model","scale 1:"+f(num(S.scale)||0)+", model "+f(m.w*100/(num(S.scale)||1),1)+" cm wide"],["Braces",b?"2 × "+f(b.len,2)+" m ("+BTYPE[b.type].label+")":"—"],["Steel",p!==null?f(L.sum+(b?2*b.len:0),2)+" m ≈ "+peso(p*(L.sum+(b?2*b.len:0))):"—"]];
+    return '<div class="tablebox"><table>'+t.map(function(r){return '<tr><td class="l"><b>'+r[0]+'</b></td><td class="l">'+esc(r[1])+'</td></tr>';}).join("")+'</table></div>';}
+};
+
+/* PART G */
+VIEWS["part-g"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Part G <span class="pts">10 pts</span></div><h2>Biblical Reflection</h2></div>'+
+    '<blockquote>“According to the grace of God which was given to me, like a wise master builder I laid a foundation, and another is building on it. But each person must be careful how he builds on it.”<br><b style="font-style:normal">1 Corinthians 3:10, NASB</b></blockquote>'+
+    '<div class="card"><h3>Think about these before you write</h3><ul class="check" style="gap:8px">'+
+      '<li>• What would happen to a real arch if one computation were wrong, like the value of a or the cart height?</li>'+
+      '<li>• Why do builders check their numbers twice before cutting steel?</li>'+
+      '<li>• Who is the foundation Paul is talking about (read verse 11)?</li>'+
+      '<li>• What does it look like for you to “build carefully” on Christ this school year?</li></ul>'+
+      '<p class="note">Write <b>one honest paragraph</b> in your own words.</p></div>'+
+    '<div class="card"><label for="f-reflection">Draft your paragraph<span class="hint">Saved on this phone. Copy the final version into your report.</span><textarea id="f-reflection" data-k="reflection">'+esc(S.reflection)+'</textarea></label><p class="count" id="live"></p></div>'+checklist("part-g");
+  },
+  live:function(){return wc(S.reflection)+" words";}
+};
+
+/* TEACHER PIN: only a SHA-256 hash of the PIN is kept here */
+var TC_HASH="de1eb175ef518fa562e531a56601cad6b08d1a3979d91559594f687100332128";
+var tcOpen=false;try{tcOpen=sessionStorage.getItem("tcOpen")===TC_HASH;}catch(e){}
+var tcFails=0,tcWaitUntil=0;
+function sha256hex(t){return crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)).then(function(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return ("0"+x.toString(16)).slice(-2);}).join("");});}
+function viewFor(k){return (k==="teacher"&&!tcOpen)?VIEWS["teacher-lock"]:VIEWS[k];}
+VIEWS["teacher-lock"]={stat:function(){
+  return '<div><span class="teacher-tag">For teachers</span><h2>Teacher Check</h2></div>'+
+  '<p class="lead">This screen shows answer keys, so it is locked. Enter the teacher PIN to open it.</p>'+
+  '<form class="card" id="pinForm" autocomplete="off"><label for="pin">Teacher PIN<input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="40"></label>'+
+  '<button type="submit" class="primary">Unlock</button><p class="warn" id="pinMsg" aria-live="polite"></p></form>'+
+  '<p class="count">It stays unlocked on this phone until you close the browser or tap Lock.</p>';
+}};
+
+/* TEACHER CHECK */
+function withT(fn){
+  var keep=S,t=keep.tc;
+  S={example:false,w:t.w,k:t.k,step:"",a2:t.a2,cart:{w:1.2,h:1.8},scale:t.scale,brace:{type:t.type,x:t.x},price:t.price,priceNote:"",segs:8,crew:{w0:4,d0:6,deadline:"",wage:""},checks:{},who:t.who||""};
+  try{return fn();}finally{S=keep;}
+}
+VIEWS["teacher"]={
+  stat:function(){var t=S.tc;
+    return '<div><span class="teacher-tag">For teachers</span><h2>Teacher Check</h2></div>'+
+    '<p class="lead">Type in one student’s choices to see the answer key. The student screens on this phone are not changed.</p>'+
+    '<div class="card">'+field("tc.who","Student","name or section (optional)")+
+      '<div class="grid2">'+field("tc.w","Width w","","number","","m")+field("tc.k","Height k","","number","","m")+'</div>'+
+      '<div class="grid2">'+field("tc.a2","Second arch a","","number")+field("tc.scale","Scale 1 : n","","number")+'</div>'+
+      '<div class="grid2"><label for="f-tc-type">Brace triangle<select id="f-tc-type" data-k="tc.type">'+["45","60","30"].map(function(k){return '<option value="'+k+'"'+(t.type===k?" selected":"")+'>'+BTYPE[k].label+'</option>';}).join("")+'</select></label>'+field("tc.x","Brace meets arch at x","","number","","m")+'</div>'+
+      field("tc.price","Price per meter","","peso")+'</div>'+
+    '<div id="live" style="display:flex;flex-direction:column;gap:16px"></div>'+
+    '<div class="seg"><button type="button" data-act="tcClear">Clear for the next student</button><button type="button" data-act="tcLock">Lock Teacher Check</button></div>';
+  },
+  live:function(){return withT(function(){
+    var m=M();if(!m)return '<div class="card"><p class="warn">Enter the student’s width and height.</p></div>';
+    var out='<div class="card"><h3>Answer key'+(S.who?': '+esc(S.who):'')+'</h3><p class="muted">Compare each part with the student’s report and model.</p>'+VIEWS["part-a"].live()+'</div>';
+    out+='<details class="card" open><summary>Part A · equations, zeros, properties</summary>'+VIEWS["part-a"].live2()+VIEWS["part-a"].live3()+VIEWS["part-a"].live4()+'</details>';
+    out+='<details class="card" open><summary>Part B · table and graph</summary>'+VIEWS["part-b"].live()+'<div class="figure">'+VIEWS["part-b"].live2()+'</div>'+VIEWS["part-b"].live3()+'</details>';
+    out+='<details class="card" open><summary>Part C · the cart</summary>'+VIEWS["part-c"].live()+'</details>';
+    if(num(S.scale))out+='<details class="card" open><summary>Part D · scale model</summary>'+VIEWS["part-d"].live()+'</details>';
+    if(brace(m))out+='<details class="card" open><summary>Part E · braces</summary>'+VIEWS["part-e"].live()+'<div class="figure">'+VIEWS["part-e"].live2()+'</div></details>';
+    out+='<details class="card" open><summary>Part F · cost and time</summary>'+(num(S.price)!==null?VIEWS["part-f"].live():'<p class="muted">Enter the price per meter to check the cost.</p>')+VIEWS["part-f"].live2()+'</details>';
+    return out;});}
+};
+
+/* ---------- export ---------- */
+function allText(){
+  function strip(h){var d=document.createElement("div");d.innerHTML=h.replace(/<br\s*\/?>/g,"\n").replace(/<\/(p|li|div|tr|h3|td|th|summary)>/g,function(m){return m==="</td>"||m==="</th>"?" | ":"\n";});return d.textContent.replace(/\n{3,}/g,"\n\n").trim();}
+  var t=["THE GARDEN ARCH · DESIGN REPORT"];
+  ["part-a","part-b","part-c","part-d","part-e","part-f"].forEach(function(p){var v=VIEWS[p],s=p.toUpperCase().replace("-"," ")+"\n";["live","live2","live3","live4"].forEach(function(k){if(v[k]){var h=v[k]();if(h&&h.indexOf("<svg")<0)s+=strip(h)+"\n";}});t.push(s);});
+  t.push("Recommendation (draft)\n"+(S.recommend||""));t.push("PART G (draft)\n"+(S.reflection||""));
+  return t.join("\n\n");
+}
+
+/* ---------- rendering ---------- */
+var viewEl=document.getElementById("view"),stepsEl=document.getElementById("steps");
+function renderSteps(){
+  stepsEl.innerHTML=ORDER.map(function(k){var done=CHECKS[k]&&partProgress(k)===1;return '<a href="#'+k+'"'+(k===cur?' class="on" aria-current="page"':'')+'>'+LABEL[k]+(done?'<span class="dot" aria-label="done"></span>':'')+'</a>';}).join("");
+  var on=stepsEl.querySelector(".on");if(on&&on.scrollIntoView)on.scrollIntoView({block:"nearest",inline:"center"});
+}
+function renderLive(){var v=viewFor(cur);["live","live2","live3","live4"].forEach(function(id){if(!v[id])return;var h=v[id]();var el=document.getElementById(id);if(el&&h!==null)el.innerHTML=h;});}
+function show(k){
+  if(!VIEWS[k])k="plan";cur=k;
+  viewEl.innerHTML='<div class="view" style="display:flex;flex-direction:column;gap:16px">'+viewFor(k).stat()+'</div>';
+  renderLive();renderSteps();
+  var i=ORDER.indexOf(k);document.getElementById("prev").disabled=i===0;
+  document.getElementById("next").textContent=(i===ORDER.length-1||i<0)?"Back to Plan":"Next ›";
+  window.scrollTo(0,0);
+}
+function route(){show((location.hash||"#plan").slice(1));}
+window.addEventListener("hashchange",route);
+document.getElementById("prev").addEventListener("click",function(){var i=ORDER.indexOf(cur);if(i<0)location.hash="plan";else if(i>0)location.hash=ORDER[i-1];});
+document.getElementById("next").addEventListener("click",function(){var i=ORDER.indexOf(cur);location.hash=ORDER[(i+1)%ORDER.length];});
+function toast(m){var t=document.getElementById("toast");t.textContent=m;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(function(){t.hidden=true;},2000);}
+
+viewEl.addEventListener("input",function(e){
+  var el=e.target,k=el.getAttribute("data-k");if(!k||el.tagName==="SELECT")return;
+  var v=el.value;if(el.type==="number"){var n=num(v);v=n===null?"":n;}
+  set(k,v);if(/^(w|k|price|scale|brace)/.test(k))S.example=false;save();renderLive();
+});
+viewEl.addEventListener("change",function(e){
+  var el=e.target;
+  if(el.getAttribute("data-check")){S.checks[el.getAttribute("data-check")]=el.checked;save();renderSteps();renderLive();return;}
+  if(el.tagName==="SELECT"){set(el.getAttribute("data-k"),el.value);save();renderLive();}
+});
+viewEl.addEventListener("submit",function(e){
+  if(e.target.id!=="pinForm")return;e.preventDefault();
+  var inp=document.getElementById("pin"),msg=document.getElementById("pinMsg");
+  var wait=Math.ceil((tcWaitUntil-Date.now())/1000);
+  if(wait>0){msg.textContent="Too many tries. Wait "+wait+" seconds, then try again.";return;}
+  var tries;try{tries=sha256hex("bbsi-teacher-check|"+inp.value.trim());}catch(err){tries=Promise.reject(err);}
+  tries.then(function(h){
+    if(h===TC_HASH){tcOpen=true;tcFails=0;try{sessionStorage.setItem("tcOpen",TC_HASH);}catch(e2){}show("teacher");toast("Teacher Check unlocked");}
+    else{tcFails++;inp.value="";inp.focus();
+      if(tcFails>=5){tcFails=0;tcWaitUntil=Date.now()+30000;msg.textContent="That PIN is not correct. Too many tries: wait 30 seconds.";}
+      else msg.textContent="That PIN is not correct.";}
+  },function(){msg.textContent="This browser cannot check the PIN. Open the app from its https:// link.";});
+});
+viewEl.addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  if(b.hasAttribute("data-btype")){S.brace.type=b.getAttribute("data-btype");S.example=false;save();b.parentNode.querySelectorAll("button").forEach(function(x){x.setAttribute("aria-pressed",String(x===b));});renderLive();return;}
+  var a=b.getAttribute("data-act");
+  if(a==="clear"){document.getElementById("confirmClear").hidden=false;}
+  if(a==="clearNo"){document.getElementById("confirmClear").hidden=true;}
+  if(a==="clearYes"){var bl=clone(EXAMPLE);bl.example=false;bl.w="";bl.k="";bl.a2="";bl.step="";bl.brace={type:"45",x:""};bl.price="";bl.crew.deadline="";bl.tc=S.tc;S=bl;save();location.hash="part-a";show("part-a");toast("Form cleared");}
+  if(a==="tcLock"){tcOpen=false;try{sessionStorage.removeItem("tcOpen");}catch(e3){}location.hash="plan";toast("Teacher Check locked");}
+  if(a==="tcClear"){S.tc=clone(EXAMPLE.tc);save();show("teacher");toast("Cleared");}
+  if(a==="copyAll"){var txt=allText(),box=document.getElementById("copyBox");
+    var fb=function(){box.hidden=false;box.value=txt;box.focus();box.select();toast("Select all and copy");};
+    try{navigator.clipboard.writeText(txt).then(function(){toast("Copied");},fb);}catch(err){fb();}}
+});
+
+route();
+if("serviceWorker" in navigator&&location.protocol==="https:"&&!/claude\.ai|claudeusercontent/.test(location.hostname)){try{navigator.serviceWorker.register("sw.js").catch(function(){});}catch(e){}}
+})();
+</script>
+<!--/APP-->
+</body>
+</html>

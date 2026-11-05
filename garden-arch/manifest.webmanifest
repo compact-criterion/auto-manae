@@ -1,0 +1,11 @@
+{
+  "name": "Garden Arch Helper",
+  "short_name": "Garden Arch",
+  "description": "Math 9 Third Quarter Performance Task helper: quadratic functions, similarity, special right triangles, and variation.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7f2",
+  "theme_color": "#1e3b2c",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
