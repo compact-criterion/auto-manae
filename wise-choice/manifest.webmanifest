@@ -1,0 +1,11 @@
+{
+  "name": "Wise Choice Helper",
+  "short_name": "Wise Choice",
+  "description": "Math 8 Third Quarter Performance Task helper: linear equations, systems, and inequalities.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#1d2b5e",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

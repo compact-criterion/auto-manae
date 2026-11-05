@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d2b5e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<!--APP-->
+<title>Wise Choice Helper</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a phone-first app — sticky header with Part A–G step chips over a graph-paper ground; one part per screen; Prev/Next bar at the bottom. */
+:root{
+  --paper:#f5f7fb; --surface:#ffffff; --ink:#18234a; --muted:#56608a; --grid:#dfe5f2; --grid-strong:#c4cee6;
+  --navy:#1d2b5e; --on-navy:#ffffff; --gold:#b8891a; --gold-soft:#fbf1d6;
+  --opt1:#2257c7; --opt1-soft:#e5edfd; --opt2:#c9541a; --opt2-soft:#fdebe1;
+  --good:#1f7a43; --good-soft:#e2f4e8; --bad:#b3261e; --bad-soft:#fbe5e3; --region:rgba(34,87,199,.16);
+  --f-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --r:12px; --btn-border:#1d2b5e;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0e1324; --surface:#161d35; --ink:#e7ebf7; --muted:#a2abcc; --grid:#212a47; --grid-strong:#323d63;
+  --navy:#1a2550; --on-navy:#ffffff; --gold:#e3b84a; --gold-soft:#2f2813;
+  --opt1:#7fa4ff; --opt1-soft:#1b2950; --opt2:#ff9a5f; --opt2-soft:#3a2317;
+  --good:#6fd394; --good-soft:#15301f; --bad:#ff8a80; --bad-soft:#3a1714; --region:rgba(127,164,255,.2); --btn-border:#4a5a8c;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0e1324; --surface:#161d35; --ink:#e7ebf7; --muted:#a2abcc; --grid:#212a47; --grid-strong:#323d63;
+  --navy:#1a2550; --on-navy:#ffffff; --gold:#e3b84a; --gold-soft:#2f2813;
+  --opt1:#7fa4ff; --opt1-soft:#1b2950; --opt2:#ff9a5f; --opt2-soft:#3a2317;
+  --good:#6fd394; --good-soft:#15301f; --bad:#ff8a80; --bad-soft:#3a1714; --region:rgba(127,164,255,.2); --btn-border:#4a5a8c;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--navy)}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.app{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--navy);color:var(--on-navy);box-shadow:0 2px 10px rgba(0,0,0,.18)}
+header.app .wrap{padding-block:10px 8px}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand h1{font-family:var(--f-display);font-weight:800;font-size:1.3rem;margin:0;letter-spacing:-.01em}
+.brand small{font-size:.78rem;opacity:.8;letter-spacing:.06em;text-transform:uppercase}
+.steps{display:flex;gap:6px;overflow-x:auto;padding-block:8px 2px;scrollbar-width:none}
+.steps::-webkit-scrollbar{display:none}
+.steps a{flex:0 0 auto;min-width:44px;height:40px;padding:0 12px;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:20px;
+  color:var(--on-navy);text-decoration:none;font-weight:700;border:1.5px solid rgba(255,255,255,.35);font-size:.95rem}
+.steps a.on{background:var(--gold);border-color:var(--gold);color:#1a1405}
+.steps a .dot{width:7px;height:7px;border-radius:50%;background:#7be09e}
+main .wrap{padding-block:18px 110px;display:flex;flex-direction:column;gap:16px}
+.eyebrow{font-size:.78rem;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);font-weight:700}
+h2{font-family:var(--f-display);font-weight:800;font-size:1.75rem;line-height:1.15;margin:2px 0 0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:1.18rem;margin:0 0 8px;text-wrap:balance}
+p{margin:0}
+.lead{color:var(--muted)}
+.pts{display:inline-block;font-size:.8rem;font-weight:700;padding:2px 9px;border-radius:10px;background:var(--gold-soft);color:var(--gold);margin-left:6px;vertical-align:middle}
+.card{background:var(--surface);border:1px solid var(--grid-strong);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card.o1{border-top:5px solid var(--opt1)} .card.o2{border-top:5px solid var(--opt2)}
+.note{background:var(--gold-soft);border-radius:var(--r);padding:12px 14px;font-size:.95rem}
+.example{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--gold-soft);border:1.5px dashed var(--gold);border-radius:var(--r);padding:12px 14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.grid2{grid-template-columns:1fr}}
+label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.92rem;min-width:0}
+label .hint{font-weight:400;color:var(--muted);font-size:.85rem}
+input[type=text],input[type=number],textarea,select{font:inherit;font-weight:400;color:var(--ink);background:var(--paper);border:1.5px solid var(--grid-strong);border-radius:10px;padding:10px 12px;width:100%;min-height:46px}
+textarea{min-height:220px;resize:vertical;line-height:1.6}
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.peso{position:relative}
+.peso::before{content:"₱";position:absolute;left:12px;bottom:11px;color:var(--muted);font-weight:700}
+.peso input{padding-left:28px}
+button,.btn{font:inherit;font-weight:700;border-radius:10px;border:1.5px solid var(--btn-border);background:var(--surface);color:var(--ink);padding:10px 16px;min-height:46px;cursor:pointer}
+button.primary{background:var(--navy);color:var(--on-navy);border-color:var(--btn-border)}
+button.small{min-height:38px;padding:6px 12px;font-size:.9rem}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button[aria-pressed=true]{background:var(--gold);border-color:var(--gold);color:#1a1405}
+.math{font-family:var(--f-mono);font-size:.98rem;background:var(--paper);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre;line-height:1.75;border:1px solid var(--grid)}
+.eq{font-family:var(--f-mono);font-weight:600;font-size:1.25rem}
+.o1t{color:var(--opt1)} .o2t{color:var(--opt2)}
+.v{font-style:italic;font-family:Georgia,"Times New Roman",serif;font-weight:700}
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--grid-strong);padding:8px 10px;text-align:center}
+th{background:var(--paper);font-size:.9rem}
+td.calc{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);text-align:left}
+table.rub td{text-align:left;vertical-align:top} table.rub td:last-child{text-align:center;white-space:nowrap}
+.figure{overflow-x:auto}
+.figure svg{display:block;width:100%;height:auto;min-width:300px}
+svg text{font-family:var(--f-body)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.92rem}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:22px;height:4px;border-radius:2px}
+.pill{display:inline-block;padding:3px 10px;border-radius:12px;font-weight:700;font-size:.88rem}
+.pill.good{background:var(--good-soft);color:var(--good)} .pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.o1{background:var(--opt1-soft);color:var(--opt1)} .pill.o2{background:var(--opt2-soft);color:var(--opt2)}
+.big{font-family:var(--f-display);font-weight:800;font-size:1.6rem;line-height:1.2}
+ul.check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ul.check label{flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;font-size:.98rem}
+ul.check input{width:22px;height:22px;flex:0 0 auto;margin-top:2px;accent-color:var(--navy)}
+.timeline{display:flex;flex-direction:column;gap:10px}
+.tl{display:grid;grid-template-columns:86px 1fr auto;gap:12px;align-items:center;padding:12px;border-radius:var(--r);border:1px solid var(--grid-strong);background:var(--surface)}
+.tl .d{font-family:var(--f-display);font-weight:800;line-height:1.1;text-align:center}
+.tl .d b{display:block;font-size:1.6rem}
+.tl.next{border:2px solid var(--gold);background:var(--gold-soft)}
+.bar{height:10px;border-radius:5px;background:var(--grid);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--good);border-radius:5px}
+.prog{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.prog a{font-weight:700;color:var(--ink)}
+blockquote{margin:0;padding:14px 16px;border-left:5px solid var(--gold);background:var(--gold-soft);border-radius:0 var(--r) var(--r) 0;font-style:italic;font-size:1.05rem}
+.photo img{border-radius:10px;border:1px solid var(--grid-strong);max-height:320px;object-fit:contain}
+nav.pager{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--surface);border-top:1px solid var(--grid-strong);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.pager .wrap{display:flex;justify-content:space-between;gap:10px;padding-block:10px}
+nav.pager button{flex:1}
+.warn{color:var(--bad);font-weight:700}
+.muted{color:var(--muted)}
+.count{font-size:.88rem;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:20px;font-weight:700;z-index:20}
+@media (prefers-reduced-motion: no-preference){.view{animation:rise .25s ease-out}@keyframes rise{from{transform:translateY(6px)}to{transform:none}}}
+</style>
+
+<header class="app">
+  <div class="wrap">
+    <div class="brand"><h1>Wise Choice Helper</h1><small>Math 8 · Q3 PT</small></div>
+    <nav class="steps" id="steps" aria-label="Parts of the task"></nav>
+  </div>
+</header>
+<main><div class="wrap" id="view"></div></main>
+<nav class="pager"><div class="wrap"><button id="prev" type="button">‹ Back</button><button id="next" class="primary" type="button">Next ›</button></div></nav>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+var KEY="wiseChoice.v1";
+var EXAMPLE={
+  example:true,
+  expense:"Drinking-water delivery (5-gallon refills)",
+  unit:"refill", units:"refills",
+  o1:{name:"Station membership", b:150, m:25},
+  o2:{name:"Regular delivery", b:30, m:37},
+  budget:500, usual:12,
+  source:"Price list from the water station near our house (photo attached).",
+  photo:null,
+  tbl:{start:0, step:5},
+  showBudget:true,
+  method:"sub",
+  ineq:{a:25, b:37, op:"≤", c:500,
+        xdef:"number of refills bought at the membership price (₱25 each)",
+        ydef:"number of refills bought by regular delivery (₱37 each)",
+        p1:[4,6], p2:[12,10]},
+  letter:"", reflection:"", checks:{}
+};
+function clone(o){return JSON.parse(JSON.stringify(o));}
+var S=load();
+function load(){
+  try{var t=localStorage.getItem(KEY); if(t){var o=JSON.parse(t); return Object.assign(clone(EXAMPLE),o);}}catch(e){}
+  return clone(EXAMPLE);
+}
+var saveT=null;
+function save(){clearTimeout(saveT);saveT=setTimeout(function(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},250);}
+
+/* ---------- number helpers ---------- */
+function num(v){var n=parseFloat(v);return isFinite(n)?n:null;}
+function r2(n){return Math.round(n*100)/100;}
+function f(n){ if(n===null||!isFinite(n)) return "?"; var x=r2(n); if(Object.is(x,-0)) x=0;
+  return x.toLocaleString("en-US",{maximumFractionDigits:2});}
+function peso(n){return (n<0?"−₱":"₱")+f(Math.abs(n));}
+function sn(n){return n<0?"−"+f(-n):f(n);} /* signed number with real minus */
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=b;b=a%b;a=t;}return a||1;}
+/* exact quotient of two money-like decimals */
+function quo(n,d){
+  var N=Math.round(n*100),D=Math.round(d*100); if(D===0) return {txt:"undefined",val:NaN};
+  if(D<0){N=-N;D=-D;} var g=gcd(N,D); N/=g; D/=g; var val=N/D;
+  if(D===1) return {txt:sn(N),val:val,whole:true};
+  var dec=val.toString().split(".")[1]||"";
+  var exact=dec.length<=2;
+  return {txt:(N<0?"−":"")+Math.abs(N)+"/"+D+(exact?" = "+sn(val):" ≈ "+sn(val)),val:val,whole:false};
+}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function V(s){return '<span class="v">'+s+'</span>';}
+/* "25x + 150" in plain text */
+function lin(m,b,v){
+  v=v||"x"; var s="";
+  if(m!==0){ s=(m===1?"":m===-1?"−":sn(m))+v; }
+  if(b!==0||m===0){ if(s) s+=(b<0?" − ":" + ")+f(Math.abs(b)); else s=sn(b); }
+  return s;
+}
+function niceStep(range,target){
+  var raw=range/(target||5), p=Math.pow(10,Math.floor(Math.log10(raw))), m=raw/p;
+  var s=m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10; return s*p;
+}
+function niceCeil(v,step){return Math.ceil(v/step-1e-9)*step;}
+
+/* ---------- derived model ---------- */
+function nm(i){var o=i===1?S.o1:S.o2;return (o.name&&o.name.trim())||("Option "+i);}
+function U(n){return n===1?(S.unit||"use"):(S.units||"uses");}
+function model(){
+  var m1=num(S.o1.m),b1=num(S.o1.b),m2=num(S.o2.m),b2=num(S.o2.b),B=num(S.budget),usual=num(S.usual);
+  var M={m1:m1,b1:b1,m2:m2,b2:b2,B:B,usual:usual,ok:[m1,b1,m2,b2].every(function(v){return v!==null;})};
+  if(!M.ok) return M;
+  if(r2(m1)===r2(m2)){ M.kind=r2(b1)===r2(b2)?"dependent":"inconsistent"; }
+  else{
+    M.kind="independent";
+    M.qx=quo(b2-b1,m1-m2); M.bx=M.qx.val; M.by=m1*M.bx+b1;
+  }
+  /* which is cheaper for small x (just above 0) */
+  M.y1=function(x){return m1*x+b1;}; M.y2=function(x){return m2*x+b2;};
+  if(B!==null){
+    M.max1=m1>0?(B-b1)/m1:null; M.max2=m2>0?(B-b2)/m2:null;
+  }
+  return M;
+}
+
+/* ---------- SVG: two lines ---------- */
+function graphLines(M,opts){
+  opts=opts||{};
+  var W=380,H=320,L=58,R=18,T=18,Bm=46,pw=W-L-R,ph=H-T-Bm;
+  var xNeed=10;
+  if(M.kind==="independent"&&M.bx>0) xNeed=Math.max(xNeed,M.bx*1.8);
+  if(M.usual) xNeed=Math.max(xNeed,M.usual*1.2);
+  if(M.max1>0) xNeed=Math.max(xNeed,Math.min(M.max1*1.1,xNeed*3));
+  var xs=niceStep(xNeed,5), xMax=niceCeil(xNeed,xs);
+  var yNeed=Math.max(M.y1(xMax),M.y2(xMax),M.b1,M.b2,(opts.budget&&M.B)?M.B*1.08:0,1);
+  var ys=niceStep(yNeed,5), yMax=niceCeil(yNeed,ys);
+  function X(x){return L+x/xMax*pw;} function Y(y){return T+ph-(y/yMax)*ph;}
+  var g=[];
+  g.push('<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Graph of both cost equations">');
+  g.push('<rect x="'+L+'" y="'+T+'" width="'+pw+'" height="'+ph+'" fill="var(--surface)" stroke="var(--grid-strong)"/>');
+  /* minor grid */
+  for(var i=0;i<=10;i++){var gx=L+pw*i/10, gy=T+ph*i/10;
+    g.push('<line x1="'+gx+'" y1="'+T+'" x2="'+gx+'" y2="'+(T+ph)+'" stroke="var(--grid)" stroke-width="1"/>');
+    g.push('<line x1="'+L+'" y1="'+gy+'" x2="'+(L+pw)+'" y2="'+gy+'" stroke="var(--grid)" stroke-width="1"/>');}
+  for(var x=0;x<=xMax+1e-9;x+=xs){g.push('<line x1="'+X(x)+'" y1="'+T+'" x2="'+X(x)+'" y2="'+(T+ph)+'" stroke="var(--grid-strong)"/><text x="'+X(x)+'" y="'+(T+ph+18)+'" text-anchor="middle" font-size="12" fill="var(--muted)">'+f(x)+'</text>');}
+  for(var y=0;y<=yMax+1e-9;y+=ys){g.push('<line x1="'+L+'" y1="'+Y(y)+'" x2="'+(L+pw)+'" y2="'+Y(y)+'" stroke="var(--grid-strong)"/><text x="'+(L-6)+'" y="'+(Y(y)+4)+'" text-anchor="end" font-size="12" fill="var(--muted)">'+f(y)+'</text>');}
+  g.push('<line x1="'+L+'" y1="'+(T+ph)+'" x2="'+(L+pw)+'" y2="'+(T+ph)+'" stroke="var(--ink)" stroke-width="2"/><line x1="'+L+'" y1="'+T+'" x2="'+L+'" y2="'+(T+ph)+'" stroke="var(--ink)" stroke-width="2"/>');
+  g.push('<text x="'+(L+pw/2)+'" y="'+(H-6)+'" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">x = number of '+esc(U(2))+' per month</text>');
+  g.push('<text transform="translate(14 '+(T+ph/2)+') rotate(-90)" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">y = total monthly cost (₱)</text>');
+  g.push('<clipPath id="cp'+(opts.id||"")+'"><rect x="'+L+'" y="'+T+'" width="'+pw+'" height="'+ph+'"/></clipPath>');
+  if(opts.budget&&M.B!==null&&M.B<=yMax){
+    g.push('<line x1="'+L+'" y1="'+Y(M.B)+'" x2="'+(L+pw)+'" y2="'+Y(M.B)+'" stroke="var(--gold)" stroke-width="2" stroke-dasharray="7 5"/>');
+    g.push('<text x="'+(L+30)+'" y="'+(Y(M.B)-6)+'" text-anchor="start" font-size="12" font-weight="700" fill="var(--gold)">budget ₱'+f(M.B)+'</text>');
+  }
+  g.push('<g clip-path="url(#cp'+(opts.id||"")+')">');
+  g.push('<line x1="'+X(0)+'" y1="'+Y(M.b1)+'" x2="'+X(xMax)+'" y2="'+Y(M.y1(xMax))+'" stroke="var(--opt1)" stroke-width="3.5" stroke-linecap="round"/>');
+  g.push('<line x1="'+X(0)+'" y1="'+Y(M.b2)+'" x2="'+X(xMax)+'" y2="'+Y(M.y2(xMax))+'" stroke="var(--opt2)" stroke-width="3.5" stroke-linecap="round"'+(M.kind==="dependent"?' stroke-dasharray="8 6"':'')+'/>');
+  g.push('</g>');
+  /* y-intercepts */
+  var sep=Math.abs(Y(M.b1)-Y(M.b2))<16;
+  g.push('<circle cx="'+X(0)+'" cy="'+Y(M.b1)+'" r="5" fill="var(--opt1)" stroke="var(--surface)" stroke-width="2"/>');
+  g.push('<circle cx="'+X(0)+'" cy="'+Y(M.b2)+'" r="5" fill="var(--opt2)" stroke="var(--surface)" stroke-width="2"/>');
+  var up1=M.b1>=M.b2;
+  g.push('<text x="'+(X(0)+9)+'" y="'+(Y(M.b1)+(up1?-8:16)+(sep&&!up1?4:0))+'" font-size="12" font-weight="700" fill="var(--opt1)">(0, '+f(M.b1)+')</text>');
+  if(M.kind!=="dependent") g.push('<text x="'+(X(0)+9)+'" y="'+(Y(M.b2)+(up1?16:-8)+(sep&&up1?4:0))+'" font-size="12" font-weight="700" fill="var(--opt2)">(0, '+f(M.b2)+')</text>');
+  /* line labels at right end */
+  var e1=Math.min(Math.max(Y(M.y1(xMax*0.86)),T+12),T+ph-6), e2=Math.min(Math.max(Y(M.y2(xMax*0.86)),T+12),T+ph-6);
+  var lab1=e1<e2?-10:18, lab2=e1<e2?18:-10;
+  g.push('<text x="'+X(xMax*0.86)+'" y="'+(e1+lab1)+'" text-anchor="middle" font-size="12" font-weight="700" fill="var(--opt1)">'+esc(nm(1))+'</text>');
+  if(M.kind!=="dependent") g.push('<text x="'+X(xMax*0.86)+'" y="'+(e2+lab2)+'" text-anchor="middle" font-size="12" font-weight="700" fill="var(--opt2)">'+esc(nm(2))+'</text>');
+  /* break-even */
+  if(M.kind==="independent"&&M.bx>=0&&M.bx<=xMax&&M.by>=0&&M.by<=yMax){
+    var bx=X(M.bx),by=Y(M.by);
+    g.push('<line x1="'+bx+'" y1="'+by+'" x2="'+bx+'" y2="'+(T+ph)+'" stroke="var(--ink)" stroke-dasharray="3 4"/>');
+    g.push('<line x1="'+L+'" y1="'+by+'" x2="'+bx+'" y2="'+by+'" stroke="var(--ink)" stroke-dasharray="3 4"/>');
+    g.push('<circle cx="'+bx+'" cy="'+by+'" r="7" fill="var(--gold)" stroke="var(--ink)" stroke-width="2"/>');
+    var right=bx<L+pw*0.6;
+    g.push('<text x="'+(bx+(right?12:-12))+'" y="'+(by+(M.y1(M.bx*1.2)>M.y2(M.bx*1.2)?20:-12))+'" text-anchor="'+(right?"start":"end")+'" font-size="13" font-weight="800" fill="var(--ink)">break-even ('+f(M.bx)+', '+f(M.by)+')</text>');
+  }
+  g.push('</svg>');
+  return {svg:g.join(""),xMax:xMax,yMax:yMax,xs:xs,ys:ys};
+}
+
+/* ---------- SVG: number line for x ≤ k (x ≥ 0) ---------- */
+function numberLine(k,color){
+  var W=380,H=74,L=20,R=26,pw=W-L-R,y=34;
+  var top=Math.max(k*1.25,5), st=niceStep(top,top<=20?top:8); if(top<=20) st=1;
+  var max=niceCeil(top,st); function X(x){return L+x/max*pw;}
+  var g=['<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Number line">'];
+  g.push('<line x1="'+(L-8)+'" y1="'+y+'" x2="'+(W-6)+'" y2="'+y+'" stroke="var(--ink)" stroke-width="2"/>');
+  g.push('<path d="M'+(W-6)+' '+y+' l-9 -5 v10z" fill="var(--ink)"/>');
+  for(var x=0;x<=max+1e-9;x+=st){g.push('<line x1="'+X(x)+'" y1="'+(y-6)+'" x2="'+X(x)+'" y2="'+(y+6)+'" stroke="var(--ink)"/><text x="'+X(x)+'" y="'+(y+24)+'" text-anchor="middle" font-size="12" fill="var(--muted)">'+f(x)+'</text>');}
+  if(k>=0){
+    g.push('<line x1="'+X(0)+'" y1="'+y+'" x2="'+X(k)+'" y2="'+y+'" stroke="'+color+'" stroke-width="7" stroke-linecap="round"/>');
+    g.push('<circle cx="'+X(0)+'" cy="'+y+'" r="7" fill="'+color+'" stroke="var(--surface)" stroke-width="2"/>');
+    g.push('<circle cx="'+X(k)+'" cy="'+y+'" r="8" fill="'+color+'" stroke="var(--surface)" stroke-width="2"/>');
+    g.push('<text x="'+X(k)+'" y="'+(y-14)+'" text-anchor="middle" font-size="13" font-weight="800" fill="'+color+'">'+f(k)+'</text>');
+  }
+  g.push('</svg>'); return g.join("");
+}
+
+/* ---------- SVG: half-plane ax + by ? c in quadrant I ---------- */
+function okOp(op,val,c){return op==="≤"?val<=c+1e-9:op==="<"?val<c-1e-9:op==="≥"?val>=c-1e-9:val>c+1e-9;}
+function clipPoly(P,a,b,c,keepLess){
+  var out=[]; function inside(p){var v=a*p[0]+b*p[1]-c;return keepLess?v<=1e-9:v>=-1e-9;}
+  for(var i=0;i<P.length;i++){var A=P[i],Bp=P[(i+1)%P.length],ia=inside(A),ib=inside(Bp);
+    if(ia) out.push(A);
+    if(ia!==ib){var fa=a*A[0]+b*A[1]-c, fb=a*Bp[0]+b*Bp[1]-c, t=fa/(fa-fb); out.push([A[0]+t*(Bp[0]-A[0]),A[1]+t*(Bp[1]-A[1])]);}}
+  return out;
+}
+function graphIneq(I,pts){
+  var a=num(I.a),b=num(I.b),c=num(I.c); if(a===null||b===null||c===null||(a===0&&b===0)) return "";
+  var W=380,H=330,L=50,R=18,T=18,Bm=46,pw=W-L-R,ph=H-T-Bm;
+  var xn=a>0&&c>0?c/a*1.25:10, yn=b>0&&c>0?c/b*1.25:10;
+  pts.forEach(function(p){if(p){xn=Math.max(xn,p[0]*1.15);yn=Math.max(yn,p[1]*1.15);}});
+  var xs=niceStep(xn,5),ys=niceStep(yn,5),xMax=niceCeil(xn,xs),yMax=niceCeil(yn,ys);
+  function X(x){return L+x/xMax*pw;} function Y(y){return T+ph-(y/yMax)*ph;}
+  var g=['<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Graph of the budget inequality">'];
+  g.push('<rect x="'+L+'" y="'+T+'" width="'+pw+'" height="'+ph+'" fill="var(--surface)" stroke="var(--grid-strong)"/>');
+  for(var x=0;x<=xMax+1e-9;x+=xs) g.push('<line x1="'+X(x)+'" y1="'+T+'" x2="'+X(x)+'" y2="'+(T+ph)+'" stroke="var(--grid)"/><text x="'+X(x)+'" y="'+(T+ph+18)+'" text-anchor="middle" font-size="12" fill="var(--muted)">'+f(x)+'</text>');
+  for(var y=0;y<=yMax+1e-9;y+=ys) g.push('<line x1="'+L+'" y1="'+Y(y)+'" x2="'+(L+pw)+'" y2="'+Y(y)+'" stroke="var(--grid)"/><text x="'+(L-6)+'" y="'+(Y(y)+4)+'" text-anchor="end" font-size="12" fill="var(--muted)">'+f(y)+'</text>');
+  var rect=[[0,0],[xMax,0],[xMax,yMax],[0,yMax]];
+  var keepLess=(I.op==="≤"||I.op==="<");
+  var poly=clipPoly(rect,a,b,c,keepLess);
+  if(poly.length>2) g.push('<polygon points="'+poly.map(function(p){return X(p[0])+","+Y(p[1]);}).join(" ")+'" fill="var(--region)" stroke="none"/>');
+  /* boundary segment inside window */
+  var seg=[]; [[0,null],[xMax,null],[null,0],[null,yMax]].forEach(function(e){
+    if(e[0]!==null&&b!==0){var yy=(c-a*e[0])/b; if(yy>=-1e-9&&yy<=yMax+1e-9) seg.push([e[0],yy]);}
+    if(e[1]!==null&&a!==0){var xx=(c-b*e[1])/a; if(xx>=-1e-9&&xx<=xMax+1e-9) seg.push([xx,e[1]]);}
+  });
+  if(seg.length>=2){
+    var dash=(I.op==="<"||I.op===">")?' stroke-dasharray="9 6"':'';
+    g.push('<line x1="'+X(seg[0][0])+'" y1="'+Y(seg[0][1])+'" x2="'+X(seg[1][0])+'" y2="'+Y(seg[1][1])+'" stroke="var(--opt1)" stroke-width="3.5"'+dash+'/>');
+  }
+  if(b!==0&&c/b>=0&&c/b<=yMax) g.push('<text x="'+(X(0)+8)+'" y="'+(Y(c/b)-6)+'" font-size="12" font-weight="700" fill="var(--opt1)">(0, '+f(c/b)+')</text>');
+  if(a!==0&&c/a>=0&&c/a<=xMax) g.push('<text x="'+(X(c/a)-4)+'" y="'+(Y(0)-8)+'" text-anchor="end" font-size="12" font-weight="700" fill="var(--opt1)">('+f(c/a)+', 0)</text>');
+  pts.forEach(function(p,i){ if(!p) return; var ok=okOp(I.op,a*p[0]+b*p[1],c);
+    g.push('<circle cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="7" fill="'+(ok?"var(--good)":"var(--bad)")+'" stroke="var(--surface)" stroke-width="2"/>');
+    g.push('<text x="'+(X(p[0])+10)+'" y="'+(Y(p[1])-8)+'" font-size="12" font-weight="800" fill="'+(ok?"var(--good)":"var(--bad)")+'">P'+(i+1)+' ('+f(p[0])+', '+f(p[1])+')</text>');});
+  g.push('<line x1="'+L+'" y1="'+(T+ph)+'" x2="'+(L+pw)+'" y2="'+(T+ph)+'" stroke="var(--ink)" stroke-width="2"/><line x1="'+L+'" y1="'+T+'" x2="'+L+'" y2="'+(T+ph)+'" stroke="var(--ink)" stroke-width="2"/>');
+  g.push('<text x="'+(L+pw/2)+'" y="'+(H-6)+'" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">x</text>');
+  g.push('<text x="16" y="'+(T+ph/2)+'" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">y</text>');
+  g.push('</svg>'); return g.join("");
+}
+
+/* ---------- views ---------- */
+var ORDER=["plan","part-a","part-b","part-c","part-d","part-e","part-f","part-g"];
+var LABEL={"plan":"Plan","part-a":"A","part-b":"B","part-c":"C","part-d":"D","part-e":"E","part-f":"F","part-g":"G"};
+var cur="plan";
+
+function exampleBanner(){
+  if(!S.example) return "";
+  return '<div class="example"><span><b>Example numbers are loaded.</b> Replace them with your family’s real prices in Part A.</span><span class="seg"><button class="small" type="button" data-act="clear">Start with blank form</button></span></div>'+
+    '<div class="note" id="confirmClear" hidden>Clear every answer in this app? <span class="seg" style="margin-top:8px"><button class="small primary" type="button" data-act="clearYes">Yes, clear all</button><button class="small" type="button" data-act="clearNo">Keep</button></span></div>';
+}
+function field(path,lab,hint,type,extra){
+  var v=get(path); type=type||"text";
+  var id="f-"+path.replace(/\./g,"-");
+  var inp='<input id="'+id+'" type="'+type+'" '+(type==="number"?'inputmode="decimal" step="any"':'')+' data-k="'+path+'" value="'+esc(v==null?"":v)+'"'+(extra||"")+'>';
+  if(type==="peso"){inp='<span class="peso"><input id="'+id+'" type="number" inputmode="decimal" step="any" min="0" data-k="'+path+'" value="'+esc(v==null?"":v)+'"></span>';}
+  return '<label for="'+id+'">'+lab+(hint?'<span class="hint">'+hint+'</span>':'')+inp+'</label>';
+}
+function get(path){return path.split(".").reduce(function(o,k){return o==null?o:o[k];},S);}
+function set(path,v){var ks=path.split("."),o=S;for(var i=0;i<ks.length-1;i++)o=o[ks[i]];o[ks[ks.length-1]]=v;}
+function need(M){return M.ok?"":'<p class="warn">Enter the starting cost and cost per use of both options in Part A first.</p>';}
+
+var VIEWS={};
+
+/* PLAN */
+VIEWS["plan"]={
+  stat:function(){
+    var today=new Date(); today.setHours(0,0,0,0);
+    var dl=[["2026-11-13","Checkpoint 1","Parts A and B: situation, real prices, equations, tables",5],
+            ["2026-12-04","Checkpoint 2","Parts C and D: graphs and break-even point",5],
+            ["2026-12-17","Final submission","The complete Wise Choice Report (all parts)",90]];
+    var nextIdx=dl.findIndex(function(d){return new Date(d[0]+"T00:00:00")>=today;});
+    var tl=dl.map(function(d,i){var dt=new Date(d[0]+"T00:00:00");var days=Math.round((dt-today)/864e5);
+      var when=days<0?"done":days===0?"today":days===1?"tomorrow":"in "+days+" days";
+      return '<div class="tl'+(i===nextIdx?' next':'')+'"><div class="d">'+dt.toLocaleDateString("en-US",{month:"short"})+'<b>'+dt.getDate()+'</b></div><div><b>'+d[1]+'</b><br><span class="muted">'+d[2]+'</span></div><div style="text-align:right"><span class="pill '+(days<0?'good':'o1')+'">'+when+'</span><br><span class="count">'+d[3]+' pts</span></div></div>';}).join("");
+    return exampleBanner()+
+    '<div><div class="eyebrow">Mathematics 8 · Third Quarter Performance Task</div><h2>The Wise Choice</h2></div>'+
+    '<p class="lead">You are your family’s <b>financial adviser</b>. Compare two ways of paying for something your family buys again and again, then recommend the better one to your parents or guardians.</p>'+
+    '<div class="card"><h3>How to use this app</h3><ul class="check" style="gap:6px"><li>1. Enter your family’s two options in <b>Part A</b>.</li><li>2. Each part shows the steps worked out with <i>your</i> numbers.</li><li>3. Copy the steps by hand onto long bond paper and draw the graphs on graph paper. The app checks your work; your folder is what gets graded.</li></ul>'+
+    '<p class="note">The task says: <i>“If you use a calculator or an app, write the steps you used.”</i> Write every step shown here in your report.</p></div>'+
+    '<div class="card"><h3>Deadlines</h3><div class="timeline">'+tl+'</div><p class="count">Checkpoints are for feedback. Bring your work in progress; you may improve it after your teacher returns it.</p></div>'+
+    '<div class="card" id="progress"></div>'+
+    '<div class="card"><h3>How each part is scored</h3><div class="tablebox"><table class="rub"><tr><th>Level</th><th>What it looks like</th><th>Score</th></tr>'+
+    '<tr><td><b>4 Excellent</b></td><td>Complete and correct; every step shown; clear explanations with correct terms; neat and labeled.</td><td>100%</td></tr>'+
+    '<tr><td><b>3 Proficient</b></td><td>Complete with minor errors; most steps shown; mostly clear.</td><td>80%</td></tr>'+
+    '<tr><td><b>2 Developing</b></td><td>Several errors or missing parts; some steps shown; unclear.</td><td>60%</td></tr>'+
+    '<tr><td><b>1 Beginning</b></td><td>Major errors; mostly incomplete; little explanation.</td><td>40%</td></tr>'+
+    '<tr><td><b>0</b></td><td>The part is missing.</td><td>0</td></tr></table></div></div>'+
+    '<div class="card"><h3>Copy all your steps</h3><p class="muted">Copies the equations, tables, solutions, and drafts as plain text so you can print or paste them.</p><button type="button" class="primary" data-act="copyAll">Copy all as text</button><textarea id="copyBox" hidden readonly></textarea></div>'+
+    '<div class="card"><h3>Reminders</h3><ul class="check" style="gap:6px"><li>• This is an <b>individual</b> task. Copied work gets no points for the copied parts.</li><li>• Use long bond paper in a clear folder. Handwritten or printed is fine.</li><li>• All graphs must be on graph paper or drawn to scale.</li></ul></div>';
+  },
+  live:function(){
+    var parts=[["part-a","A. The Situation",5],["part-b","B. Equations",15],["part-c","C. Graphs",15],["part-d","D. Break-even point",20],["part-e","E. Budget limit",15],["part-f","F. Letter",10],["part-g","G. Reflection",10]];
+    var rows=parts.map(function(p){var pr=partProgress(p[0]);return '<a href="#'+p[0]+'">'+p[1]+'</a><div class="bar"><i style="width:'+Math.round(pr*100)+'%"></i></div><span class="count">'+p[2]+' pts</span>';}).join("");
+    var all=parts.reduce(function(s,p){return s+partProgress(p[0]);},0)/parts.length;
+    var el=document.getElementById("progress"); if(el) el.innerHTML='<h3>Your progress · '+Math.round(all*100)+'%</h3><div class="prog">'+rows+'</div><p class="count">Progress counts the boxes you tick at the end of each part.</p>';
+    return null;
+  }
+};
+var CHECKS={
+  "part-a":["I described my family’s two options in sentences.","I attached a photo, price list, receipt, or advertisement with real prices.","I defined x and y."],
+  "part-b":["I wrote y = mx + b for both options.","I stated each slope and y-intercept and what they mean.","I made a table of at least five ordered pairs for each option."],
+  "part-c":["Both lines are on ONE Cartesian plane on graph paper.","I labeled the axes and wrote the scale.","I labeled both lines and their y-intercepts."],
+  "part-d":["I marked the break-even point on my graph.","I solved the system by substitution or elimination and checked it in both equations.","I classified the system and explained why.","I explained which option is cheaper below and above the break-even point."],
+  "part-e":["I wrote and solved an inequality in one variable for each option.","I graphed each solution on a number line.","I wrote, graphed, and shaded a linear inequality in two variables.","I tested one point inside and one point outside the region."],
+  "part-f":["My letter is addressed to my parents or guardians.","I recommend ONE option clearly.","I support it with numbers from my equations and graphs.","I wrote the final copy in my report."],
+  "part-g":["I quoted or referred to Proverbs 21:5.","I explained how planning with numbers is faithful stewardship.","I connected it to my family’s real choice.","I wrote the final copy in my report."]
+};
+function partProgress(p){var c=CHECKS[p];if(!c)return 0;var d=c.filter(function(_,i){return S.checks[p+i];}).length;return d/c.length;}
+function checklist(p){
+  return '<div class="card"><h3>Before you move on</h3><ul class="check">'+CHECKS[p].map(function(t,i){var id="ck-"+p+i;return '<li><label for="'+id+'"><input type="checkbox" id="'+id+'" data-check="'+p+i+'"'+(S.checks[p+i]?" checked":"")+'>'+esc(t)+'</label></li>';}).join("")+'</ul></div>';
+}
+
+/* PART A */
+VIEWS["part-a"]={
+  stat:function(){
+    return exampleBanner()+
+    '<div><div class="eyebrow">Part A <span class="pts">5 pts</span></div><h2>The Situation</h2></div>'+
+    '<p class="lead">Pick something your family pays for again and again: mobile load promos, internet plans, water delivery, tricycle or jeepney fare, canteen meal plans. Use <b>real</b> prices.</p>'+
+    '<div class="card">'+field("expense","What does your family pay for?","Example: drinking-water delivery")+
+      '<div class="grid2">'+field("unit","One use is called a…","singular, e.g. refill, ride, day")+field("units","Plural","e.g. refills, rides, days")+'</div></div>'+
+    '<div class="card o1"><h3 class="o1t">Option 1</h3>'+field("o1.name","Name")+'<div class="grid2">'+field("o1.b","Starting cost per month","fixed fee, paid even at 0 uses","peso")+field("o1.m","Cost per use","","peso")+'</div></div>'+
+    '<div class="card o2"><h3 class="o2t">Option 2</h3>'+field("o2.name","Name")+'<div class="grid2">'+field("o2.b","Starting cost per month","use 0 if there is none","peso")+field("o2.m","Cost per use","","peso")+'</div></div>'+
+    '<div class="card"><div class="grid2">'+field("budget","Monthly budget for this expense","ask your parents","peso")+field("usual","Usual number of uses per month","about how many your family needs","number",' min="0"')+'</div></div>'+
+    '<div class="card"><h3>Proof of real prices</h3>'+
+      '<label for="f-source">Where did the prices come from?<textarea id="f-source" data-k="source" style="min-height:90px">'+esc(S.source)+'</textarea></label>'+
+      '<label for="photo">Add a photo of the price list, receipt, or ad<span class="hint">Saved on this phone only. Attach the printed photo to your report.</span><input id="photo" type="file" accept="image/*"></label>'+
+      '<div class="photo" id="photoBox"></div></div>'+
+    '<div class="card" id="live"></div>'+checklist("part-a");
+  },
+  live:function(){
+    var pb=document.getElementById("photoBox"); if(pb) pb.innerHTML=S.photo?'<img alt="Price proof photo" src="'+S.photo+'"><button type="button" class="small" data-act="rmPhoto">Remove photo</button>':'';
+    var M=model(); if(!M.ok) return '<h3>Your variables</h3>'+need(M);
+    var w="";
+    var hiStart=M.b1>M.b2?1:M.b2>M.b1?2:0, loRate=M.m1<M.m2?1:M.m2<M.m1?2:0;
+    if(hiStart&&loRate&&hiStart!==loRate) w='<p class="warn">Check your numbers: one option should have the higher starting cost and the <i>lower</i> cost per use. Here one option costs more in both, so it is never the better deal.</p>';
+    return '<h3>Your variables (write these in your report)</h3>'+
+      '<p>Let '+V("x")+' = number of '+esc(U(2))+' per month.</p><p>Let '+V("y")+' = total monthly cost in pesos (₱).</p>'+
+      '<p class="muted">'+esc(S.expense||"Your expense")+': <span class="o1t"><b>'+esc(nm(1))+'</b></span> costs '+peso(M.b1)+' to start plus '+peso(M.m1)+' per '+esc(U(1))+'. <span class="o2t"><b>'+esc(nm(2))+'</b></span> costs '+peso(M.b2)+' to start plus '+peso(M.m2)+' per '+esc(U(1))+'.</p>'+w;
+  }
+};
+
+/* PART B */
+function tableX(){var st=num(S.tbl.start)||0, sp=num(S.tbl.step)||1; if(sp<=0)sp=1; var a=[];for(var i=0;i<6;i++)a.push(r2(st+i*sp));return a;}
+VIEWS["part-b"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Part B <span class="pts">15 pts</span></div><h2>Equations in Two Variables</h2></div>'+
+    '<p class="lead">Each option becomes a line <span class="eq">y = mx + b</span>. The slope <span class="v">m</span> is the cost per use. The y-intercept <span class="v">b</span> is the starting cost.</p>'+
+    '<div id="live"></div>'+
+    '<div class="card"><h3>Table settings</h3><div class="grid2">'+field("tbl.start","First x value","","number")+field("tbl.step","Count by","choose a step that reaches past the break-even point","number",' min="1"')+'</div></div>'+
+    '<div id="live2"></div>'+checklist("part-b");
+  },
+  live:function(){
+    var M=model(); if(!M.ok) return '<div class="card">'+need(M)+'</div>';
+    function one(i){var m=i===1?M.m1:M.m2,b=i===1?M.b1:M.b2,c=i===1?"o1":"o2";
+      var xi=b!==0&&m!==0?quo(-b,m):null;
+      return '<div class="card '+c+'"><h3 class="'+c+'t">'+esc(nm(i))+'</h3><div class="eq '+c+'t">y = '+lin(m,b)+'</div>'+
+      '<p><b>Slope:</b> m = '+f(m)+'. Each additional '+esc(U(1))+' adds '+peso(m)+' to the monthly cost. The cost rises by '+f(m)+' for every increase of 1 in '+V("x")+'.</p>'+
+      '<p><b>y-intercept:</b> b = '+f(b)+', the point (0, '+f(b)+'). Even with 0 '+esc(U(2))+', the family pays '+peso(b)+' this month.</p>'+
+      (xi?'<p class="muted"><b>x-intercept:</b> set y = 0: 0 = '+lin(m,b)+', so x = '+xi.txt+'. A negative number of '+esc(U(2))+' is impossible, so this point has no meaning in our situation.</p>':'')+
+      '</div>';}
+    return '<div style="display:flex;flex-direction:column;gap:16px">'+one(1)+one(2)+'</div>';
+  },
+  live2:function(){
+    var M=model(); if(!M.ok) return "";
+    var xs=tableX();
+    function tb(i){var m=i===1?M.m1:M.m2,b=i===1?M.b1:M.b2,c=i===1?"o1":"o2";
+      return '<div class="card '+c+'"><h3 class="'+c+'t">Table: '+esc(nm(i))+'</h3><div class="tablebox"><table><tr><th>'+V("x")+' ('+esc(U(2))+')</th><th>Solution</th><th>'+V("y")+' (₱)</th><th>(x, y)</th></tr>'+
+      xs.map(function(x){var y=m*x+b;return '<tr><td>'+f(x)+'</td><td class="calc">'+f(m)+'('+f(x)+') + '+f(b)+'</td><td><b>'+f(y)+'</b></td><td>('+f(x)+', '+f(y)+')</td></tr>';}).join("")+'</table></div></div>';}
+    return '<div style="display:flex;flex-direction:column;gap:16px">'+tb(1)+tb(2)+'</div>';
+  }
+};
+
+/* PART C */
+VIEWS["part-c"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Part C <span class="pts">15 pts</span></div><h2>Graphs</h2></div>'+
+    '<p class="lead">Graph both equations on <b>one</b> Cartesian plane. Use this as your guide, then draw it yourself on graph paper.</p>'+
+    '<div class="card"><div class="figure" id="live"></div><div class="legend" id="legend"></div>'+
+    '<label for="f-showBudget" style="flex-direction:row;align-items:center;gap:10px;font-weight:400"><input type="checkbox" id="f-showBudget" data-k="showBudget" '+(S.showBudget?"checked":"")+' style="width:22px;height:22px;accent-color:var(--navy)"> Show the budget line (useful for Part E)</label></div>'+
+    '<div class="card" id="live2"></div>'+checklist("part-c");
+  },
+  live:function(){
+    var M=model(); if(!M.ok) return need(M);
+    var G=graphLines(M,{budget:S.showBudget,id:"c"});
+    var lg=document.getElementById("legend"); if(lg) lg.innerHTML='<span><i style="background:var(--opt1)"></i>'+esc(nm(1))+': y = '+lin(M.m1,M.b1)+'</span><span><i style="background:var(--opt2)"></i>'+esc(nm(2))+': y = '+lin(M.m2,M.b2)+'</span>';
+    VIEWS["part-c"]._G=G; return G.svg;
+  },
+  live2:function(){
+    var M=model(); if(!M.ok) return "";
+    var G=VIEWS["part-c"]._G||graphLines(M,{});
+    var bx=Math.ceil(G.xMax/G.xs), by=Math.ceil(G.yMax/G.ys);
+    return '<h3>Drawing it on graph paper</h3>'+
+      '<p><b>Scale suggestion:</b> on the x-axis, let every 2 boxes = '+f(G.xs)+' '+esc(G.xs===1?U(1):U(2))+'. On the y-axis, let every 2 boxes = ₱'+f(G.ys)+'. You need about '+(bx*2)+' boxes across and '+(by*2)+' boxes up.</p>'+
+      '<p><b>Plot</b> at least two points from each table in Part B, then draw a straight line through them with a ruler.</p>'+
+      '<p><b>Label:</b> the x-axis (number of '+esc(U(2))+'), the y-axis (total cost in ₱), the scale, each line with its name and equation, and the y-intercepts (0, '+f(M.b1)+') and (0, '+f(M.b2)+').</p>'+
+      '<p class="muted">Use two colors, one for each option, the same way this graph does.</p>';
+  }
+};
+
+/* PART D */
+VIEWS["part-d"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Part D <span class="pts">20 pts</span></div><h2>The Break-Even Point</h2></div>'+
+    '<p class="lead">The break-even point is where both options cost the same. Treat your two equations as a <b>system</b>.</p>'+
+    '<div class="card"><h3>1. From the graph <span class="pts">5 pts</span></h3><div class="figure" id="live"></div><div id="live2"></div></div>'+
+    '<div class="card"><h3>2. Solve algebraically <span class="pts">8 pts</span></h3><p class="muted">Choose one method for your report.</p>'+
+      '<div class="seg" role="group" aria-label="Method"><button type="button" class="small" data-method="sub" aria-pressed="'+(S.method==="sub")+'">Substitution</button><button type="button" class="small" data-method="elim" aria-pressed="'+(S.method==="elim")+'">Elimination</button></div><div id="live3"></div></div>'+
+    '<div class="card" id="live4"></div>'+
+    '<div class="card" id="live5"></div>'+checklist("part-d");
+  },
+  live:function(){var M=model(); if(!M.ok) return need(M); return graphLines(M,{id:"d"}).svg;},
+  live2:function(){var M=model(); if(!M.ok) return "";
+    if(M.kind!=="independent") return '<p>The lines do not cross at exactly one point, so there is no single break-even point. See number 3.</p>';
+    var t='<p>Find where the two lines cross. Trace down to the x-axis and across to the y-axis. The graph shows about <b>('+f(M.bx)+', '+f(M.by)+')</b>.</p>';
+    if(M.bx<0) t+='<p class="warn">The lines cross at a negative x. For x ≥ 0 one option is always cheaper, so there is no break-even point in your situation. Double-check your prices.</p>';
+    return t;},
+  live3:function(){var M=model(); if(!M.ok) return "";
+    if(M.kind!=="independent") return '<p>Both lines have the same slope ('+f(M.m1)+'). Subtracting the equations removes x <i>and</i> leaves '+(M.kind==="dependent"?'0 = 0, which is always true.':f(M.b1-M.b2===0?0:M.b1)+' = '+f(M.b2)+', which is false.')+'</p>';
+    var x=M.bx,y=M.by,dm=r2(M.m1-M.m2),db=r2(M.b2-M.b1);
+    var L1="y = "+lin(M.m1,M.b1)+"      (1)\ny = "+lin(M.m2,M.b2)+"      (2)\n\n";
+    var s;
+    if(S.method==="sub"){
+      s=L1+"Substitute (1) into (2):\n"+lin(M.m1,M.b1)+" = "+lin(M.m2,M.b2)+"\n"+
+        lin(M.m1,0)+" − "+(M.m2<0?"("+sn(M.m2)+")":f(M.m2))+"x = "+f(M.b2)+" − "+(M.b1<0?"("+sn(M.b1)+")":f(M.b1))+"\n"+
+        lin(dm,0)+" = "+sn(db)+"\n"+
+        "x = "+sn(db)+" ÷ "+(dm<0?"("+sn(dm)+")":f(dm))+"\n"+
+        "x = "+M.qx.txt+"\n\n"+
+        "Substitute x = "+f(x)+" into (1):\ny = "+f(M.m1)+"("+f(x)+") + "+f(M.b1)+"\ny = "+f(M.m1*x)+" + "+f(M.b1)+"\ny = "+f(y);
+    }else{
+      s="Write both in standard form (Ax + y = C):\n"+lin(-M.m1,0)+" + y = "+sn(M.b1)+"      (1)\n"+lin(-M.m2,0)+" + y = "+sn(M.b2)+"      (2)\n\n"+
+        "Subtract (2) from (1) to eliminate y:\n("+sn(-M.m1)+" − "+(-M.m2<0?"("+sn(-M.m2)+")":f(-M.m2))+")x + (y − y) = "+sn(M.b1)+" − "+(M.b2<0?"("+sn(M.b2)+")":f(M.b2))+"\n"+
+        lin(r2(-M.m1+M.m2),0)+" = "+sn(r2(M.b1-M.b2))+"\n"+
+        "x = "+quo(M.b1-M.b2,-M.m1+M.m2).txt+"\n\n"+
+        "Substitute x = "+f(x)+" into (1):\n"+sn(-M.m1)+"("+f(x)+") + y = "+sn(M.b1)+"\ny = "+sn(M.b1)+" + "+f(M.m1*x)+"\ny = "+f(y);
+    }
+    var c1=M.y1(x),c2=M.y2(x);
+    s+="\n\nCheck in both equations:\n(1) "+f(M.m1)+"("+f(x)+") + "+f(M.b1)+" = "+f(c1)+(Math.abs(c1-y)<0.01?"  ✓":"")+"\n(2) "+f(M.m2)+"("+f(x)+") + "+f(M.b2)+" = "+f(c2)+(Math.abs(c2-y)<0.01?"  ✓":"");
+    var out='<div class="math">'+esc(s)+'</div><p class="big">Break-even: ('+f(x)+', '+f(y)+')</p><p>At '+f(x)+' '+esc(U(x===1?1:2))+' a month, both options cost '+peso(y)+'.</p>';
+    if(!M.qx.whole&&x>0){var lo=Math.floor(x),hi=Math.ceil(x);
+      out+='<p class="note">'+V("x")+' is not a whole number, but you can only buy whole '+esc(U(2))+'. Compare the nearest whole numbers: at '+lo+', '+esc(nm(1))+' = '+peso(M.y1(lo))+' and '+esc(nm(2))+' = '+peso(M.y2(lo))+'. At '+hi+', '+esc(nm(1))+' = '+peso(M.y1(hi))+' and '+esc(nm(2))+' = '+peso(M.y2(hi))+'.</p>';}
+    return out;},
+  live4:function(){var M=model(); if(!M.ok) return "";
+    var k={independent:["consistent and independent","The slopes are different ("+f(M.m1)+" ≠ "+f(M.m2)+"), so the lines intersect at exactly one point. The system has exactly one solution."],
+           inconsistent:["inconsistent","The slopes are equal ("+f(M.m1)+") but the y-intercepts are different ("+f(M.b1)+" ≠ "+f(M.b2)+"). The lines are parallel and never meet, so there is no solution. One option is always cheaper."],
+           dependent:["consistent and dependent","Both equations are the same line (same slope and same y-intercept). Every point on the line is a solution, so the two options always cost the same."]}[M.kind];
+    return '<h3>3. Classify the system <span class="pts">3 pts</span></h3><p class="big">'+k[0]+'</p><p>'+k[1]+'</p>';},
+  live5:function(){var M=model(); if(!M.ok) return "";
+    var h='<h3>4. Which is cheaper? <span class="pts">4 pts</span></h3>';
+    if(M.kind!=="independent"||M.bx<=0){
+      var c=M.y1(1)<M.y2(1)?1:M.y1(1)>M.y2(1)?2:0;
+      return h+(c?'<p><b class="'+(c===1?"o1t":"o2t")+'">'+esc(nm(c))+'</b> is cheaper for every number of '+esc(U(2))+' your family could use.</p>':'<p>Both options cost the same at every number of '+esc(U(2))+'.</p>');}
+    var below=M.b1<M.b2?1:2, above=below===1?2:1;
+    var xb=Math.max(0,Math.floor(M.bx/2)), xa=Math.ceil(M.bx*1.5)||M.bx+1;
+    function cmp(x){return 'At x = '+f(x)+': '+esc(nm(1))+' = '+peso(M.y1(x))+', '+esc(nm(2))+' = '+peso(M.y2(x))+'.';}
+    return h+'<div class="tablebox"><table><tr><th>Number of '+esc(U(2))+'</th><th>Cheaper option</th></tr>'+
+      '<tr><td>x &lt; '+f(M.bx)+'</td><td><span class="pill '+(below===1?"o1":"o2")+'">'+esc(nm(below))+'</span></td></tr>'+
+      '<tr><td>x = '+f(M.bx)+'</td><td>same cost, '+peso(M.by)+'</td></tr>'+
+      '<tr><td>x &gt; '+f(M.bx)+'</td><td><span class="pill '+(above===1?"o1":"o2")+'">'+esc(nm(above))+'</span></td></tr></table></div>'+
+      '<p><b>Why:</b> below the break-even point, the lower starting cost matters more, so '+esc(nm(below))+' is cheaper. Above it, the lower cost per use ('+peso(Math.min(M.m1,M.m2))+') adds up, so '+esc(nm(above))+' is cheaper. On the graph, the cheaper option is the <i>lower</i> line.</p>'+
+      '<p class="muted">'+cmp(xb)+'<br>'+cmp(xa)+'</p>';}
+};
+
+/* PART E */
+function ineqOne(i,M){
+  var m=i===1?M.m1:M.m2,b=i===1?M.b1:M.b2,B=M.B,c=i===1?"o1":"o2",col=i===1?"var(--opt1)":"var(--opt2)";
+  var head='<div class="card '+c+'"><h3 class="'+c+'t">'+esc(nm(i))+'</h3>';
+  if(B===null) return head+'<p class="warn">Enter your monthly budget in Part A.</p></div>';
+  if(B<b) return head+'<p class="warn">The starting cost ('+peso(b)+') is already more than the budget ('+peso(B)+'). Your family cannot afford this option at all.</p></div>';
+  if(m<=0) return head+'<p>The cost per use is ₱0, so any number of '+esc(U(2))+' fits the budget.</p></div>';
+  var q=quo(B-b,m), k=q.val, g=Math.floor(k+1e-9);
+  var s=lin(m,b)+" ≤ "+f(B)+"\n"+lin(m,0)+" ≤ "+f(B)+" − "+f(b)+"\n"+lin(m,0)+" ≤ "+f(B-b)+"\nx ≤ "+f(B-b)+" ÷ "+f(m)+"\nx ≤ "+q.txt;
+  s+="\n\nCheck: "+f(m)+"("+g+") + "+f(b)+" = "+f(m*g+b)+" ≤ "+f(B)+" ✓";
+  if(g+1>0) s+="\n       "+f(m)+"("+(g+1)+") + "+f(b)+" = "+f(m*(g+1)+b)+" > "+f(B)+" ✗";
+  return head+'<p>Total cost must not go over the budget: cost ≤ budget.</p><div class="math">'+esc(s)+'</div>'+
+    '<p class="big">At most '+g+' '+esc(U(g))+'</p><p>Since '+V("x")+' counts '+esc(U(2))+', '+V("x")+' must be a whole number from 0 to '+g+'.</p>'+
+    '<div class="figure">'+numberLine(k,col)+'</div><p class="count">Closed circle at '+f(k)+' because the symbol is ≤ (the budget amount itself is allowed). Shade toward 0.</p></div>';
+}
+VIEWS["part-e"]={
+  stat:function(){
+    var I=S.ineq;
+    return '<div><div class="eyebrow">Part E <span class="pts">15 pts</span></div><h2>The Budget Limit</h2></div>'+
+    '<p class="lead">How many '+esc(U(2))+' can your family afford under each option without going over '+(num(S.budget)!==null?peso(num(S.budget)):"the budget")+'?</p>'+
+    '<div><h3>1. Inequality in one variable <span class="pts">7 pts</span></h3><div id="live" style="display:flex;flex-direction:column;gap:16px"></div></div>'+
+    '<div class="card"><h3>2. Inequality in two variables <span class="pts">8 pts</span></h3>'+
+      '<p class="muted">Describe your budget with two quantities. Ideas: mixing the two options in one month (x uses of one, y uses of the other), or this expense plus another family need. Write <span class="eq" style="font-size:1rem">ax + by ≤ c</span>.</p>'+
+      '<button type="button" class="small" data-act="fillIneq">Use my per-use prices and budget</button>'+
+      field("ineq.xdef","Let x =","")+field("ineq.ydef","Let y =","")+
+      '<div class="grid2">'+field("ineq.a","a (number in front of x)","","number")+field("ineq.b","b (number in front of y)","","number")+'</div>'+
+      '<div class="grid2"><label for="f-ineq-op">Symbol<select id="f-ineq-op" data-k="ineq.op">'+["≤","<","≥",">"].map(function(o){return '<option'+(I.op===o?" selected":"")+'>'+o+'</option>';}).join("")+'</select></label>'+field("ineq.c","c (the budget amount)","","number")+'</div>'+
+      '<div id="live2"></div>'+
+      '<h3>Test two points</h3><div class="grid2">'+
+        '<div><b>P1 (inside?)</b><div class="grid2">'+field("ineq.p1.0","x","","number")+field("ineq.p1.1","y","","number")+'</div></div>'+
+        '<div><b>P2 (outside?)</b><div class="grid2">'+field("ineq.p2.0","x","","number")+field("ineq.p2.1","y","","number")+'</div></div></div>'+
+      '<div id="live3"></div></div>'+checklist("part-e");
+  },
+  live:function(){var M=model(); if(!M.ok) return '<div class="card">'+need(M)+'</div>'; return ineqOne(1,M)+ineqOne(2,M);},
+  live2:function(){var I=S.ineq,a=num(I.a),b=num(I.b),c=num(I.c);
+    if(a===null||b===null||c===null) return '<p class="warn">Fill in a, b, and c.</p>';
+    var pts=[[num(I.p1[0]),num(I.p1[1])],[num(I.p2[0]),num(I.p2[1])]].map(function(p){return p[0]===null||p[1]===null?null:p;});
+    var ex=lin(a,0)+(b<0?" − ":" + ")+(Math.abs(b)===1?"":f(Math.abs(b)))+"y";
+    var solid=(I.op==="≤"||I.op==="≥");
+    return '<p class="eq">'+esc(ex)+' '+esc(I.op)+' '+f(c)+'</p>'+
+      '<div class="figure">'+graphIneq(I,pts)+'</div>'+
+      '<p><b>How to graph it:</b> draw the boundary line '+esc(ex)+' = '+f(c)+' through its intercepts'+(a!==0&&b!==0?' ('+f(c/a)+', 0) and (0, '+f(c/b)+')':'')+'. Use a <b>'+(solid?'solid':'dashed')+'</b> line because the symbol is '+esc(I.op)+'. Shade the side whose points make the inequality true. Since you cannot have a negative number of uses, keep x ≥ 0 and y ≥ 0 (Quadrant I).</p>';},
+  live3:function(){var I=S.ineq,a=num(I.a),b=num(I.b),c=num(I.c); if(a===null||b===null||c===null) return "";
+    return [I.p1,I.p2].map(function(p,i){var x=num(p[0]),y=num(p[1]); if(x===null||y===null) return '';
+      var v=a*x+b*y, ok=okOp(I.op,v,c);
+      return '<div class="math">'+esc("P"+(i+1)+" ("+f(x)+", "+f(y)+"):\n"+f(a)+"("+f(x)+") + "+f(b)+"("+f(y)+") "+I.op+" "+f(c)+"\n"+f(a*x)+" + "+f(b*y)+" "+I.op+" "+f(c)+"\n"+f(v)+" "+I.op+" "+f(c))+'</div>'+
+        '<p><span class="pill '+(ok?"good":"bad")+'">'+(ok?"True":"False")+'</span> '+(ok?'P'+(i+1)+' is <b>inside</b> the shaded region: the family can afford it.':'P'+(i+1)+' is <b>outside</b> the shaded region: it goes over the budget.')+'</p>';}).join("")+
+      '<p class="count">You need one point that is True (inside) and one that is False (outside).</p>';}
+};
+
+/* PART F */
+function facts(){
+  var M=model(); if(!M.ok) return '<p class="warn">Finish Part A first so your numbers appear here.</p>';
+  var L=[];
+  L.push(esc(nm(1))+': y = '+lin(M.m1,M.b1)+' · '+esc(nm(2))+': y = '+lin(M.m2,M.b2));
+  if(M.kind==="independent"&&M.bx>0){var below=M.b1<M.b2?1:2;
+    L.push('Break-even point: ('+f(M.bx)+', '+f(M.by)+'). Both cost '+peso(M.by)+' at '+f(M.bx)+' '+esc(U(2))+'.');
+    L.push('Fewer than '+f(M.bx)+' '+esc(U(2))+': '+esc(nm(below))+' is cheaper. More than '+f(M.bx)+': '+esc(nm(below===1?2:1))+' is cheaper.');}
+  if(M.usual!==null){var u=M.usual,c1=M.y1(u),c2=M.y2(u),ch=c1<c2?1:c1>c2?2:0;
+    L.push('At your usual '+f(u)+' '+esc(U(u))+': '+esc(nm(1))+' = '+peso(c1)+', '+esc(nm(2))+' = '+peso(c2)+(ch?'. '+esc(nm(ch))+' saves '+peso(Math.abs(c1-c2))+' a month ('+peso(Math.abs(c1-c2)*12)+' a year).':'. Same cost.'));
+    if(M.B!==null) L.push('Budget '+peso(M.B)+': '+esc(nm(1))+' is '+(c1<=M.B?'within':'over')+' budget, '+esc(nm(2))+' is '+(c2<=M.B?'within':'over')+' budget at '+f(u)+' '+esc(U(u))+'.');}
+  if(M.B!==null){var g1=M.max1!==null?Math.floor(M.max1+1e-9):null,g2=M.max2!==null?Math.floor(M.max2+1e-9):null;
+    L.push('Most '+esc(U(2))+' the budget allows: '+esc(nm(1))+' '+(g1===null?'—':g1<0?'none':g1)+', '+esc(nm(2))+' '+(g2===null?'—':g2<0?'none':g2)+'.');}
+  return '<ul class="check">'+L.map(function(t){return '<li>• '+t+'</li>';}).join("")+'</ul>';
+}
+function wc(s){return (s||"").trim().split(/\s+/).filter(Boolean).length;}
+VIEWS["part-f"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Part F <span class="pts">10 pts</span></div><h2>Letter of Recommendation</h2></div>'+
+    '<p class="lead">Write a short letter to your parents or guardians. Recommend <b>one</b> option and prove it with your numbers and graphs.</p>'+
+    '<div class="card"><h3>Your numbers to use</h3><div id="live"></div></div>'+
+    '<div class="card"><h3>A letter that scores well has…</h3><ul class="check" style="gap:6px">'+
+      '<li>• <b>Greeting</b> (Dear Mama and Papa, …)</li><li>• <b>The problem</b> in one or two sentences</li><li>• <b>Your recommendation</b>, stated clearly</li><li>• <b>At least three numbers</b> from your work: break-even point, cost at your usual number of uses, how many uses the budget allows</li><li>• <b>A reference to your graph</b> (“the lower line on my graph…”)</li><li>• <b>Closing</b> with your name</li></ul></div>'+
+    '<div class="card"><label for="f-letter">Draft your letter in your own words<span class="hint">Saved on this phone. Copy the final version into your report.</span><textarea id="f-letter" data-k="letter" placeholder="Dear Mama and Papa,">'+esc(S.letter)+'</textarea></label><p class="count" id="wc-letter"></p></div>'+checklist("part-f");
+  },
+  live:function(){var e=document.getElementById("wc-letter"); if(e) e.textContent=wc(S.letter)+" words"; return facts();}
+};
+
+/* PART G */
+VIEWS["part-g"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Part G <span class="pts">10 pts</span></div><h2>Biblical Reflection</h2></div>'+
+    '<blockquote>“The plans of the diligent certainly lead to advantage, but everyone who is in a hurry certainly comes to poverty.”<br><b style="font-style:normal">Proverbs 21:5, NASB</b></blockquote>'+
+    '<div class="card"><h3>Think about these before you write</h3><ul class="check" style="gap:8px">'+
+      '<li>• Whose money is it, really? Who gives your family what it has?</li>'+
+      '<li>• What could happen if your family chose an option in a hurry, without computing?</li>'+
+      '<li>• What did your equations and graph show that you could not see just by looking at the prices?</li>'+
+      '<li>• How could the money your family saves be used to help others or serve God?</li></ul>'+
+      '<p class="note">Write <b>one honest paragraph</b> about your own family. Being a faithful steward means caring for what God has given, including money.</p></div>'+
+    '<div class="card"><label for="f-reflection">Draft your paragraph<span class="hint">Saved on this phone. Copy the final version into your report.</span><textarea id="f-reflection" data-k="reflection">'+esc(S.reflection)+'</textarea></label><p class="count" id="live"></p></div>'+checklist("part-g");
+  },
+  live:function(){return wc(S.reflection)+" words";}
+};
+
+/* ---------- plain-text export ---------- */
+function allText(){
+  var M=model(), t=[];
+  function strip(h){var d=document.createElement("div");d.innerHTML=h.replace(/<br\s*\/?>/g,"\n").replace(/<\/(p|li|div|tr|h3)>/g,"\n");return d.textContent.replace(/\n{3,}/g,"\n\n").trim();}
+  t.push("THE WISE CHOICE REPORT\n"+(S.expense||""));
+  t.push("PART A\n"+strip(VIEWS["part-a"].live())+"\nSource: "+(S.source||""));
+  if(M.ok){
+    t.push("PART B\n"+strip(VIEWS["part-b"].live()));
+    t.push(tableX().map(function(x){return "x="+f(x)+"  "+nm(1)+" y="+f(M.y1(x))+"   "+nm(2)+" y="+f(M.y2(x));}).join("\n"));
+    var keep=S.method; t.push("PART D\n"+strip(VIEWS["part-d"].live2()));
+    S.method="sub"; t.push("Substitution:\n"+strip(VIEWS["part-d"].live3())); S.method="elim"; t.push("Elimination:\n"+strip(VIEWS["part-d"].live3())); S.method=keep;
+    t.push(strip(VIEWS["part-d"].live4())); t.push(strip(VIEWS["part-d"].live5()));
+    t.push("PART E\n"+strip(VIEWS["part-e"].live())); t.push(strip(VIEWS["part-e"].live2())+"\n"+strip(VIEWS["part-e"].live3()));
+  }
+  t.push("PART F (draft)\n"+(S.letter||""));
+  t.push("PART G (draft)\n"+(S.reflection||""));
+  return t.join("\n\n");
+}
+
+/* ---------- rendering ---------- */
+var viewEl=document.getElementById("view"), stepsEl=document.getElementById("steps");
+function renderSteps(){
+  stepsEl.innerHTML=ORDER.map(function(k){var done=CHECKS[k]&&partProgress(k)===1;
+    return '<a href="#'+k+'"'+(k===cur?' class="on" aria-current="page"':'')+'>'+LABEL[k]+(done?'<span class="dot" aria-label="done"></span>':'')+'</a>';}).join("");
+  var on=stepsEl.querySelector(".on"); if(on&&on.scrollIntoView) on.scrollIntoView({block:"nearest",inline:"center"});
+}
+function renderLive(){
+  var v=VIEWS[cur];
+  ["live","live2","live3","live4","live5"].forEach(function(id){
+    if(!v[id]) return; var h=v[id](); var el=document.getElementById(id); if(el&&h!==null) el.innerHTML=h;});
+}
+function show(k){
+  if(ORDER.indexOf(k)<0) k="plan"; cur=k;
+  viewEl.innerHTML='<div class="view" style="display:flex;flex-direction:column;gap:16px">'+VIEWS[k].stat()+'</div>';
+  renderLive(); renderSteps();
+  var i=ORDER.indexOf(k);
+  document.getElementById("prev").disabled=i===0;
+  document.getElementById("next").textContent=i===ORDER.length-1?"Back to Plan":"Next ›";
+  window.scrollTo(0,0);
+}
+function route(){show((location.hash||"#plan").slice(1));}
+window.addEventListener("hashchange",route);
+document.getElementById("prev").addEventListener("click",function(){var i=ORDER.indexOf(cur);if(i>0)location.hash=ORDER[i-1];});
+document.getElementById("next").addEventListener("click",function(){var i=ORDER.indexOf(cur);location.hash=ORDER[(i+1)%ORDER.length];});
+
+function toast(msg){var t=document.getElementById("toast");t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(function(){t.hidden=true;},2200);}
+
+viewEl.addEventListener("input",function(e){
+  var el=e.target, k=el.getAttribute("data-k"); if(!k) return;
+  var v=el.type==="checkbox"?el.checked:el.value;
+  if(el.type==="number"){var n=num(v);v=n===null?"":n;}
+  set(k,v);
+  if(/^(o1|o2|budget|usual|expense)/.test(k)) S.example=false;
+  save(); renderLive();
+});
+viewEl.addEventListener("change",function(e){
+  var el=e.target;
+  if(el.getAttribute("data-check")){S.checks[el.getAttribute("data-check")]=el.checked;save();renderSteps();renderLive();return;}
+  if(el.tagName==="SELECT"||el.type==="checkbox"){var k=el.getAttribute("data-k");if(k){set(k,el.type==="checkbox"?el.checked:el.value);save();renderLive();}}
+  if(el.id==="photo"&&el.files&&el.files[0]){
+    var rd=new FileReader(); rd.onload=function(){var img=new Image();img.onload=function(){
+      var sc=Math.min(1,900/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height);S.photo=c.toDataURL("image/jpeg",0.72);save();renderLive();toast("Photo added");};img.src=rd.result;};
+    rd.readAsDataURL(el.files[0]);
+  }
+});
+viewEl.addEventListener("click",function(e){
+  var b=e.target.closest("button"); if(!b) return;
+  var m=b.getAttribute("data-method"); if(m){S.method=m;save();show(cur);return;}
+  var a=b.getAttribute("data-act");
+  if(a==="clear"){document.getElementById("confirmClear").hidden=false;}
+  if(a==="clearNo"){document.getElementById("confirmClear").hidden=true;}
+  if(a==="clearYes"){var blank=clone(EXAMPLE);blank.example=false;blank.expense="";blank.unit="use";blank.units="uses";
+    blank.o1={name:"",b:"",m:""};blank.o2={name:"",b:"",m:""};blank.budget="";blank.usual="";blank.source="";
+    blank.ineq={a:"",b:"",op:"≤",c:"",xdef:"",ydef:"",p1:["",""],p2:["",""]};S=blank;save();location.hash="part-a";show("part-a");toast("Form cleared");}
+  if(a==="rmPhoto"){S.photo=null;save();renderLive();}
+  if(a==="fillIneq"){var M=model();if(!M.ok){toast("Fill in Part A first");return;}
+    S.ineq.a=M.m1;S.ineq.b=M.m2;S.ineq.c=M.B!==null?M.B:"";S.ineq.op="≤";
+    S.ineq.xdef="number of "+U(2)+" paid at "+nm(1)+"’s price (₱"+f(M.m1)+" each)";
+    S.ineq.ydef="number of "+U(2)+" paid at "+nm(2)+"’s price (₱"+f(M.m2)+" each)";save();show(cur);toast("Filled from Part A");}
+  if(a==="copyAll"){var txt=allText(),box=document.getElementById("copyBox");
+    var done=function(){toast("Copied");}, fallback=function(){box.hidden=false;box.value=txt;box.focus();box.select();toast("Select all and copy");};
+    try{navigator.clipboard.writeText(txt).then(done,fallback);}catch(err){fallback();}}
+});
+
+route();
+if("serviceWorker" in navigator&&location.protocol==="https:"&&!/claude\.ai|claudeusercontent/.test(location.hostname)){
+  try{navigator.serviceWorker.register("sw.js").catch(function(){});}catch(e){}
+}
+})();
+</script>
+<!--/APP-->
+</body>
+</html>
