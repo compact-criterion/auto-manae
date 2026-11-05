@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#173a3a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<!--APP-->
+<title>Waste Watch Helper</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: phone-first group app — sticky header with Part A–F chips over a graph-paper ground; one phase per screen; Back/Next bar at the bottom. */
+:root{
+  --paper:#f3f6f5; --surface:#ffffff; --ink:#132826; --muted:#4b625f; --grid:#dae5e3; --grid-strong:#bcd0cd;
+  --navy:#173a3a; --on-navy:#ffffff; --hl:#b5521b; --hl-ink:#ffffff; --hl-soft:#fbe9de;
+  --bio:#2e7d32; --rec:#1f5fbf; --res:#6d5a4b; --curve:#1f5fbf; --shade:rgba(181,82,27,.35); --bar:#3b8f88;
+  --good:#1f7a43; --good-soft:#e2f4e8; --bad:#b3261e; --bad-soft:#fbe5e3; --btn-border:#173a3a;
+  --f-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0c1615; --surface:#132220; --ink:#e3efed; --muted:#9fb6b2; --grid:#1b2c2a; --grid-strong:#2c4441;
+  --navy:#112e2e; --on-navy:#ffffff; --hl:#ff9a5f; --hl-ink:#2a1200; --hl-soft:#3a2317;
+  --bio:#7fd37f; --rec:#7fa4ff; --res:#cdb7a3; --curve:#7fa4ff; --shade:rgba(255,154,95,.35); --bar:#5fc2b9;
+  --good:#6fd394; --good-soft:#15301f; --bad:#ff8a80; --bad-soft:#3a1714; --btn-border:#3d5c58;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0c1615; --surface:#132220; --ink:#e3efed; --muted:#9fb6b2; --grid:#1b2c2a; --grid-strong:#2c4441;
+  --navy:#112e2e; --on-navy:#ffffff; --hl:#ff9a5f; --hl-ink:#2a1200; --hl-soft:#3a2317;
+  --bio:#7fd37f; --rec:#7fa4ff; --res:#cdb7a3; --curve:#7fa4ff; --shade:rgba(255,154,95,.35); --bar:#5fc2b9;
+  --good:#6fd394; --good-soft:#15301f; --bad:#ff8a80; --bad-soft:#3a1714; --btn-border:#3d5c58;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--navy)}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.app{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--navy);color:var(--on-navy);box-shadow:0 2px 10px rgba(0,0,0,.18)}
+header.app .wrap{padding-block:10px 8px}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand h1{font-family:var(--f-display);font-weight:800;font-size:1.3rem;margin:0}
+.brand small{font-size:.78rem;opacity:.8;letter-spacing:.06em;text-transform:uppercase}
+.steps{display:flex;gap:6px;overflow-x:auto;padding-block:8px 2px;scrollbar-width:none}
+.steps::-webkit-scrollbar{display:none}
+.steps a{flex:0 0 auto;min-width:44px;height:40px;padding:0 12px;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:20px;color:var(--on-navy);text-decoration:none;font-weight:700;border:1.5px solid rgba(255,255,255,.35);font-size:.95rem}
+.steps a.on{background:var(--hl);border-color:var(--hl);color:var(--hl-ink)}
+.steps a .dot{width:7px;height:7px;border-radius:50%;background:#7be09e}
+main .wrap{padding-block:18px 110px;display:flex;flex-direction:column;gap:16px}
+.eyebrow{font-size:.78rem;letter-spacing:.09em;text-transform:uppercase;color:var(--hl);font-weight:700}
+h2{font-family:var(--f-display);font-weight:800;font-size:1.75rem;line-height:1.15;margin:2px 0 0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:1.18rem;margin:0 0 4px;text-wrap:balance}
+p{margin:0}
+.lead{color:var(--muted)}
+.tag{display:inline-block;font-size:.76rem;font-weight:700;padding:2px 8px;border-radius:8px;margin-right:4px;vertical-align:middle}
+.tag.m{background:#e5edfd;color:#1f4fa8} .tag.g{background:#fbe9de;color:#9a4214}
+:root[data-theme="dark"] .tag.m{background:#1b2950;color:#a9c2ff} :root[data-theme="dark"] .tag.g{background:#3a2317;color:#ffb98f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tag.m{background:#1b2950;color:#a9c2ff} :root:not([data-theme="light"]) .tag.g{background:#3a2317;color:#ffb98f}}
+.card{background:var(--surface);border:1px solid var(--grid-strong);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.note{background:var(--hl-soft);border-radius:var(--r);padding:12px 14px;font-size:.95rem}
+.example{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--hl-soft);border:1.5px dashed var(--hl);border-radius:var(--r);padding:12px 14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.grid2{grid-template-columns:1fr}}
+label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.92rem;min-width:0}
+label .hint{font-weight:400;color:var(--muted);font-size:.85rem}
+input[type=text],input[type=number],input[type=password],textarea,select{font:inherit;font-weight:400;color:var(--ink);background:var(--paper);border:1.5px solid var(--grid-strong);border-radius:10px;padding:10px 12px;width:100%;min-height:46px}
+textarea{min-height:200px;resize:vertical;line-height:1.6}
+textarea.short{min-height:90px}
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--hl);outline-offset:2px}
+.unit{position:relative}
+.unit input{padding-right:52px}
+.unit::after{content:attr(data-u);position:absolute;right:12px;bottom:11px;color:var(--muted);font-weight:700}
+.peso{position:relative}
+.peso::before{content:"₱";position:absolute;left:12px;bottom:11px;color:var(--muted);font-weight:700}
+.peso input{padding-left:28px}
+button,a.btn{font:inherit;font-weight:700;border-radius:10px;border:1.5px solid var(--btn-border);background:var(--surface);color:var(--ink);padding:10px 16px;min-height:46px;cursor:pointer}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+button.primary{background:var(--navy);color:var(--on-navy);border-color:var(--btn-border)}
+button.small{min-height:38px;padding:6px 12px;font-size:.9rem}
+button.x{min-height:36px;min-width:36px;padding:4px 8px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button[aria-pressed=true]{background:var(--hl);border-color:var(--hl);color:var(--hl-ink)}
+.math{font-family:var(--f-mono);font-size:.95rem;background:var(--paper);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre;line-height:1.75;border:1px solid var(--grid)}
+.eq{font-family:var(--f-mono);font-weight:600;font-size:1.1rem;overflow-x:auto}
+code{font-family:var(--f-mono);font-size:.88rem;background:var(--paper);border:1px solid var(--grid);border-radius:6px;padding:1px 6px;white-space:nowrap}
+.v{font-style:italic;font-family:Georgia,"Times New Roman",serif;font-weight:700}
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--grid-strong);padding:7px 9px;text-align:center}
+th{background:var(--paper);font-size:.88rem}
+td.l,th.l{text-align:left}
+td.calc{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);text-align:left;white-space:nowrap}
+table.rub td{text-align:left;vertical-align:top} table.rub td:last-child{text-align:center;white-space:nowrap}
+table.dense td,table.dense th{padding:4px 6px;font-size:.85rem}
+.dense input{min-height:36px;padding:4px 6px;width:58px}
+.figure{overflow-x:auto}
+.figure svg{display:block;width:100%;height:auto;min-width:300px}
+svg text{font-family:var(--f-body)}
+.pill{display:inline-block;padding:3px 10px;border-radius:12px;font-weight:700;font-size:.86rem;white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)} .pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.hl{background:var(--hl-soft);color:var(--hl)}
+.big{font-family:var(--f-display);font-weight:800;font-size:1.45rem;line-height:1.2}
+ul.check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ul.check label{flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;font-size:.98rem}
+ul.check input{width:22px;height:22px;flex:0 0 auto;margin-top:2px;accent-color:var(--navy)}
+.timeline{display:flex;flex-direction:column;gap:10px}
+.tl{display:grid;grid-template-columns:76px 1fr auto;gap:12px;align-items:center;padding:12px;border-radius:var(--r);border:1px solid var(--grid-strong);background:var(--surface)}
+.tl .d{font-family:var(--f-display);font-weight:800;line-height:1.1;text-align:center}
+.tl .d b{display:block;font-size:1.5rem}
+.tl.next{border:2px solid var(--hl);background:var(--hl-soft)}
+.bar{height:10px;border-radius:5px;background:var(--grid);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--good);border-radius:5px}
+.prog{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.prog a{font-weight:700;color:var(--ink)}
+blockquote{margin:0;padding:14px 16px;border-left:5px solid var(--hl);background:var(--hl-soft);border-radius:0 var(--r) var(--r) 0;font-style:italic;font-size:1.05rem}
+details.card>summary,details.sub>summary{cursor:pointer;font-family:var(--f-display);font-weight:600;font-size:1.1rem;list-style-position:inside}
+.teacher-tag{display:inline-block;background:var(--ink);color:var(--paper);border-radius:8px;padding:2px 8px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.member{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:8px}
+.src{border:1px solid var(--grid-strong);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.timer{font-family:var(--f-mono);font-size:3rem;font-weight:600;text-align:center;line-height:1}
+.segbar{display:flex;gap:4px}
+.segbar span{flex:1;height:10px;border-radius:5px;background:var(--grid)}
+.segbar span.done{background:var(--good)} .segbar span.now{background:var(--hl)}
+nav.pager{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--surface);border-top:1px solid var(--grid-strong);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.pager .wrap{display:flex;justify-content:space-between;gap:10px;padding-block:10px}
+nav.pager button{flex:1}
+.warn{color:var(--bad);font-weight:700}
+.muted{color:var(--muted)}
+.count{font-size:.88rem;color:var(--muted)}
+.math[data-tex]{white-space:normal;font-family:var(--f-body);font-size:1.02rem;line-height:1.4}
+.math mjx-container[display="true"]{margin:0!important;text-align:left!important}
+td.calc[data-tex]{white-space:nowrap}
+.eq[data-tex]{font-size:1.1rem}
+mjx-container{color:inherit}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:20px;font-weight:700;z-index:20}
+@media (prefers-reduced-motion: no-preference){.view{animation:rise .25s ease-out}@keyframes rise{from{transform:translateY(6px)}to{transform:none}}}
+</style>
+
+<header class="app">
+  <div class="wrap">
+    <div class="brand"><h1>Waste Watch Helper</h1><small>G11 · Q3 Integrated PT</small></div>
+    <nav class="steps" id="steps" aria-label="Phases of the task"></nav>
+  </div>
+</header>
+<main><div class="wrap" id="view"></div></main>
+<nav class="pager"><div class="wrap"><button id="prev" type="button">‹ Back</button><button id="next" class="primary" type="button">Next ›</button></div></nav>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+var KEY="wasteWatch.v1";
+var ANG={
+  seg:{label:"Segregation and collection",x:"number of waste types the household separates (0–3: biodegradable, recyclable, residual)",xs:"types separated",design:"Three-bin segregation set for a household or classroom",bins:3,ramp:false,served:1,share:100,days:7,
+       meaning:function(e){return "A typical BBSI household separates about "+f(e,2)+" of the 3 waste types.";}},
+  plastic:{label:"Single-use plastics",x:"number of sachets and plastic bags the household throws away in one day",xs:"sachets and bags per day",design:"Plastic drop-off box for the school gate",bins:1,ramp:false,served:400,share:10,days:7,
+       meaning:function(e){return "A typical BBSI household throws away about "+f(e,1)+" sachets and plastic bags a day, or about "+f(e*7,0)+" a week.";}},
+  recycle:{label:"Recycling chain: MRFs, EPR, and waste pickers",x:"number of times in a week the household sells or gives recyclables to collectors",xs:"times per week",design:"Covered sorting station for a purok materials recovery facility, with an access ramp",bins:1,ramp:true,served:150,share:30,days:7,
+       meaning:function(e){return "A typical BBSI household hands recyclables to collectors about "+f(e,2)+" times a week.";}}
+};
+var ROLES=["Leader","Data manager","Designer","Researcher","Campaign head"];
+
+/* deterministic example data (marked as example in the app) */
+function rng(seed){var s=seed;return function(){s=(s*1103515245+12345)%2147483648;return s/2147483648;};}
+function gauss(r){var u=Math.max(1e-9,r()),v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function exampleX(angle,r){var u=r();if(angle==="seg")return u<.15?0:u<.45?1:u<.8?2:3;
+  if(angle==="plastic"){var L=Math.exp(-6),k=0,p=1;do{k++;p*=r();}while(p>L);return Math.min(14,k-1);}
+  return u<.35?0:u<.65?1:u<.85?2:u<.95?3:4;}
+function exampleData(angle){var r=rng(2027),out=[];for(var i=0;i<60;i++){var base=1.3+0.3*gauss(r),d=[];
+  for(var j=0;j<7;j++)d.push(Math.max(0.2,Math.round((base+0.25*gauss(r))*10)/10));
+  var ok=true;if(i===17||i===41){d[5]="";ok=false;}out.push({d:d,x:exampleX(angle,r),ok:ok});}return out;}
+
+var EXAMPLE={
+  example:true, angle:"seg", group:{name:"",members:ROLES.map(function(r){return {name:"",role:r};})},
+  steps:{}, sources:[{title:"",outlet:"",says:"",trust:""}], gov:"", items:"",
+  samp:{N:400,conf:"95",p:0.5,e:0.1,strata:[{name:"Kinder to Grade 6",Nh:180},{name:"Grades 7 to 10",Nh:140},{name:"Grades 11 and 12",Nh:80}]},
+  picks:{}, forms:{sent:80,returned:60},
+  data:null, exData:true, bin:"",
+  nq:[{type:">",a:10,b:""},{type:"<",a:7,b:""}], top:10, served:400, assume:"", concl:"",
+  des:{sackMass:4.5,sackVol:50,served:1,days:7,share:100,overflow:20,bins:3,L:0.40,W:0.30,H:0.50,openTop:true,scale:10,price:400,d:8,theta:32,eye:1.5,rise:0.3,run:4},
+  cer:[{claim:"",evidence:"",reasoning:""},{claim:"",evidence:"",reasoning:""},{claim:"",evidence:"",reasoning:""}],
+  cta:{barangay:"",school:"",households:""}, refl:"",
+  tc:{N:"",conf:"95",p:0.5,e:0.1,strata:"",paste:"",type:">",a:"",top:10,served:"",sackMass:"",sackVol:"",d:"",theta:"",eye:1.5,rise:"",run:""}
+};
+EXAMPLE.data=exampleData("seg");
+function clone(o){return JSON.parse(JSON.stringify(o));}
+var S=load();
+function load(){try{var t=localStorage.getItem(KEY);if(t)return Object.assign(clone(EXAMPLE),JSON.parse(t));}catch(e){}return clone(EXAMPLE);}
+var saveT=null;
+function save(){clearTimeout(saveT);saveT=setTimeout(function(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},250);}
+
+/* ---------- number helpers ---------- */
+function num(v){if(v===""||v==null)return null;var n=parseFloat(v);return isFinite(n)?n:null;}
+function rd(n,d){var p=Math.pow(10,d==null?4:d);return Math.round(n*p)/p;}
+function f(n,d){if(n===null||n===undefined||!isFinite(n))return "?";var x=rd(n,d==null?4:d);if(Object.is(x,-0))x=0;return (x<0?"−":"")+Math.abs(x).toLocaleString("en-US",{maximumFractionDigits:d==null?4:d});}
+function peso(n){return "₱"+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function V(s){return '<span class="v">'+s+'</span>';}
+function ang(){return ANG[S.angle]||ANG.seg;}
+/* normal distribution */
+function erf(x){var s=x<0?-1:1;x=Math.abs(x);var t=1/(1+0.3275911*x);var y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return s*y;}
+function Phi(z){return 0.5*(1+erf(z/Math.SQRT2));}
+function invPhi(p){var a=[-39.69683028665376,220.9460984245205,-275.9285104469687,138.357751867269,-30.66479806614716,2.506628277459239],b=[-54.47609879822406,161.5858368580409,-155.6989798598866,66.80131188771972,-13.28068155288572],c=[-0.007784894002430293,-0.3223964580411365,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783],d=[0.007784695709041462,0.3224671290700398,2.445134137142996,3.754408661907416];
+  var q,r;if(p<0.02425){q=Math.sqrt(-2*Math.log(p));return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  if(p>1-0.02425){q=Math.sqrt(-2*Math.log(1-p));return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  q=p-0.5;r=q*q;return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);}
+var ZCONF={"90":1.645,"95":1.96,"99":2.576};
+
+/* ---------- data ---------- */
+function records(){return (S.data||[]).map(function(r){var ds=r.d.map(num),comp=r.ok!==false&&ds.every(function(v){return v!==null&&v>=0;});
+  return {d:ds,W:comp?ds.reduce(function(a,b){return a+b;},0):null,x:num(r.x),ok:comp};});}
+function wStats(){var W=records().filter(function(r){return r.ok;}).map(function(r){return r.W;});var n=W.length;if(n<2)return {n:n};
+  var sum=W.reduce(function(a,b){return a+b;},0),mean=sum/n,ss=W.reduce(function(a,b){return a+(b-mean)*(b-mean);},0),sd=Math.sqrt(ss/(n-1));
+  var s=W.slice().sort(function(a,b){return a-b;}),med=n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2;
+  var w1=W.filter(function(w){return Math.abs(w-mean)<=sd;}).length/n,w2=W.filter(function(w){return Math.abs(w-mean)<=2*sd;}).length/n;
+  return {n:n,W:W,sum:sum,mean:mean,ss:ss,sd:sd,med:med,min:s[0],max:s[n-1],w1:w1,w2:w2};}
+function xDist(){var xs=records().filter(function(r){return r.x!==null;}).map(function(r){return r.x;});var n=xs.length,fq={};
+  xs.forEach(function(x){fq[x]=(fq[x]||0)+1;});var keys=Object.keys(fq).map(Number).sort(function(a,b){return a-b;});
+  var E=keys.reduce(function(s,x){return s+x*fq[x]/n;},0);return {n:n,keys:keys,fq:fq,E:E};}
+function sampleSize(){var N=num(S.samp.N),z=ZCONF[S.samp.conf]||1.96,p=num(S.samp.p),e=num(S.samp.e);if(!N||p===null||!e)return null;
+  var n0=z*z*p*(1-p)/(e*e),n=n0/(1+(n0-1)/N);return {N:N,z:z,p:p,e:e,n0:n0,n:n,nUp:Math.ceil(n-1e-9)};}
+
+/* ---------- views ---------- */
+var ORDER=["plan","part-a","part-b","part-c","part-d","part-e","part-f"];
+var LABEL={"plan":"Plan","part-a":"A","part-b":"B","part-c":"C","part-d":"D","part-e":"E","part-f":"F"};
+var cur="plan";
+var STEPS=[["part-a",1,"Organize your group"],["part-a",2,"Research how waste is governed"],["part-a",3,"Draft the governance analysis"],
+  ["part-b",4,"Write the survey items"],["part-b",5,"Compute the sample size and select the sample"],["part-b",6,"Send the forms home"],["part-b",7,"Record the data honestly"],
+  ["part-c",8,"Summarize W"],["part-c",9,"Apply the normal model"],["part-c",10,"Find the expected value of X"],["part-c",11,"Write conclusions and limits"],
+  ["part-d",12,"Size your design from the data"],["part-d",13,"Measure the site with trigonometry"],["part-d",14,"Draw the design sheet"],["part-d",15,"Build the scale model"],
+  ["part-e",16,"Turn data into evidence"],["part-e",17,"Make the campaign materials"],["part-e",18,"Rehearse and present"],["part-f",19,"Reflect"]];
+function partProgress(p){var st=STEPS.filter(function(s){return s[0]===p;});if(!st.length)return 0;return st.filter(function(s){return S.steps[s[1]];}).length/st.length;}
+function stepList(p){return '<div class="card"><h3>Check off with your group</h3><ul class="check">'+STEPS.filter(function(s){return s[0]===p;}).map(function(s){var id="st-"+s[1];
+  return '<li><label for="'+id+'"><input type="checkbox" id="'+id+'" data-step="'+s[1]+'"'+(S.steps[s[1]]?" checked":"")+'>Step '+s[1]+'. '+esc(s[2])+'</label></li>';}).join("")+'</ul></div>';}
+function exampleBanner(){
+  if(!S.example)return "";
+  return '<div class="example"><span><b>Example numbers are loaded.</b> Replace them with your group’s real data.</span><span class="seg"><button class="small" type="button" data-act="clear">Start with blank form</button></span></div>'+
+    '<div class="note" id="confirmClear" hidden>Clear every answer in this app, including the household data? <span class="seg" style="margin-top:8px"><button class="small primary" type="button" data-act="clearYes">Yes, clear all</button><button class="small" type="button" data-act="clearNo">Keep</button></span></div>';
+}
+function get(path){return path.split(".").reduce(function(o,k){return o==null?o:o[k];},S);}
+function set(path,v){var ks=path.split("."),o=S;for(var i=0;i<ks.length-1;i++)o=o[ks[i]];o[ks[ks.length-1]]=v;}
+function field(path,lab,hint,type,extra,unit){
+  var v=get(path);type=type||"text";var id="f-"+path.replace(/\./g,"-");
+  var inp='<input id="'+id+'" type="'+(type==="peso"?"number":type)+'" '+(type==="number"||type==="peso"?'inputmode="decimal" step="any"':'')+' data-k="'+path+'" value="'+esc(v==null?"":v)+'"'+(extra||"")+'>';
+  if(unit)inp='<span class="unit" data-u="'+unit+'">'+inp+'</span>';
+  if(type==="peso")inp='<span class="peso">'+inp+'</span>';
+  return '<label for="'+id+'">'+lab+(hint?'<span class="hint">'+hint+'</span>':'')+inp+'</label>';
+}
+function area(path,lab,hint,cls){var id="f-"+path.replace(/\./g,"-");return '<label for="'+id+'">'+lab+(hint?'<span class="hint">'+hint+'</span>':'')+'<textarea id="'+id+'" data-k="'+path+'"'+(cls?' class="'+cls+'"':'')+'>'+esc(get(path))+'</textarea></label>';}
+function wc(s){return (s||"").trim().split(/\s+/).filter(Boolean).length;}
+var VIEWS={};
+
+/* PLAN */
+VIEWS["plan"]={
+  stat:function(){
+    var today=new Date();today.setHours(0,0,0,0);
+    var dl=[["2026-12-16","Data honesty pledge","Each member signs. Check survey items for bias.","individual"],
+            ["2026-12-17","Checkpoint","Sample size and stratified sample (Math); governance analysis and campaign plan (Politics)","group"],
+            ["2027-01-06","Forms come back","Collect forms, record how many returned, encode the data","group"],
+            ["2027-01-11","Scale model due","Conclusions written; model checked against the design sheet","group"],
+            ["2027-01-12","Waste Watch Forum","Jan. 12: Groups 1 and 2 · Jan. 13: Group 3, open forum","group"],
+            ["2027-01-13","Reflection","Each member writes a reflection after the forum","individual"]];
+    var ni=dl.findIndex(function(d){return new Date(d[0]+"T00:00:00")>=today;});
+    var tl=dl.map(function(d,i){var dt=new Date(d[0]+"T00:00:00"),days=Math.round((dt-today)/864e5);
+      var when=days<0?"done":days===0?"today":days===1?"tomorrow":"in "+days+" days";
+      return '<div class="tl'+(i===ni?' next':'')+'"><div class="d">'+dt.toLocaleDateString("en-US",{month:"short"})+'<b>'+dt.getDate()+'</b></div><div><b>'+d[1]+'</b><br><span class="muted">'+d[2]+'</span></div><div style="text-align:right"><span class="pill '+(days<0?'good':'hl')+'">'+when+'</span><br><span class="count">'+d[3]+'</span></div></div>';}).join("");
+    var G=S.group;
+    return exampleBanner()+
+    '<div><div class="eyebrow">Grade 11 · General Mathematics × Politics and Governance</div><h2>Kaytikling Waste Watch</h2></div>'+
+    '<p class="lead">As citizen-researchers and student designers, your group studies how BBSI households produce and handle waste, designs a collection solution sized from the data, and presents an advocacy campaign at the forum on January 12–13, 2027.</p>'+
+    '<blockquote>“Let each of you look out not only for his own interests, but also for the interests of others.”<br><b style="font-style:normal">Philippians 2:4</b></blockquote>'+
+    '<div class="card"><h3>Your group angle</h3><p class="muted">Use the angle your teacher assigned.</p><div class="seg" role="group" aria-label="Group angle">'+
+      Object.keys(ANG).map(function(k){return '<button type="button" class="small" data-angle="'+k+'" aria-pressed="'+(S.angle===k)+'">'+esc(ANG[k].label)+'</button>';}).join("")+'</div><div id="live"></div></div>'+
+    '<div class="card"><h3>Group members and roles</h3>'+field("group.name","Group name or number","")+
+      '<div style="display:flex;flex-direction:column;gap:8px">'+G.members.map(function(m,i){return '<div class="member"><input type="text" aria-label="Member '+(i+1)+' name" id="f-mem-'+i+'" data-k="group.members.'+i+'.name" value="'+esc(m.name)+'" placeholder="Member '+(i+1)+'"><select aria-label="Role of member '+(i+1)+'" id="f-role-'+i+'" data-k="group.members.'+i+'.role">'+ROLES.map(function(r){return '<option'+(m.role===r?" selected":"")+'>'+r+'</option>';}).join("")+'</select></div>';}).join("")+'</div>'+
+      '<p class="count">Everyone also speaks at the forum. These are your group’s names, not the households’ — households are never named.</p></div>'+
+    '<div class="card"><h3>Key dates</h3><div class="timeline">'+tl+'</div></div>'+
+    '<div class="card" id="progress"></div>'+
+    '<div class="card"><h3>How the work is scored</h3>'+
+      '<details class="sub"><summary><span class="tag m">Math</span>General Mathematics · 50 pts</summary><div class="tablebox"><table class="rub"><tr><th>Criterion</th><th>Full points when…</th><th>Pts</th></tr>'+
+      [["Investigation design and sampling","Clear question; population and parameter named; sample size computed and justified; stratified random sampling done as planned.",10],["Normal distribution analysis","Correct mean and SD of W; z-scores, probabilities, and a percentile computed and explained in context.",10],["Expected value and projection","Correct distribution of X and E(X); projection states its assumptions.",8],["Conclusions and limitations","Conclusions follow from the data; limits stated honestly.",6],["3D design: measurement and trigonometry","Volume sized from the data; clinometer and ramp correct; dimensions, surface area, scale, cost accurate.",10],["Scale model","Matches the design sheet within the scale; neat and sturdy.",6]].map(function(r){return '<tr><td><b>'+r[0]+'</b></td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>';}).join("")+'</table></div></details>'+
+      '<details class="sub"><summary><span class="tag g">Politics</span>Politics and Governance · 50 pts</summary><div class="tablebox"><table class="rub"><tr><th>Criterion</th><th>Full points when…</th><th>Pts</th></tr>'+
+      [["Research and sources","At least five credible, current sources; bias evaluated; cited correctly.",8],["Governance analysis","Applies power, the state, LGU duties, RA 9003, and Art. II, Sec. 16 accurately to Kaytikling.",12],["Data as evidence","Uses the group’s own findings and states their limits fairly.",8],["Advocacy campaign","Clear position and specific call to action; democratic values, human rights, social justice; fair; nonpartisan.",12],["Civil discourse at the forum","Answers the panel with evidence and respect.",5],["Ethics and collaboration","Consent and privacy protected; deadlines met; every member contributes.",5]].map(function(r){return '<tr><td><b>'+r[0]+'</b></td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>';}).join("")+'</table></div></details></div>'+
+    '<div class="card"><h3>Copy all your work</h3><p class="muted">Copies the computations, tables, and drafts as plain text for your report.</p><button type="button" class="primary" data-act="copyAll">Copy all as text</button><textarea id="copyBox" hidden readonly></textarea></div>'+
+    '<div class="card"><h3>For teachers</h3><p class="muted">Check a group’s computations: type in their numbers and paste their data.</p><a class="btn" href="#teacher">Open Teacher Check</a></div>';
+  },
+  live:function(){
+    var a=ang(),el=document.getElementById("progress");
+    if(el){var parts=[["part-a","A. Prepare and research"],["part-b","B. Gather data"],["part-c","C. Analyze the data"],["part-d","D. Design and build"],["part-e","E. Campaign and forum"],["part-f","F. Reflect"]];
+      var all=STEPS.filter(function(s){return S.steps[s[1]];}).length;
+      el.innerHTML='<h3>Your progress · '+all+' of 19 steps</h3><div class="prog">'+parts.map(function(p){return '<a href="#'+p[0]+'">'+p[1]+'</a><div class="bar"><i style="width:'+Math.round(partProgress(p[0])*100)+'%"></i></div><span class="count">'+Math.round(partProgress(p[0])*100)+'%</span>';}).join("")+'</div>';}
+    return '<p><b>Everyone studies</b> '+V("W")+' = the weight of a household’s garbage in one week (kg).</p><p><b>Your variable</b> '+V("X")+' = the '+esc(a.x)+'.</p><p><b>Your design:</b> '+esc(a.design)+'.</p>';
+  }
+};
+
+/* PART A */
+VIEWS["part-a"]={
+  stat:function(){
+    return exampleBanner()+'<div><div class="eyebrow">Part A · Dec. 2–11</div><h2>Prepare and Research</h2></div>'+
+    '<p class="lead">Steps 1–3. Find out who decides about waste in Kaytikling, what the law requires, and who is affected.</p>'+
+    '<div class="card"><h3><span class="tag g">Politics</span>Sources (at least five)</h3><p class="muted">Use RA 9003 (the Ecological Solid Waste Management Act of 2000), the Taytay LGU website, news from more than one outlet, and studies. For each, write two lines: what it says, and why it can be trusted.</p><div id="srcList" style="display:flex;flex-direction:column;gap:10px"></div><button type="button" class="small" data-act="addSrc">+ Add source</button><div id="live"></div></div>'+
+    '<div class="card"><h3><span class="tag g">Politics</span>Questions to answer</h3><ul class="check" style="gap:6px">'+
+      '<li>• <b>Who decides?</b> Which offices make and carry out decisions about waste in Kaytikling?</li>'+
+      '<li>• <b>What must each one do under RA 9003?</b> The barangay, the municipality of Taytay, and households. Quote the section you are using.</li>'+
+      '<li>• <b>What rights are involved?</b> Art. II, Sec. 16 of the Constitution: the right to a balanced and healthful ecology.</li>'+
+      '<li>• <b>Who is affected?</b> Include waste workers and waste pickers.</li></ul></div>'+
+    '<div class="card"><h3><span class="tag g">Politics</span>Governance analysis (one page)</h3><p class="muted">Cover the problem; the offices responsible and their duties; gaps between the law and what happens in Kaytikling; and whose voices are missing. Apply power, the state, and constitutional principles.</p>'+
+      area("gov","Draft","Saved on this phone. One page is about 350–450 words.")+'<p class="count" id="live2"></p></div>'+stepList("part-a");
+  },
+  srcList:function(){var el=document.getElementById("srcList");if(!el)return;
+    el.innerHTML=S.sources.map(function(s,i){return '<div class="src"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>Source '+(i+1)+'</b><button type="button" class="x" data-rmsrc="'+i+'" aria-label="Remove source '+(i+1)+'">×</button></div>'+
+      '<input type="text" aria-label="Title" id="f-src-'+i+'-title" data-k="sources.'+i+'.title" value="'+esc(s.title)+'" placeholder="Title (law, article, website page)">'+
+      '<input type="text" aria-label="Outlet or author and date" id="f-src-'+i+'-outlet" data-k="sources.'+i+'.outlet" value="'+esc(s.outlet)+'" placeholder="Outlet or author, and date">'+
+      '<input type="text" aria-label="What it says" id="f-src-'+i+'-says" data-k="sources.'+i+'.says" value="'+esc(s.says)+'" placeholder="What it says">'+
+      '<input type="text" aria-label="Why it can be trusted" id="f-src-'+i+'-trust" data-k="sources.'+i+'.trust" value="'+esc(s.trust)+'" placeholder="Why it can be trusted (and any bias)"></div>';}).join("");},
+  live:function(){var done=S.sources.filter(function(s){return (s.title||"").trim()&&(s.says||"").trim()&&(s.trust||"").trim();}).length;
+    return done>=5?'<p><span class="pill good">'+done+' complete sources ✓</span></p>':'<p><span class="pill bad">'+done+' of 5 complete</span> <span class="count">A source is complete when it has a title, what it says, and why it can be trusted.</span></p>';},
+  live2:function(){return wc(S.gov)+" words";}
+};
+
+/* PART B */
+VIEWS["part-b"]={
+  stat:function(){
+    var a=ang();
+    return exampleBanner()+'<div><div class="eyebrow">Part B · Dec. 14 – Jan. 6</div><h2>Gather Data</h2></div>'+
+    '<div class="card"><h3>Step 4 · Survey items</h3><p class="muted">Write five governance items <span class="tag g">Politics</span> and the items for '+V("X")+' <span class="tag m">Math</span>. Use clear choices, not leading questions. Try the form on two classmates first.</p>'+
+      '<ul class="check" style="gap:6px"><li>• Leading: “Don’t you agree the barangay should collect more often?” → Clear: “How many times did the collection truck pass your house last week? 0 / 1 / 2 / 3 or more”</li><li>• Your '+V("X")+' item asks for the '+esc(a.x)+'.</li></ul>'+
+      area("items","Item drafts","","short")+'</div>'+
+    '<div class="card"><h3><span class="tag m">Math</span>Step 5 · Sample size</h3><p class="muted">Get N and the count per grade level from your teacher.</p>'+
+      '<div class="grid2">'+field("samp.N","N: number of BBSI households","","number",' min="1"')+'<label for="f-samp-conf">Confidence level<select id="f-samp-conf" data-k="samp.conf">'+["90","95","99"].map(function(c){return '<option value="'+c+'"'+(S.samp.conf===c?" selected":"")+'>'+c+'% (z = '+ZCONF[c]+')</option>';}).join("")+'</select></label>'+
+      field("samp.p","p: estimated proportion","use 0.5 if unknown","number",' min="0" max="1"')+field("samp.e","e: margin of error","0.10 means ±10%","number",' min="0.01" max="0.5"')+'</div><div id="live"></div></div>'+
+    '<div class="card"><h3><span class="tag m">Math</span>Stratified allocation</h3><div id="strata"></div><button type="button" class="small" data-act="addStratum">+ Add grade level</button><div id="live2"></div></div>'+
+    '<div class="card"><h3>Pick the households at random</h3><p class="muted">For each grade, number the student ID list your teacher keeps from 1 to '+V("N")+'<sub>h</sub>. The app draws '+V("n")+'<sub>h</sub> different random positions. Do not choose friends.</p><button type="button" class="primary" data-act="pick">Draw random numbers</button><div id="live3"></div></div>'+
+    '<div class="card"><h3>Step 6 · Forms sent and returned</h3><div class="grid2">'+field("forms.sent","Forms sent home","","number",' min="0"')+field("forms.returned","Forms returned on Jan. 6","","number",' min="0"')+'</div><div id="live4"></div></div>'+
+    '<div class="card"><h3>Step 7 · Record the data honestly</h3><p class="muted">Encode every returned form: the 7 daily weights (kg) and '+V("X")+'. Write no names. Never invent or “fix” an answer: leave a missing day blank and the form is marked incomplete.</p>'+
+      '<details class="sub"><summary>Add one form</summary><div style="display:flex;flex-direction:column;gap:10px;margin-top:10px"><div class="tablebox"><table class="dense"><tr>'+[1,2,3,4,5,6,7].map(function(d){return '<th>Day '+d+'</th>';}).join("")+'<th>X</th></tr><tr>'+[0,1,2,3,4,5,6].map(function(d){return '<td><input type="number" inputmode="decimal" step="any" min="0" id="nd'+d+'" aria-label="Day '+(d+1)+' kg"></td>';}).join("")+'<td><input type="number" inputmode="numeric" min="0" id="nx" aria-label="X"></td></tr></table></div><button type="button" class="primary" data-act="addRow">Add form</button></div></details>'+
+      '<details class="sub"><summary>Paste rows from your spreadsheet</summary><div style="display:flex;flex-direction:column;gap:10px;margin-top:10px"><p class="count">One household per line: Day 1 to Day 7 weights, then X. Separate with tabs (copied from Sheets or Excel) or commas.</p><textarea id="pasteBox" class="short" placeholder="1.2	1.4	1.1	1.3	1.5	1.2	1.0	2"></textarea><div class="seg"><button type="button" class="primary" data-act="pasteAdd">Add these rows</button><button type="button" data-act="pasteReplace">Replace all data with these rows</button></div></div></details>'+
+      '<div id="live5"></div></div>'+stepList("part-b");
+  },
+  strata:function(){var el=document.getElementById("strata");if(!el)return;
+    el.innerHTML='<div style="display:flex;flex-direction:column;gap:8px">'+S.samp.strata.map(function(s,i){return '<div class="member" style="grid-template-columns:minmax(0,1fr) 96px 36px"><input type="text" aria-label="Grade level" id="f-st-'+i+'-name" data-k="samp.strata.'+i+'.name" value="'+esc(s.name)+'"><input type="number" inputmode="numeric" aria-label="Households in this grade level" id="f-st-'+i+'-Nh" data-k="samp.strata.'+i+'.Nh" value="'+esc(s.Nh)+'" placeholder="Nₕ"><button type="button" class="x" data-rmst="'+i+'" aria-label="Remove">×</button></div>';}).join("")+'</div>';},
+  live:function(){var s=sampleSize();if(!s)return '<p class="warn">Enter N, p, and e.</p>';
+    var t="n₀ = [z²p(1 − p)] / (e²)\n= [("+f(s.z)+")²("+f(s.p)+")(1 − "+f(s.p)+")] / ("+f(s.e)+"²)\n= "+f(s.z*s.z*s.p*(1-s.p))+" ÷ "+f(s.e*s.e)+"\n= "+f(s.n0,2)+
+      "\n\nn = n₀ / [1 + (n₀ − 1)/N]\n= "+f(s.n0,2)+" / [1 + ("+f(s.n0,2)+" − 1)/"+f(s.N)+"]\n= "+f(s.n0,2)+" ÷ "+f(1+(s.n0-1)/s.N)+"\n≈ "+f(s.n,2);
+    return '<div class="math">'+esc(t)+'</div><p class="big">Survey at least '+s.nUp+' households</p><p class="count">Always round up: '+f(s.n,2)+' → '+s.nUp+'. Rounding down would give a margin of error larger than '+f(s.e*100)+'%.</p>';},
+  live2:function(){var s=sampleSize();if(!s)return "";var tot=S.samp.strata.reduce(function(a,b){return a+(num(b.Nh)||0);},0);
+    var rows=S.samp.strata.map(function(st){var Nh=num(st.Nh)||0,nh=s.nUp*Nh/s.N;return '<tr><td class="l">'+esc(st.name)+'</td><td>'+f(Nh)+'</td><td class="calc">'+s.nUp+' · '+f(Nh)+' / '+f(s.N)+' = '+f(nh,2)+'</td><td><b>'+Math.ceil(nh-1e-9)+'</b></td></tr>';}).join("");
+    var sumUp=S.samp.strata.reduce(function(a,b){return a+Math.ceil(s.nUp*(num(b.Nh)||0)/s.N-1e-9);},0);
+    return '<div class="math">'+esc("nₕ = n · Nₕ / N")+'</div><div class="tablebox"><table><tr><th class="l">Grade level</th><th>Nₕ</th><th>n · Nₕ / N</th><th>nₕ (round up)</th></tr>'+rows+'<tr><th class="l">Total</th><th>'+f(tot)+'</th><th></th><th>'+sumUp+'</th></tr></table></div>'+
+      (Math.abs(tot-s.N)>0?'<p class="warn">The grade levels add up to '+f(tot)+', but N = '+f(s.N)+'. Check the counts from your teacher.</p>':'')+
+      '<p class="count">Rounding each grade up gives '+sumUp+' households in all, a few more than '+s.nUp+'. That is fine: it keeps every grade’s share large enough.</p>';},
+  live3:function(){var s=sampleSize();if(!s)return "";var any=false;
+    var h=S.samp.strata.map(function(st,i){var p=S.picks[i];if(!p||!p.length)return "";any=true;return '<p><b>'+esc(st.name)+'</b> ('+p.length+' of '+f(num(st.Nh))+'): '+p.join(", ")+'</p>';}).join("");
+    return any?h+'<p class="count">Drawn with this phone’s secure random number generator. Keep this list in your report as proof of random selection.</p>':'<p class="count">No numbers drawn yet.</p>';},
+  live4:function(){var se=num(S.forms.sent),re=num(S.forms.returned);if(!se)return "";var s=sampleSize();
+    return '<p>Response rate = '+f(re||0)+' ÷ '+f(se)+' ≈ <b>'+f((re||0)/se*100,1)+'%</b>.'+(s&&re!==null&&re<s.nUp?' <span class="pill bad">Below the '+s.nUp+' needed</span> State this as a limit of your study.':'')+'</p>';},
+  live5:function(){var R=records(),inc=R.filter(function(r){return !r.ok;}).length;
+    var rows=R.map(function(r,i){return '<tr><td>'+(i+1)+'</td>'+r.d.map(function(v){return '<td>'+(v===null?'<span class="warn">—</span>':f(v,2))+'</td>';}).join("")+'<td><b>'+(r.W===null?'—':f(r.W,2))+'</b></td><td>'+(r.x===null?'—':f(r.x))+'</td><td><button type="button" class="x" data-rmrow="'+i+'" aria-label="Delete household '+(i+1)+'">×</button></td></tr>';}).reverse().join("");
+    return '<p class="big">'+R.length+' forms encoded'+(inc?' · '+inc+' incomplete':'')+'</p>'+(S.exData?'<p class="count">These are example rows. Pasting or adding your first real form removes them.</p>':'')+
+      (R.length?'<div class="seg"><button type="button" class="small" data-act="copyCSV">Copy data for a spreadsheet</button><button type="button" class="small" data-act="clearData">Delete all rows</button></div><div class="note" id="confirmData" hidden>Delete all '+R.length+' rows? <span class="seg" style="margin-top:8px"><button class="small primary" type="button" data-act="clearDataYes">Yes, delete</button><button class="small" type="button" data-act="clearDataNo">Keep</button></span></div>'+
+      '<details class="sub"><summary>All forms (newest first)</summary><div class="tablebox"><table class="dense"><tr><th>No.</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5</th><th>D6</th><th>D7</th><th>W</th><th>X</th><th></th></tr>'+rows+'</table></div></details>':'');}
+};
+
+/* PART C */
+function normalSVG(st,lo,hi){
+  var W=380,H=180,L=14,R=14,T=12,B=34,pw=W-L-R,ph=H-T-B,x0=st.mean-3.5*st.sd,x1=st.mean+3.5*st.sd;
+  function X(x){return L+(x-x0)/(x1-x0)*pw;} function pdf(x){return Math.exp(-0.5*Math.pow((x-st.mean)/st.sd,2));} function Y(y){return T+ph-y*ph;}
+  var pts=[],shade=[],a=lo==null?x0:Math.max(x0,lo),b=hi==null?x1:Math.min(x1,hi);
+  for(var i=0;i<=120;i++){var x=x0+(x1-x0)*i/120;pts.push(X(x).toFixed(1)+","+Y(pdf(x)).toFixed(1));}
+  shade.push(X(a).toFixed(1)+","+Y(0));for(var j=0;j<=60;j++){var xx=a+(b-a)*j/60;shade.push(X(xx).toFixed(1)+","+Y(pdf(xx)).toFixed(1));}shade.push(X(b).toFixed(1)+","+Y(0));
+  var g=['<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Normal curve with the shaded probability">'];
+  g.push('<polygon points="'+shade.join(" ")+'" fill="var(--shade)"/><polyline points="'+pts.join(" ")+'" fill="none" stroke="var(--curve)" stroke-width="3"/>');
+  g.push('<line x1="'+L+'" y1="'+Y(0)+'" x2="'+(W-R)+'" y2="'+Y(0)+'" stroke="var(--ink)" stroke-width="1.5"/>');
+  for(var k=-3;k<=3;k++){var xv=st.mean+k*st.sd;g.push('<line x1="'+X(xv)+'" y1="'+Y(0)+'" x2="'+X(xv)+'" y2="'+(Y(0)+5)+'" stroke="var(--ink)"/><text x="'+X(xv)+'" y="'+(Y(0)+18)+'" text-anchor="middle" font-size="10.5" fill="var(--muted)">'+f(xv,1)+'</text>');}
+  g.push('<text x="'+(W-R)+'" y="'+(H-2)+'" text-anchor="end" font-size="11" font-weight="700" fill="var(--ink)">W (kg per week)</text>');
+  [lo,hi].forEach(function(v){if(v!=null&&v>x0&&v<x1)g.push('<line x1="'+X(v)+'" y1="'+T+'" x2="'+X(v)+'" y2="'+Y(0)+'" stroke="var(--hl)" stroke-width="2" stroke-dasharray="5 4"/><text x="'+X(v)+'" y="'+(T+10)+'" text-anchor="middle" font-size="11" font-weight="800" fill="var(--hl)">'+f(v,2)+'</text>');});
+  g.push('</svg>');return g.join("");
+}
+function histSVG(st,width){
+  var lo=Math.floor(st.min/width)*width,k=Math.max(1,Math.ceil((st.max-lo+1e-9)/width)),cnt=[];for(var i=0;i<k;i++)cnt.push(0);
+  st.W.forEach(function(w){var b=Math.min(k-1,Math.floor((w-lo)/width+1e-9));cnt[b]++;});
+  var W=380,H=220,L=34,R=10,T=12,B=40,pw=W-L-R,ph=H-T-B,mx=Math.max.apply(null,cnt),bw=pw/k;
+  var g=['<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Histogram of W">'];
+  var yt=Math.max(1,Math.ceil(mx/5));for(var y=0;y<=mx;y+=yt){var yy=T+ph-y/mx*ph;g.push('<line x1="'+L+'" y1="'+yy+'" x2="'+(W-R)+'" y2="'+yy+'" stroke="var(--grid)"/><text x="'+(L-5)+'" y="'+(yy+4)+'" text-anchor="end" font-size="10.5" fill="var(--muted)">'+y+'</text>');}
+  cnt.forEach(function(c,i){var h=c/mx*ph;g.push('<rect x="'+(L+i*bw+1)+'" y="'+(T+ph-h)+'" width="'+(bw-2)+'" height="'+h+'" fill="var(--bar)"/>');
+    if(k<=12||i%2===0)g.push('<text x="'+(L+i*bw)+'" y="'+(T+ph+15)+'" text-anchor="middle" font-size="10.5" fill="var(--muted)">'+f(lo+i*width,1)+'</text>');});
+  /* normal curve scaled to counts */
+  var pts=[];for(var j=0;j<=80;j++){var x=lo+k*width*j/80,dens=st.n*width/(st.sd*Math.sqrt(2*Math.PI))*Math.exp(-0.5*Math.pow((x-st.mean)/st.sd,2));pts.push((L+(x-lo)/width*bw).toFixed(1)+","+(T+ph-Math.min(dens,mx*1.15)/mx*ph).toFixed(1));}
+  g.push('<polyline points="'+pts.join(" ")+'" fill="none" stroke="var(--hl)" stroke-width="2.5"/>');
+  g.push('<line x1="'+L+'" y1="'+(T+ph)+'" x2="'+(W-R)+'" y2="'+(T+ph)+'" stroke="var(--ink)" stroke-width="1.5"/><text x="'+(W-R)+'" y="'+(H-4)+'" text-anchor="end" font-size="11" font-weight="700" fill="var(--ink)">W (kg per week)</text><text x="4" y="'+(T+8)+'" font-size="11" font-weight="700" fill="var(--ink)">households</text>');
+  g.push('</svg>');return {svg:g.join(""),k:k,lo:lo,cnt:cnt};
+}
+function nQuestion(q,st,idx){
+  var a=num(q.a),b=num(q.b);if(a===null||(q.type==="between"&&b===null))return '<p class="muted">Enter the value'+(q.type==="between"?'s':'')+' for question '+idx+'.</p>';
+  if(q.type==="between"&&b<a){var t=a;a=b;b=t;}
+  var za=(a-st.mean)/st.sd,zb=b===null?null:(b-st.mean)/st.sd,P,txt,lo=null,hi=null,form;
+  var s="z = (x − μ) / σ ≈ (" +f(a,2)+" − "+f(st.mean,2)+") / "+f(st.sd,2)+" ≈ "+f(za,2);
+  if(q.type===">"){P=1-Phi(za);lo=a;s+="\nP(W > "+f(a,2)+") = P(Z > "+f(za,2)+") = 1 − "+f(Phi(za))+" ≈ "+f(P);form='=1-NORM.DIST('+f(a,2)+', '+f(st.mean,2)+', '+f(st.sd,2)+', TRUE)';txt="About "+f(P*100,1)+"% of BBSI households produce more than "+f(a,2)+" kg of garbage in a week.";}
+  else if(q.type==="<"){P=Phi(za);hi=a;s+="\nP(W < "+f(a,2)+") = P(Z < "+f(za,2)+") ≈ "+f(P);form='=NORM.DIST('+f(a,2)+', '+f(st.mean,2)+', '+f(st.sd,2)+', TRUE)';txt="About "+f(P*100,1)+"% of BBSI households produce less than "+f(a,2)+" kg of garbage in a week.";}
+  else{P=Phi(zb)-Phi(za);lo=a;hi=b;s+="\nz = ("+f(b,2)+" − "+f(st.mean,2)+") / "+f(st.sd,2)+" ≈ "+f(zb,2)+"\nP("+f(a,2)+" < W < "+f(b,2)+") = "+f(Phi(zb))+" − "+f(Phi(za))+" ≈ "+f(P);form='=NORM.DIST('+f(b,2)+', …, TRUE) − NORM.DIST('+f(a,2)+', …, TRUE)';txt="About "+f(P*100,1)+"% of BBSI households produce between "+f(a,2)+" and "+f(b,2)+" kg of garbage in a week.";}
+  return '<div class="math">'+esc(s)+'</div><p>Spreadsheet check: <code>'+esc(form)+'</code></p><p class="big">≈ '+f(P*100,1)+'%</p><p><b>In plain words:</b> '+esc(txt)+'</p><div class="figure">'+normalSVG(st,lo,hi)+'</div><p class="count">A z-table may differ in the last digit because it rounds z to two decimals.</p>';
+}
+VIEWS["part-c"]={
+  stat:function(){
+    return exampleBanner()+'<div><div class="eyebrow">Part C · Jan. 6–11</div><h2>Analyze the Data</h2></div>'+
+    '<p class="lead"><span class="tag m">Math</span>Steps 8–11. Only <b>complete</b> forms are used for '+V("W")+'.</p>'+
+    '<div class="card"><h3>Step 8 · Summarize W</h3><div id="live"></div>'+field("bin","Histogram bar width","leave blank to let the app choose","number",' min="0.1"',"kg")+'<div class="figure" id="live2"></div></div>'+
+    '<div class="card"><h3>Step 9 · The normal model</h3>'+[0,1].map(function(i){var q=S.nq[i];return '<div class="src"><b>Question '+(i+1)+'</b><div class="grid3"><label for="f-nq-'+i+'-type">Type<select id="f-nq-'+i+'-type" data-k="nq.'+i+'.type"><option value=">"'+(q.type===">"?" selected":"")+'>more than</option><option value="<"'+(q.type==="<"?" selected":"")+'>less than</option><option value="between"'+(q.type==="between"?" selected":"")+'>between</option></select></label>'+field("nq."+i+".a","Value","","number","","kg")+field("nq."+i+".b","…and (between)","","number","","kg")+'</div><div id="nq'+i+'"></div></div>';}).join("")+
+      '<div class="src"><b>A percentile</b>'+field("top","What weight marks the top __% of households?","","number",' min="1" max="99"',"%")+'<div id="pct"></div></div></div>'+
+    '<div class="card"><h3>Step 10 · Expected value of X</h3><p class="muted">'+V("X")+' = '+esc(ang().x)+'.</p><div id="live3"></div>'+field("served","Households served (for the projection)","e.g. all BBSI households, or the households in your purok","number",' min="1"')+'<div id="live4"></div>'+area("assume","Assumptions of your projection","e.g. the sample represents all BBSI households; the holiday weeks are like other weeks","short")+'</div>'+
+    '<div class="card"><h3>Step 11 · Conclusions and limits</h3><div id="live5"></div>'+area("concl","Your conclusions and limits","State what the data show and what they do not.","short")+'</div>'+stepList("part-c");
+  },
+  live:function(){var st=wStats();if(st.n<2)return '<p class="warn">Encode at least 2 complete forms in Part B.</p>';
+    var t="W̄ = ΣW / n = "+f(st.sum,2)+" ÷ "+st.n+" ≈ "+f(st.mean,2)+" kg\ns = √[Σ(W − W̄)² / (n − 1)] = √("+f(st.ss,2)+" ÷ "+(st.n-1)+") ≈ "+f(st.sd,2)+" kg";
+    return '<div class="math">'+esc(t)+'</div><div class="tablebox"><table><tr><th>n</th><th>Mean</th><th>SD</th><th>Median</th><th>Min</th><th>Max</th></tr><tr><td>'+st.n+'</td><td><b>'+f(st.mean,2)+'</b></td><td><b>'+f(st.sd,2)+'</b></td><td>'+f(st.med,2)+'</td><td>'+f(st.min,2)+'</td><td>'+f(st.max,2)+'</td></tr></table></div>'+
+      '<p>Spreadsheet check: <code>=AVERAGE(…)</code> and <code>=STDEV.S(…)</code> on the W column.</p>';},
+  live2:function(){var st=wStats();if(st.n<2)return "";var w=num(S.bin);if(!w||w<=0){var k=Math.ceil(1+3.322*Math.log10(st.n));w=Math.max(0.5,Math.round((st.max-st.min)/k*2)/2);}
+    var H=histSVG(st,w),bell=Math.abs(st.mean-st.med)<0.25*st.sd&&Math.abs(st.w1-0.68)<0.12&&Math.abs(st.w2-0.95)<0.07;
+    return H.svg+'<p class="count">Bars '+f(w,2)+' kg wide. The orange curve is the normal model with the same mean and SD.</p>'+
+      '<p><b>Is it roughly bell-shaped?</b> Mean '+f(st.mean,2)+' vs. median '+f(st.med,2)+'; '+f(st.w1*100,0)+'% of households are within 1 SD (normal: 68%) and '+f(st.w2*100,0)+'% within 2 SD (normal: 95%). '+
+      (bell?'<span class="pill good">Close to normal</span> The normal model is reasonable.':'<span class="pill bad">Not clearly normal</span> Say so in your limits; the normal answers are only estimates.')+'</p>';},
+  live3:function(){var D=xDist();if(!D.n)return '<p class="warn">Encode X for at least one household in Part B.</p>';
+    var rows=D.keys.map(function(x){var p=D.fq[x]/D.n;return '<tr><td>'+x+'</td><td>'+D.fq[x]+'</td><td class="calc">'+D.fq[x]+'/'+D.n+' ≈ '+f(p)+'</td><td class="calc">'+x+' · '+f(p)+' ≈ '+f(x*p)+'</td></tr>';}).join("");
+    return '<div class="tablebox"><table><tr><th>x</th><th>Frequency</th><th>P(x)</th><th>x · P(x)</th></tr>'+rows+'<tr><th>Total</th><th>'+D.n+'</th><th>1</th><th>'+f(D.E)+'</th></tr></table></div>'+
+      '<div class="math">'+esc("E(X) = Σ x · P(x) ≈ "+D.keys.map(function(x){return x+"("+f(D.fq[x]/D.n)+")";}).join(" + ")+" ≈ "+f(D.E))+'</div>'+
+      '<p class="big">E(X) ≈ '+f(D.E,2)+'</p><p><b>Meaning:</b> '+esc(ang().meaning(D.E))+' This is a long-run average, not what every household does.</p>';},
+  live4:function(){var D=xDist(),h=num(S.served);if(!D.n||!h)return "";var tot=h*D.E;
+    return '<div class="math">'+esc("Projection = households × E(X) = "+f(h)+" × "+f(D.E)+" ≈ "+f(tot,1))+'</div><p>Across '+f(h)+' households: about <b>'+f(tot,0)+'</b> '+esc(ang().xs)+(S.angle==="plastic"?' (about '+f(tot*7,0)+' a week)':'')+'.</p>';},
+  live5:function(){var st=wStats(),R=records(),inc=R.filter(function(r){return !r.ok;}).length,s=sampleSize(),re=num(S.forms.returned),se=num(S.forms.sent),L=[];
+    L.push("Holiday season: the 7-day log was kept between Dec. 19 and Jan. 3, when families may produce more waste than usual.");
+    L.push("Self-reported data: households weighed their own bags with a bathroom scale.");
+    if(s)L.push("Sample size: "+(st.n||0)+" complete forms"+(st.n<s.nUp?", fewer than the "+s.nUp+" needed, so the margin of error is larger than "+f(s.e*100)+"%.":", meeting the "+s.nUp+" needed."));
+    if(se)L.push("Forms not returned: "+f(se-(re||0))+" of "+f(se)+" ("+f((se-(re||0))/se*100,1)+"%). Families who did not answer may differ from those who did.");
+    if(inc)L.push("Incomplete forms: "+inc+" were left out of the analysis of W.");
+    return '<p><b>Limits to state</b> (from your own data):</p><ul class="check" style="gap:6px">'+L.map(function(t){return '<li>• '+esc(t)+'</li>';}).join("")+'</ul>';}
+};
+
+/* PART D */
+function design(){var D=S.des,st=wStats(),mean=st.n>=2?st.mean:null;
+  var sm=num(D.sackMass),sv=num(D.sackVol),rho=(sm&&sv)?sm/(sv/1000):null;
+  var mass=(mean!==null&&num(D.served)&&num(D.days)&&num(D.share)!==null)?mean*num(D.served)*num(D.days)/7*num(D.share)/100:null;
+  var need=(mass!==null&&rho)?mass/rho:null,needOv=need!==null?need*(1+(num(D.overflow)||0)/100):null;
+  var L=num(D.L),Wd=num(D.W),H=num(D.H),n=num(D.bins)||1,vol=(L&&Wd&&H)?L*Wd*H*n:null;
+  var sa=(L&&Wd&&H)?(D.openTop?(L*Wd+2*L*H+2*Wd*H):(2*(L*Wd+L*H+Wd*H)))*n:null;
+  return {mean:mean,sm:sm,sv:sv,rho:rho,mass:mass,need:need,needOv:needOv,L:L,W:Wd,H:H,n:n,vol:vol,sa:sa,price:num(D.price),scale:num(D.scale)};}
+VIEWS["part-d"]={
+  stat:function(){var a=ang(),D=S.des;
+    return exampleBanner()+'<div><div class="eyebrow">Part D · Jan. 6–11</div><h2>Design and Build</h2></div>'+
+    '<p class="lead"><span class="tag m">Math</span>Your design: <b>'+esc(a.design)+'</b>. Size it from your data, measure the site, then build it at scale.</p>'+
+    '<div class="card"><h3>Step 12 · Bulk density ρ</h3><p class="muted">Weigh a full sack of household waste and measure its volume.</p><div class="grid2">'+field("des.sackMass","Mass of the full sack","","number",' min="0"',"kg")+field("des.sackVol","Volume of the sack","","number",' min="0"',"L")+'</div><div id="live"></div></div>'+
+    '<div class="card"><h3>Step 12 · Volume needed</h3><div class="grid2">'+field("des.served","Households using it","","number",' min="1"')+field("des.days","Days between pickups","","number",' min="1"')+field("des.share","Share of the waste that goes in it","e.g. recyclables only","number",' min="0" max="100"',"%")+field("des.overflow","Extra room for overflow","","number",' min="0"',"%")+'</div><div id="live2"></div></div>'+
+    '<div class="card"><h3>Step 14 · Dimensions, surface area, cost</h3><div class="grid3">'+field("des.L","Length","","number",' min="0"',"m")+field("des.W","Width","","number",' min="0"',"m")+field("des.H","Height","","number",' min="0"',"m")+'</div>'+
+      '<div class="grid2">'+field("des.bins","Number of bins or compartments","","number",' min="1"')+'<label for="f-des-openTop">Top<select id="f-des-openTop" data-k="des.openTop"><option value="true"'+(D.openTop?" selected":"")+'>Open top (lid not counted)</option><option value="false"'+(!D.openTop?" selected":"")+'>Closed box</option></select></label>'+
+      field("des.price","Material price per square meter","real price from a Taytay store","peso",' min="0"')+field("des.scale","Model scale 1 : k","","number",' min="1"')+'</div><div id="live3"></div></div>'+
+    '<div class="card"><h3>Step 13 · Height with a clinometer</h3><div class="grid3">'+field("des.d","Distance d","","number",' min="0"',"m")+field("des.theta","Angle θ","","number",' min="0" max="89"',"°")+field("des.eye","Eye height","","number",' min="0"',"m")+'</div><div id="live4"></div></div>'+
+    '<div class="card"><h3>Step 13 · Ramp check (BP 344)</h3><p class="muted">'+(a.ramp?'Your sorting station needs an access ramp for waste workers.':'Use this if your design has a ramp.')+' A ramp may be no steeper than 1 : 12.</p><div class="grid2">'+field("des.rise","Rise","","number",' min="0"',"m")+field("des.run","Run","","number",' min="0"',"m")+'</div><div id="live5"></div></div>'+stepList("part-d");
+  },
+  live:function(){var d=design();if(!d.rho)return '<p class="warn">Enter the sack’s mass and volume.</p>';
+    return '<div class="math">'+esc("ρ = mass / volume = "+f(d.sm,2)+" kg ÷ "+f(d.sv/1000,3)+" m³ ≈ "+f(d.rho,1)+" kg/m³")+'</div><p class="count">'+f(d.sv)+' L = '+f(d.sv)+' ÷ 1000 = '+f(d.sv/1000,3)+' m³.</p>';},
+  live2:function(){var d=design();if(d.mean===null)return '<p class="warn">You need the mean W from Part C first.</p>';if(d.mass===null||!d.rho)return '<p class="warn">Fill in every box above.</p>';
+    var D=S.des,t="mass = W̄ × households × (days ÷ 7) × share\n= "+f(d.mean,2)+" × "+f(num(D.served))+" × ("+f(num(D.days))+" ÷ 7) × "+f(num(D.share)/100,2)+" ≈ "+f(d.mass,2)+" kg\nV_needed = mass / ρ = "+f(d.mass,2)+" / "+f(d.rho,1)+" ≈ "+f(d.need,4)+" m³\nwith "+f(num(D.overflow)||0)+"% overflow: "+f(d.need,4)+" × "+f(1+(num(D.overflow)||0)/100,2)+" ≈ "+f(d.needOv,4)+" m³";
+    return '<div class="math">'+esc(t)+'</div><p class="big">Needed: about '+f(d.needOv,3)+' m³ = '+f(d.needOv*1000,0)+' L</p>';},
+  live3:function(){var d=design();if(!d.vol)return '<p class="warn">Enter length, width, and height.</p>';
+    var t="V = "+(d.n>1?f(d.n)+" × ":"")+"L × W × H = "+(d.n>1?f(d.n)+" × ":"")+f(d.L,2)+" × "+f(d.W,2)+" × "+f(d.H,2)+" ≈ "+f(d.vol,4)+" m³\n"+
+      (S.des.openTop?"SA = "+(d.n>1?f(d.n)+" × ":"")+"(LW + 2LH + 2WH)":"SA = "+(d.n>1?f(d.n)+" × ":"")+"2(LW + LH + WH)")+" ≈ "+f(d.sa,3)+" m²"+(d.price!==null?"\ncost = SA × price = "+f(d.sa,3)+" × "+f(d.price,2)+" ≈ "+peso(d.sa*d.price):"");
+    var fit=d.needOv!==null?(d.vol>=d.needOv-1e-9?'<p><span class="pill good">Big enough</span> '+f(d.vol*1000,0)+' L ≥ '+f(d.needOv*1000,0)+' L needed.</p>':'<p><span class="pill bad">Too small</span> '+f(d.vol*1000,0)+' L < '+f(d.needOv*1000,0)+' L needed. Make it bigger or ask for more frequent pickups.</p>'):'';
+    var k=d.scale;
+    return '<div class="math">'+esc(t)+'</div>'+fit+(k?'<p><b>Model at 1:'+f(k)+':</b> '+f(d.L*100/k,1)+' cm × '+f(d.W*100/k,1)+' cm × '+f(d.H*100/k,1)+' cm'+(d.n>1?' (each of '+f(d.n)+')':'')+'.</p>':'')+
+      '<p class="count">Add other materials (paint, hinges, a roof) to the cost on your design sheet.</p>';},
+  live4:function(){var D=S.des,d=num(D.d),th=num(D.theta),e=num(D.eye);if(d===null||th===null||e===null)return '<p class="warn">Enter d, θ, and eye height.</p>';
+    var tn=Math.tan(th*Math.PI/180),h=d*tn+e;
+    return '<div class="math">'+esc("h = d · tan θ + h_eye\n= "+f(d,2)+" · tan "+f(th)+"° + "+f(e,2)+"\n= "+f(d,2)+" × "+f(tn)+" + "+f(e,2)+"\n≈ "+f(h,2)+" m")+'</div><p class="big">Height ≈ '+f(h,2)+' m</p>';},
+  live5:function(){var D=S.des,r=num(D.rise),u=num(D.run);if(!r||!u)return '<p class="muted">Enter the rise and run of your ramp.</p>';
+    var sl=r/u,th=Math.atan(sl)*180/Math.PI,lim=Math.atan(1/12)*180/Math.PI,ok=sl<=1/12+1e-9;
+    return '<div class="math">'+esc("slope = rise / run = "+f(r,2)+" ÷ "+f(u,2)+" ≈ "+f(sl)+"\nθ = tan⁻¹(rise / run) = tan⁻¹("+f(sl)+") ≈ "+f(th,2)+"°\nlimit: 1 ÷ 12 ≈ 0.0833, θ ≈ "+f(lim,2)+"°")+'</div>'+
+      '<p><span class="pill '+(ok?'good':'bad')+'">'+(ok?'Meets 1 : 12':'Too steep')+'</span> '+(ok?'':'The run must be at least 12 × '+f(r,2)+' = '+f(12*r,2)+' m.')+'</p>';}
+};
+
+/* PART E */
+function facts(){var st=wStats(),D=xDist(),d=design(),out=[];
+  if(st.n>=2)out.push("Mean weekly garbage: W̄ ≈ "+f(st.mean,2)+" kg per household (s ≈ "+f(st.sd,2)+" kg, n = "+st.n+").");
+  if(st.n>=2){var q=S.nq[0],a=num(q.a);if(a!==null&&q.type===">")out.push("About "+f((1-Phi((a-st.mean)/st.sd))*100,1)+"% of households produce more than "+f(a,2)+" kg a week.");}
+  if(D.n)out.push("E(X) ≈ "+f(D.E,2)+" "+ang().xs+".");
+  if(D.n&&num(S.served))out.push("Projected for "+f(num(S.served))+" households: about "+f(num(S.served)*D.E,0)+" "+ang().xs+".");
+  if(d.needOv)out.push("Your design needs about "+f(d.needOv*1000,0)+" L between pickups.");
+  return out;}
+VIEWS["part-e"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Part E · Jan. 7–13</div><h2>Campaign and Forum</h2></div>'+
+    '<div class="card"><h3><span class="tag g">Politics</span>Step 16 · Data as evidence</h3><p class="muted">Pick two or three findings. For each: a claim, the evidence (your numbers), and the reasoning that links them. Keep the limits in mind.</p><div id="live"></div>'+
+      [0,1,2].map(function(i){return '<div class="src"><b>Finding '+(i+1)+'</b>'+area("cer."+i+".claim","Claim","","short")+area("cer."+i+".evidence","Evidence (your numbers)","","short")+area("cer."+i+".reasoning","Reasoning","","short")+'</div>';}).join("")+'</div>'+
+    '<div class="card"><h3><span class="tag g">Politics</span>Step 17 · Call to action</h3><p class="muted">One clear request for each. Cite your sources. Be fair and respectful, and do not promote any party or candidate.</p>'+
+      area("cta.barangay","To the barangay","","short")+area("cta.school","To the school","","short")+area("cta.households","To households","","short")+'</div>'+
+    '<div class="card"><h3>Step 18 · Rehearsal timer</h3><p class="muted">About 45 minutes per group. Every member speaks.</p><div id="timer"></div></div>'+stepList("part-e");
+  },
+  live:function(){var F=facts();return F.length?'<p><b>Your findings so far:</b></p><ul class="check" style="gap:6px">'+F.map(function(t){return '<li>• '+esc(t)+'</li>';}).join("")+'</ul>':'<p class="muted">Finish Part C to see your findings here.</p>';}
+};
+var FORUM=[["Data",8,"question, sample, results, normal-model probabilities, expected value, limits"],["Design",7,"the scale model, how the data sized it, measurements, cost"],["Campaign",10,"governance analysis, position, evidence, call to action"],["Panel questions",10,"answer with evidence, calmly and respectfully"],["Audience feedback",5,"listen and take notes"]];
+var TM={seg:0,left:FORUM[0][1]*60,run:false,iv:null};
+function drawTimer(){var el=document.getElementById("timer");if(!el)return;var s=FORUM[TM.seg],m=Math.floor(TM.left/60),sc=TM.left%60;
+  el.innerHTML='<div class="segbar">'+FORUM.map(function(_,i){return '<span class="'+(i<TM.seg?'done':i===TM.seg?'now':'')+'"></span>';}).join("")+'</div>'+
+    '<p style="text-align:center"><b>'+(TM.seg+1)+'. '+s[0]+'</b> · '+s[1]+' min<br><span class="count">'+s[2]+'</span></p><div class="timer'+(TM.left===0?' warn':'')+'" aria-live="polite">'+m+':'+(sc<10?"0":"")+sc+'</div>'+
+    '<div class="seg" style="justify-content:center"><button type="button" class="primary" data-act="tStart">'+(TM.run?'Pause':'Start')+'</button><button type="button" data-act="tNext">Next part</button><button type="button" data-act="tReset">Reset</button></div>';}
+function tick(){if(!TM.run)return;if(TM.left>0){TM.left--;}else{TM.run=false;clearInterval(TM.iv);toast("Time is up for "+FORUM[TM.seg][0]);}drawTimer();}
+
+/* PART F */
+VIEWS["part-f"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Step 19 · Individual · Jan. 13</div><h2>Reflect</h2></div>'+
+    '<blockquote>“Let each of you look out not only for his own interests, but also for the interests of others.”<br><b style="font-style:normal">Philippians 2:4</b></blockquote>'+
+    '<div class="card"><h3>Write about three things</h3><ul class="check" style="gap:8px"><li>• <b>What the data taught you.</b> Which number surprised you most?</li><li>• <b>What you learned about being a citizen.</b> Who has duties, and what is yours?</li><li>• <b>How Philippians 2:4 applies to your neighbors,</b> including waste workers and the families downstream of a clogged canal.</li></ul><p class="note">This is your own reflection, written in your own words.</p></div>'+
+    '<div class="card">'+area("refl","Draft your reflection","Saved on this phone.")+'<p class="count" id="live"></p></div>'+stepList("part-f");
+  },
+  live:function(){return wc(S.refl)+" words";}
+};
+
+/* TEACHER PIN: only a SHA-256 hash of the PIN is kept here */
+var TC_HASH="de1eb175ef518fa562e531a56601cad6b08d1a3979d91559594f687100332128";
+var tcOpen=false;try{tcOpen=sessionStorage.getItem("tcOpen")===TC_HASH;}catch(e){}
+var tcFails=0,tcWaitUntil=0;
+function sha256hex(t){return crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)).then(function(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return ("0"+x.toString(16)).slice(-2);}).join("");});}
+function viewFor(k){return (k==="teacher"&&!tcOpen)?VIEWS["teacher-lock"]:VIEWS[k];}
+VIEWS["teacher-lock"]={stat:function(){
+  return '<div><span class="teacher-tag">For teachers</span><h2>Teacher Check</h2></div><p class="lead">This screen shows answer keys, so it is locked. Enter the teacher PIN to open it.</p>'+
+  '<form class="card" id="pinForm" autocomplete="off"><label for="pin">Teacher PIN<input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="40"></label><button type="submit" class="primary">Unlock</button><p class="warn" id="pinMsg" aria-live="polite"></p></form><p class="count">It stays unlocked on this phone until you close the browser or tap Lock.</p>';}};
+
+/* TEACHER CHECK */
+function parseRows(txt){return (txt||"").split(/\r?\n/).map(function(l){return l.trim();}).filter(Boolean).map(function(l){var c=l.split(/\t|,|;/).map(function(x){return x.trim();});
+  var d=c.slice(0,7);while(d.length<7)d.push("");return {d:d.map(function(v){return v===""?"":Number(v);}),x:c[7]===undefined||c[7]===""?"":Number(c[7]),ok:d.every(function(v){return v!==""&&isFinite(Number(v));})};}).filter(function(r){return r.d.some(function(v){return v!=="";});});}
+function withT(fn){var keep=S,t=keep.tc;
+  S=clone(EXAMPLE);S.example=false;S.exData=false;S.angle=keep.angle;S.samp={N:t.N,conf:t.conf,p:t.p,e:t.e,strata:String(t.strata||"").split(/[,;\s]+/).filter(Boolean).map(function(v,i){return {name:"Grade level "+(i+1),Nh:Number(v)};})};
+  S.data=parseRows(t.paste);S.nq=[{type:t.type,a:t.a,b:""},{type:">",a:"",b:""}];S.top=t.top;S.served=t.served;S.forms={sent:"",returned:""};
+  S.des=Object.assign(clone(EXAMPLE.des),{sackMass:t.sackMass,sackVol:t.sackVol,d:t.d,theta:t.theta,eye:t.eye,rise:t.rise,run:t.run});
+  try{return fn();}finally{S=keep;}}
+VIEWS["teacher"]={
+  stat:function(){var t=S.tc;
+    return '<div><span class="teacher-tag">For teachers</span><h2>Teacher Check</h2></div><p class="lead">Type in a group’s numbers and paste their data to see the answer key. The group’s own screens on this phone are not changed.</p>'+
+    '<div class="card"><h3>Sample size</h3><div class="grid2">'+field("tc.N","N","","number")+'<label for="f-tc-conf">Confidence<select id="f-tc-conf" data-k="tc.conf">'+["90","95","99"].map(function(c){return '<option value="'+c+'"'+(t.conf===c?" selected":"")+'>'+c+'%</option>';}).join("")+'</select></label>'+field("tc.p","p","","number")+field("tc.e","e","","number")+'</div>'+field("tc.strata","Households per grade level","separate with commas, e.g. 180, 140, 80")+'</div>'+
+    '<div class="card"><h3>The group’s data</h3><label for="f-tc-paste">Paste rows: Day 1–7 weights, then X<textarea id="f-tc-paste" data-k="tc.paste" class="short"></textarea></label>'+
+      '<div class="grid3"><label for="f-tc-type">Question<select id="f-tc-type" data-k="tc.type"><option value=">"'+(t.type===">"?" selected":"")+'>more than</option><option value="<"'+(t.type==="<"?" selected":"")+'>less than</option></select></label>'+field("tc.a","Value","","number","","kg")+field("tc.top","Top __%","","number","","%")+'</div>'+field("tc.served","Households served (projection)","","number")+'</div>'+
+    '<div class="card"><h3>Design measurements</h3><div class="grid2">'+field("tc.sackMass","Sack mass","","number","","kg")+field("tc.sackVol","Sack volume","","number","","L")+field("tc.d","Clinometer distance d","","number","","m")+field("tc.theta","Angle θ","","number","","°")+field("tc.eye","Eye height","","number","","m")+field("tc.rise","Ramp rise","","number","","m")+field("tc.run","Ramp run","","number","","m")+'</div></div>'+
+    '<div id="live" style="display:flex;flex-direction:column;gap:16px"></div>'+
+    '<div class="seg"><button type="button" data-act="tcClear">Clear for the next group</button><button type="button" data-act="tcLock">Lock Teacher Check</button></div>';
+  },
+  live:function(){var tp=S.tc.paste;return withT(function(){var o='',B=VIEWS["part-b"],C=VIEWS["part-c"],D=VIEWS["part-d"];
+    o+='<details class="card" open><summary>Sample size and allocation</summary>'+B.live()+B.live2()+'</details>';
+    var st=wStats();
+    if(st.n>=2){o+='<details class="card" open><summary>W: mean, SD, histogram</summary>'+C.live()+'<div class="figure">'+C.live2()+'</div></details>';
+      o+='<details class="card" open><summary>Normal model</summary>'+nQuestion(S.nq[0],st,1)+pctHTML(st)+'</details>';}
+    else o+='<div class="card"><p class="muted">Paste at least 2 complete rows to check W.</p></div>';
+    if(xDist().n)o+='<details class="card" open><summary>Expected value of X</summary>'+C.live3()+C.live4()+'</details>';
+    o+='<details class="card" open><summary>Design measurements</summary>'+D.live()+D.live4()+D.live5()+'</details>';
+    return o;});}
+};
+function pctHTML(st){var t=num(S.top);if(!t||t<=0||t>=100)return '<p class="muted">Enter a percent between 1 and 99.</p>';var p=1-t/100,z=invPhi(p),x=st.mean+z*st.sd;
+  return '<div class="math">'+esc("Top "+f(t)+"% → area to the left = 1 − "+f(t/100,2)+" = "+f(p,2)+"\nz ≈ "+f(z,3)+"   (from the z-table)\nx = μ + zσ ≈ "+f(st.mean,2)+" + ("+f(z,3)+")("+f(st.sd,2)+") ≈ "+f(x,2)+" kg")+'</div><p>Spreadsheet check: <code>=NORM.INV('+f(p,2)+', '+f(st.mean,2)+', '+f(st.sd,2)+')</code></p><p class="big">'+f(x,2)+' kg</p><p><b>In plain words:</b> The top '+f(t)+'% of BBSI households produce more than about '+f(x,1)+' kg of garbage in a week.</p><div class="figure">'+normalSVG(st,x,null)+'</div>';}
+VIEWS["part-c"].nq=function(){var st=wStats();[0,1].forEach(function(i){var el=document.getElementById("nq"+i);if(el)el.innerHTML=st.n>=2?nQuestion(S.nq[i],st,i+1):'';});var el=document.getElementById("pct");if(el)el.innerHTML=st.n>=2?pctHTML(st):'';};
+
+/* ---------- export ---------- */
+function allText(){
+  function strip(h){var d=document.createElement("div");d.innerHTML=h.replace(/<svg[\s\S]*?<\/svg>/g,"").replace(/<br\s*\/?>/g,"\n").replace(/<\/(p|li|div|tr|h3|td|th|summary)>/g,function(m){return m==="</td>"||m==="</th>"?" | ":"\n";});return d.textContent.replace(/\n{3,}/g,"\n\n").trim();}
+  var t=["KAYTIKLING WASTE WATCH · "+(S.group.name||"Group")+" · "+ang().label];
+  t.push("MEMBERS\n"+S.group.members.map(function(m){return m.role+": "+(m.name||"");}).join("\n"));
+  t.push("SOURCES\n"+S.sources.map(function(s,i){return (i+1)+". "+s.title+" — "+s.outlet+"\n   Says: "+s.says+"\n   Trust: "+s.trust;}).join("\n"));
+  t.push("GOVERNANCE ANALYSIS (draft)\n"+(S.gov||""));
+  t.push("SAMPLE SIZE\n"+strip(VIEWS["part-b"].live())+"\n"+strip(VIEWS["part-b"].live2())+"\n"+strip(VIEWS["part-b"].live3())+"\n"+strip(VIEWS["part-b"].live4()));
+  var st=wStats();t.push("ANALYSIS\n"+strip(VIEWS["part-c"].live())+"\n"+(st.n>=2?strip(nQuestion(S.nq[0],st,1))+"\n"+strip(nQuestion(S.nq[1],st,2))+"\n"+strip(pctHTML(st)):"")+"\n"+strip(VIEWS["part-c"].live3())+"\n"+strip(VIEWS["part-c"].live4())+"\nAssumptions: "+(S.assume||"")+"\n"+strip(VIEWS["part-c"].live5())+"\nConclusions: "+(S.concl||""));
+  var D=VIEWS["part-d"];t.push("DESIGN\n"+[D.live(),D.live2(),D.live3(),D.live4(),D.live5()].map(strip).join("\n"));
+  t.push("EVIDENCE\n"+S.cer.map(function(c,i){return (i+1)+". Claim: "+c.claim+"\n   Evidence: "+c.evidence+"\n   Reasoning: "+c.reasoning;}).join("\n"));
+  t.push("CALL TO ACTION\nBarangay: "+S.cta.barangay+"\nSchool: "+S.cta.school+"\nHouseholds: "+S.cta.households);
+  t.push("REFLECTION (draft)\n"+(S.refl||""));
+  return t.join("\n\n");
+}
+function toCSV(){return ["Household,Day1,Day2,Day3,Day4,Day5,Day6,Day7,W,X,Complete"].concat(records().map(function(r,i){return [i+1].concat(r.d.map(function(v){return v===null?"":v;})).concat([r.W===null?"":rd(r.W,2),r.x===null?"":r.x,r.ok?"yes":"no"]).join(",");})).join("\n");}
+
+/* ---------- math typesetting (MathJax): plain steps -> LaTeX ---------- */
+var TX_SYM={"−":"-","×":"\\times ","÷":"\\div ","≤":"\\le ","≥":"\\ge ","≠":"\\ne ","≈":"\\approx ","±":"\\pm ","∪":"\\cup ","∩":"\\cap ","′":"'","|":"\\mid ","✓":"\\;\\checkmark","✗":"","·":"\\cdot ","→":"\\rightarrow ","…":"\\ldots ","%":"\\%","₱":"\\text{₱}","&":"\\&","#":"\\#","{":"\\{","}":"\\}","$":"\\$","°":"^\\circ ","\\":"\\backslash ",
+  "μ":"\\mu ","σ":"\\sigma ","ρ":"\\rho ","θ":"\\theta ","Σ":"\\sum ","₀":"_0","ₕ":"_h","\u0005":"^{-1}","\u0006":"\\,\\text{kg/m}^3"};
+var TX_SUP={"²":"2","³":"3"},TX_FN={tan:1,sin:1,cos:1};
+function txText(t){return t.replace(/[\\{}%&#$_]/g,function(c){return "\\"+c;});}
+function txMatch(s,i,open,close){var d=0;for(var j=i;j<s.length;j++){if(s[j]===open)d++;else if(s[j]===close){d--;if(!d)return j;}}return -1;}
+function txOperand(s,i){var m=s.slice(i).match(/^\d+(\.\d+)?/)||s.slice(i).match(/^[A-Za-zμσρθ]/);return m?m[0]:null;}
+/* "[A] / (B)", "x / [B]", "(A) / σ" become stacked fractions */
+function txGroupFrac(s){
+  for(var q=0;q<s.length;q++){
+    if(s[q]!=="/")continue;var spaced=s[q-1]===" "&&s[q+1]===" ";
+    var a=q-1;while(a>=0&&s[a]===" ")a--;var b=q+1;while(b<s.length&&s[b]===" ")b++;if(a<0)continue;
+    var st=-1,endA=a;if(s[a]==="²"&&(s[a-1]===")"||s[a-1]==="]"))a--;
+    if(s[a]===")"||s[a]==="]"){var op=s[a]===")"?"(":"[",d=0;for(var k=a;k>=0;k--){if(s[k]===s[a])d++;else if(s[k]===op){d--;if(!d){st=k;break;}}}
+      if(st<0)continue;if(st>0&&(/[A-Za-zΣ]/.test(s[st-1]))&&!/[A-Za-z]/.test(s[st-2]||" "))st--;}
+    else if(spaced){var mm=s.slice(0,a+1).match(/Σ?[A-Za-z]{2,}$|Σ?[A-Za-zμσρθ][₀ₕ]?$|\d+(\.\d+)?$/);if(!mm)continue;st=a+1-mm[0].length;}
+    else continue;
+    var rb=b,cl;if(/[A-Za-z]/.test(s[rb]||"")&&/[(\[]/.test(s[rb+1]||""))rb++;
+    if(/[(\[]/.test(s[rb]||"")){cl=txMatch(s,rb,s[rb],s[rb]==="("?")":"]");if(cl<0)continue;}
+    else{var rm=s.slice(b).match(/^\d+(\.\d+)?|^[A-Za-z]{2,}|^[A-Za-zμσρθ][₀ₕ]?/);if(!rm)continue;cl=b+rm[0].length-1;}
+    return s.slice(0,st)+"\u0001"+s.slice(st,endA+1)+"\u0002"+s.slice(b,cl+1)+"\u0003"+txGroupFrac(s.slice(cl+1));
+  }
+  return s;
+}
+function txStrip(g){g=g.trim();if(/^[(\[]/.test(g)&&txMatch(g,0,g[0],g[0]==="("?")":"]")===g.length-1)return g.slice(1,-1);return g;}
+function toTex(s){
+  s=txGroupFrac(s.replace(/⁻¹/g,"\u0005").replace(/kg\/m³/g,"\u0006"));
+  var r="",i=0,L=s.length,m;
+  while(i<L){
+    var c=s[i],rest=s.slice(i);
+    if(c==="\u0001"){var e2=s.indexOf("\u0002",i),e3=s.indexOf("\u0003",i);r+="\\dfrac{"+toTex(txStrip(s.slice(i+1,e2)))+"}{"+toTex(txStrip(s.slice(e2+1,e3)))+"}";i=e3+1;continue;}
+    if(c==="("||c==="["){var cg=txMatch(s,i,c,c==="("?")":"]");
+      if(cg>0){var inner=toTex(s.slice(i+1,cg));if(/\\frac|\\sqrt|\\dfrac/.test(inner)){r+=(c==="("?"\\left(":"\\left[")+inner+(c==="("?"\\right)":"\\right]");i=cg+1;continue;}}}
+    if(i===0&&(m=rest.match(/^\((\d)\)\s+/))){r+="("+m[1]+")\\quad ";i+=m[0].length;continue;}
+    if(/\s/.test(c)){m=rest.match(/^\s{2,}(\(\d\))\s*$/);if(m){r+="\\qquad "+m[1];break;}r+=" ";i++;continue;}
+    if(c==="_"&&(m=rest.match(/^_([A-Za-z]+)/))){r+="_{\\text{"+m[1]+"}}";i+=m[0].length;continue;}
+    if((m=rest.match(/^\d+(?:-\d+)+/))){r+="\\text{"+m[0]+"}";i+=m[0].length;continue;}
+    if((m=rest.match(/^\d{1,3}(?:,\d{3})+(?:\.\d+)?|^\d+(?:\.\d+)?/))){
+      var tok=m[0].replace(/,/g,"{,}");i+=m[0].length;
+      if(s[i]==="/"){var den=txOperand(s,i+1);if(den){r+="\\frac{"+tok+"}{"+(TX_SYM[den]||den)+"}";i+=1+den.length;continue;}}
+      r+=tok;continue;}
+    if((m=rest.match(/^[A-Za-z][A-Za-z’'\-]*[A-Za-z’']|^[A-Za-z]/))){
+      var w=m[0],prev=i>0?s[i-1]:" ",nx=s[i+w.length]||" ";
+      if(w.length===1&&nx==="̄"){r+="\\bar{"+w+"}";i+=2;continue;}
+      if(TX_FN[w]){r+="\\"+w+" ";i+=w.length;continue;}
+      if(/^(m|cm|mm|km|kg|g|L)$/.test(w)&&/\d\s$/.test(s.slice(Math.max(0,i-2),i))&&!/[A-Za-z(]/.test(nx)){r+="\\,\\text{"+w+"}";i+=w.length;continue;}
+      if(w.length===1||/[0-9)²\]]/.test(prev)||/^[LWH]{2,3}$/.test(w)){
+        if(w.length===1&&s[i+1]==="/"){var dn=txOperand(s,i+2);if(dn){r+="\\frac{"+w+"}{"+(TX_SYM[dn]||dn)+"}";i+=2+dn.length;continue;}}
+        r+=w;i+=w.length;continue;}
+      var j=i+w.length,run=w;
+      while(true){var mm2=s.slice(j).match(/^([ ,.:;?!“”"’']*)([A-Za-z][A-Za-z’'\-]*)/);
+        if(mm2&&mm2[2].length>1&&!TX_FN[mm2[2]]&&!/^(kg|cm|mm|km)$/.test(mm2[2])){run+=mm2[1]+mm2[2];j+=mm2[0].length;}else break;}
+      var tp=s.slice(j).match(/^[,.:;?!]+/);if(tp){run+=tp[0];j+=tp[0].length;}
+      var pre=(i>0&&/\s/.test(s[i-1])&&r.trim()!=="")?" ":"",post=/\s/.test(s[j]||"")&&s.slice(j).trim()!==""?" ":"";
+      r+="\\text{"+pre+txText(run)+post+"}";i=j;continue;}
+    if(c==="√"){var o=s[i+1];
+      if(o==="["||o==="("){var cl2=txMatch(s,i+1,o,o==="["?"]":")");if(cl2>0){r+="\\sqrt{"+toTex(s.slice(i+2,cl2))+"}";i=cl2+1;continue;}}
+      var op2=s.slice(i+1).match(/^\d+(\.\d+)?|^[A-Za-z]/);if(op2){r+="\\sqrt{"+op2[0]+"}";i+=1+op2[0].length;continue;}
+      r+="\\sqrt{\\ }";i++;continue;}
+    if(TX_SUP[c]){r+="^{"+TX_SUP[c]+"}";i++;continue;}
+    if(c==="̄"){i++;continue;}
+    if(TX_SYM[c]!==undefined){r+=TX_SYM[c];i++;continue;}
+    r+=c;i++;
+  }
+  return r;
+}
+function mathify(root){
+  if(!(window.MathJax&&MathJax.typeset)||!root)return;
+  var els=root.querySelectorAll(".math,.eq,td.calc,.mx"),any=false;
+  Array.prototype.forEach.call(els,function(el){
+    if(el.getAttribute("data-tex"))return;
+    var plain=(el.innerText||el.textContent||"").replace(/ /g," ").replace(/\s+$/,"");if(!plain.trim())return;
+    var lines=plain.split("\n"),tex;
+    if(el.classList.contains("math")){tex="\\[\\begin{aligned}"+lines.map(function(l){if(!l.trim())return "&\\phantom{0}";return "&"+toTex(l).replace(/^\s*-/,"{-}");}).join("\\\\")+"\\end{aligned}\\]";}
+    else if(lines.length>1){tex="\\(\\begin{aligned}"+lines.map(function(l){return "&"+toTex(l);}).join("\\\\")+"\\end{aligned}\\)";}
+    else tex="\\("+(el.classList.contains("eq")||el.classList.contains("mx")?"\\displaystyle ":"")+toTex(plain)+"\\)";
+    el.setAttribute("data-plain",plain);el.textContent=tex;el.setAttribute("data-tex","1");any=true;});
+  if(!any)return;
+  try{MathJax.typesetClear([root]);MathJax.typeset([root]);}catch(e){}
+}
+window.__mathify=function(){mathify(document.getElementById("view"));};
+
+/* ---------- rendering ---------- */
+var viewEl=document.getElementById("view"),stepsEl=document.getElementById("steps");
+function renderSteps(){
+  stepsEl.innerHTML=ORDER.map(function(k){var done=k!=="plan"&&partProgress(k)===1;return '<a href="#'+k+'"'+(k===cur?' class="on" aria-current="page"':'')+'>'+LABEL[k]+(done?'<span class="dot" aria-label="done"></span>':'')+'</a>';}).join("");
+  var on=stepsEl.querySelector(".on");if(on&&on.scrollIntoView)on.scrollIntoView({block:"nearest",inline:"center"});
+}
+function renderLive(){var v=viewFor(cur);["live","live2","live3","live4","live5"].forEach(function(id){if(!v[id])return;var h=v[id]();var el=document.getElementById(id);if(el&&h!==null)el.innerHTML=h;});
+  if(v.nq)v.nq();mathify(viewEl);}
+function show(k){
+  if(!VIEWS[k])k="plan";cur=k;var v=viewFor(k);
+  viewEl.innerHTML='<div class="view" style="display:flex;flex-direction:column;gap:16px">'+v.stat()+'</div>';
+  if(v.srcList)v.srcList();if(v.strata)v.strata();if(k==="part-e")drawTimer();
+  renderLive();renderSteps();
+  var i=ORDER.indexOf(k);document.getElementById("prev").disabled=i===0;
+  document.getElementById("next").textContent=(i===ORDER.length-1||i<0)?"Back to Plan":"Next ›";
+  window.scrollTo(0,0);
+}
+function route(){show((location.hash||"#plan").slice(1));}
+window.addEventListener("hashchange",route);
+document.getElementById("prev").addEventListener("click",function(){var i=ORDER.indexOf(cur);if(i<0)location.hash="plan";else if(i>0)location.hash=ORDER[i-1];});
+document.getElementById("next").addEventListener("click",function(){var i=ORDER.indexOf(cur);location.hash=ORDER[(i+1)%ORDER.length];});
+function toast(m){var t=document.getElementById("toast");t.textContent=m;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(function(){t.hidden=true;},2200);}
+function copyText(txt,box){var fb=function(){if(box){box.hidden=false;box.value=txt;box.focus();box.select();}toast("Select all and copy");};try{navigator.clipboard.writeText(txt).then(function(){toast("Copied");},fb);}catch(err){fb();}}
+function realData(){if(S.exData){S.data=[];S.exData=false;}}
+
+viewEl.addEventListener("input",function(e){
+  var el=e.target,k=el.getAttribute("data-k");if(!k||el.tagName==="SELECT")return;
+  var v=el.value;if(el.type==="number"){var n=num(v);v=n===null?"":n;}
+  set(k,v);if(/^(samp|des|forms|served|nq|top)/.test(k))S.example=false;save();renderLive();
+});
+viewEl.addEventListener("change",function(e){
+  var el=e.target;
+  if(el.getAttribute("data-step")){S.steps[el.getAttribute("data-step")]=el.checked;save();renderSteps();renderLive();return;}
+  if(el.tagName==="SELECT"){var k=el.getAttribute("data-k"),v=el.value;if(k==="des.openTop")v=(v==="true");set(k,v);save();renderLive();}
+});
+viewEl.addEventListener("submit",function(e){
+  if(e.target.id!=="pinForm")return;e.preventDefault();
+  var inp=document.getElementById("pin"),msg=document.getElementById("pinMsg");
+  var wait=Math.ceil((tcWaitUntil-Date.now())/1000);
+  if(wait>0){msg.textContent="Too many tries. Wait "+wait+" seconds, then try again.";return;}
+  var tries;try{tries=sha256hex("bbsi-teacher-check|"+inp.value.trim());}catch(err){tries=Promise.reject(err);}
+  tries.then(function(h){
+    if(h===TC_HASH){tcOpen=true;tcFails=0;try{sessionStorage.setItem("tcOpen",TC_HASH);}catch(e2){}show("teacher");toast("Teacher Check unlocked");}
+    else{tcFails++;inp.value="";inp.focus();
+      if(tcFails>=5){tcFails=0;tcWaitUntil=Date.now()+30000;msg.textContent="That PIN is not correct. Too many tries: wait 30 seconds.";}
+      else msg.textContent="That PIN is not correct.";}
+  },function(){msg.textContent="This browser cannot check the PIN. Open the app from its https:// link.";});
+});
+viewEl.addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  if(b.hasAttribute("data-angle")){S.angle=b.getAttribute("data-angle");var A=ang();
+    if(S.exData)S.data=exampleData(S.angle);if(S.example){S.des.bins=A.bins;S.des.served=A.served;S.des.share=A.share;S.served=400;}
+    save();b.parentNode.querySelectorAll("button").forEach(function(x){x.setAttribute("aria-pressed",String(x===b));});renderLive();return;}
+  if(b.hasAttribute("data-rmsrc")){S.sources.splice(Number(b.getAttribute("data-rmsrc")),1);if(!S.sources.length)S.sources.push({title:"",outlet:"",says:"",trust:""});save();VIEWS["part-a"].srcList();renderLive();return;}
+  if(b.hasAttribute("data-rmst")){S.samp.strata.splice(Number(b.getAttribute("data-rmst")),1);S.picks={};save();VIEWS["part-b"].strata();renderLive();return;}
+  if(b.hasAttribute("data-rmrow")){S.data.splice(Number(b.getAttribute("data-rmrow")),1);save();renderLive();toast("Row deleted");return;}
+  var a=b.getAttribute("data-act");
+  if(a==="addSrc"){S.sources.push({title:"",outlet:"",says:"",trust:""});save();VIEWS["part-a"].srcList();renderLive();}
+  if(a==="addStratum"){S.samp.strata.push({name:"",Nh:""});save();VIEWS["part-b"].strata();renderLive();}
+  if(a==="pick"){var s=sampleSize();if(!s){toast("Compute the sample size first");return;}S.picks={};
+    S.samp.strata.forEach(function(st,i){var Nh=Math.floor(num(st.Nh)||0),nh=Math.min(Nh,Math.ceil(s.nUp*Nh/s.N-1e-9)),pool={},out=[],buf=new Uint32Array(1);
+      while(out.length<nh){crypto.getRandomValues(buf);var v=1+buf[0]%Nh;if(!pool[v]){pool[v]=1;out.push(v);}}S.picks[i]=out.sort(function(x,y){return x-y;});});
+    save();renderLive();toast("Random numbers drawn");}
+  if(a==="addRow"){var d=[0,1,2,3,4,5,6].map(function(k){var v=document.getElementById("nd"+k).value;return v===""?"":Number(v);}),xv=document.getElementById("nx").value;
+    if(d.every(function(v){return v==="";})){toast("Enter the day weights first");return;}
+    realData();S.data.push({d:d,x:xv===""?"":Number(xv),ok:d.every(function(v){return v!=="";})});save();
+    [0,1,2,3,4,5,6].forEach(function(k){document.getElementById("nd"+k).value="";});document.getElementById("nx").value="";document.getElementById("nd0").focus();renderLive();toast("Form "+S.data.length+" added");}
+  if(a==="pasteAdd"||a==="pasteReplace"){var rows=parseRows(document.getElementById("pasteBox").value);if(!rows.length){toast("Nothing to add");return;}
+    if(a==="pasteReplace")S.data=[];realData();S.data=S.data.concat(rows);document.getElementById("pasteBox").value="";save();renderLive();toast(rows.length+" rows added");}
+  if(a==="copyCSV")copyText(toCSV(),null);
+  if(a==="clearData"){document.getElementById("confirmData").hidden=false;}
+  if(a==="clearDataNo"){document.getElementById("confirmData").hidden=true;}
+  if(a==="clearDataYes"){S.data=[];S.exData=false;save();renderLive();toast("All rows deleted");}
+  if(a==="tStart"){TM.run=!TM.run;clearInterval(TM.iv);if(TM.run)TM.iv=setInterval(tick,1000);drawTimer();}
+  if(a==="tNext"){TM.seg=Math.min(FORUM.length-1,TM.seg+1);TM.left=FORUM[TM.seg][1]*60;drawTimer();}
+  if(a==="tReset"){TM.run=false;clearInterval(TM.iv);TM.seg=0;TM.left=FORUM[0][1]*60;drawTimer();}
+  if(a==="clear"){document.getElementById("confirmClear").hidden=false;}
+  if(a==="clearNo"){document.getElementById("confirmClear").hidden=true;}
+  if(a==="clearYes"){var bl=clone(EXAMPLE);bl.example=false;bl.exData=false;bl.data=[];bl.angle=S.angle;bl.group=S.group;bl.tc=S.tc;
+    bl.samp={N:"",conf:"95",p:0.5,e:0.1,strata:[{name:"",Nh:""}]};bl.forms={sent:"",returned:""};bl.nq=[{type:">",a:"",b:""},{type:"<",a:"",b:""}];bl.served="";
+    bl.des={sackMass:"",sackVol:"",served:ang().served,days:7,share:ang().share,overflow:20,bins:ang().bins,L:"",W:"",H:"",openTop:true,scale:10,price:"",d:"",theta:"",eye:1.5,rise:"",run:""};
+    S=bl;save();location.hash="part-a";show("part-a");toast("Form cleared");}
+  if(a==="tcLock"){tcOpen=false;try{sessionStorage.removeItem("tcOpen");}catch(e3){}location.hash="plan";toast("Teacher Check locked");}
+  if(a==="tcClear"){S.tc=clone(EXAMPLE.tc);save();show("teacher");toast("Cleared");}
+  if(a==="copyAll")copyText(allText(),document.getElementById("copyBox"));
+});
+
+route();
+if("serviceWorker" in navigator&&location.protocol==="https:"&&!/claude\.ai|claudeusercontent/.test(location.hostname)){try{navigator.serviceWorker.register("sw.js").catch(function(){});}catch(e){}}
+})();
+</script>
+<script>
+window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"]]},
+  svg:{fontCache:"global",displayAlign:"left",displayIndent:"0"},
+  options:{enableMenu:false,skipHtmlTags:["script","noscript","style","textarea","pre","code","input","select","option"]},
+  startup:{typeset:false,ready:function(){MathJax.startup.defaultReady();MathJax.startup.promise.then(function(){if(window.__mathify)window.__mathify();});}}};
+</script>
+<script src="../lib/mathjax/tex-svg.js" async></script>
+<!--/APP-->
+</body>
+</html>

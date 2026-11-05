@@ -1,0 +1,11 @@
+{
+  "name": "Waste Watch Helper",
+  "short_name": "Waste Watch",
+  "description": "Grade 11 integrated performance task helper: sampling, normal distribution, expected value, 3D design, and advocacy.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f6f5",
+  "theme_color": "#173a3a",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
