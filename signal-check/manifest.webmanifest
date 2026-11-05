@@ -1,0 +1,11 @@
+{
+  "name": "Signal Check Helper",
+  "short_name": "Signal Check",
+  "description": "Math 10 Third Quarter Performance Task helper: circles, statistics, and probability.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f7f8",
+  "theme_color": "#0f2f45",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

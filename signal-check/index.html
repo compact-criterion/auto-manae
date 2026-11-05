@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f2f45">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<!--APP-->
+<title>Signal Check Helper</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: phone-first app — sticky header with Part A–F chips over a coordinate-grid ground; one part per screen; Back/Next bar at the bottom. */
+:root{
+  --paper:#f3f7f8; --surface:#ffffff; --ink:#0f2433; --muted:#4e6472; --grid:#dbe6ea; --grid-strong:#bfd0d7;
+  --navy:#0f2f45; --on-navy:#ffffff; --hl:#0a8577; --hl-ink:#ffffff; --hl-soft:#dcf3ef;
+  --srcA:#2257c7; --srcA-soft:#e5edfd; --srcB:#c9541a; --srcB-soft:#fdebe1; --both:rgba(112,62,190,.30);
+  --good:#1f7a43; --good-soft:#e2f4e8; --bad:#b3261e; --bad-soft:#fbe5e3; --btn-border:#0f2f45;
+  --f-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0b151c; --surface:#13222c; --ink:#e4eef2; --muted:#9db3bf; --grid:#1b2c37; --grid-strong:#2b4352;
+  --navy:#0d2636; --on-navy:#ffffff; --hl:#3fd0bd; --hl-ink:#04201c; --hl-soft:#123631;
+  --srcA:#7fa4ff; --srcA-soft:#1b2950; --srcB:#ff9a5f; --srcB-soft:#3a2317; --both:rgba(190,150,255,.35);
+  --good:#6fd394; --good-soft:#15301f; --bad:#ff8a80; --bad-soft:#3a1714; --btn-border:#3f5b6c;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0b151c; --surface:#13222c; --ink:#e4eef2; --muted:#9db3bf; --grid:#1b2c37; --grid-strong:#2b4352;
+  --navy:#0d2636; --on-navy:#ffffff; --hl:#3fd0bd; --hl-ink:#04201c; --hl-soft:#123631;
+  --srcA:#7fa4ff; --srcA-soft:#1b2950; --srcB:#ff9a5f; --srcB-soft:#3a2317; --both:rgba(190,150,255,.35);
+  --good:#6fd394; --good-soft:#15301f; --bad:#ff8a80; --bad-soft:#3a1714; --btn-border:#3f5b6c;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--navy)}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.app{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--navy);color:var(--on-navy);box-shadow:0 2px 10px rgba(0,0,0,.18)}
+header.app .wrap{padding-block:10px 8px}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand h1{font-family:var(--f-display);font-weight:800;font-size:1.3rem;margin:0}
+.brand small{font-size:.78rem;opacity:.8;letter-spacing:.06em;text-transform:uppercase}
+.steps{display:flex;gap:6px;overflow-x:auto;padding-block:8px 2px;scrollbar-width:none}
+.steps::-webkit-scrollbar{display:none}
+.steps a{flex:0 0 auto;min-width:44px;height:40px;padding:0 12px;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:20px;color:var(--on-navy);text-decoration:none;font-weight:700;border:1.5px solid rgba(255,255,255,.35);font-size:.95rem}
+.steps a.on{background:var(--hl);border-color:var(--hl);color:var(--hl-ink)}
+.steps a .dot{width:7px;height:7px;border-radius:50%;background:#7be09e}
+main .wrap{padding-block:18px 110px;display:flex;flex-direction:column;gap:16px}
+.eyebrow{font-size:.78rem;letter-spacing:.09em;text-transform:uppercase;color:var(--hl);font-weight:700}
+h2{font-family:var(--f-display);font-weight:800;font-size:1.75rem;line-height:1.15;margin:2px 0 0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:1.18rem;margin:0 0 4px;text-wrap:balance}
+p{margin:0}
+.lead{color:var(--muted)}
+.pts{display:inline-block;font-size:.8rem;font-weight:700;padding:2px 9px;border-radius:10px;background:var(--hl-soft);color:var(--hl);margin-left:6px;vertical-align:middle}
+.card{background:var(--surface);border:1px solid var(--grid-strong);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card.a{border-top:5px solid var(--srcA)} .card.b{border-top:5px solid var(--srcB)}
+.note{background:var(--hl-soft);border-radius:var(--r);padding:12px 14px;font-size:.95rem}
+.example{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--hl-soft);border:1.5px dashed var(--hl);border-radius:var(--r);padding:12px 14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.grid2{grid-template-columns:1fr}}
+label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.92rem;min-width:0}
+label .hint{font-weight:400;color:var(--muted);font-size:.85rem}
+input[type=text],input[type=number],textarea,select{font:inherit;font-weight:400;color:var(--ink);background:var(--paper);border:1.5px solid var(--grid-strong);border-radius:10px;padding:10px 12px;width:100%;min-height:46px}
+textarea{min-height:220px;resize:vertical;line-height:1.6}
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--hl);outline-offset:2px}
+button{font:inherit;font-weight:700;border-radius:10px;border:1.5px solid var(--btn-border);background:var(--surface);color:var(--ink);padding:10px 16px;min-height:46px;cursor:pointer}
+button.primary{background:var(--navy);color:var(--on-navy);border-color:var(--btn-border)}
+button.small{min-height:38px;padding:6px 12px;font-size:.9rem}
+button.x{min-height:38px;min-width:38px;padding:4px 8px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button[aria-pressed=true]{background:var(--hl);border-color:var(--hl);color:var(--hl-ink)}
+.math{font-family:var(--f-mono);font-size:.95rem;background:var(--paper);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre;line-height:1.75;border:1px solid var(--grid)}
+.eq{font-family:var(--f-mono);font-weight:600;font-size:1.15rem;overflow-x:auto}
+.at{color:var(--srcA)} .bt{color:var(--srcB)}
+.v{font-style:italic;font-family:Georgia,"Times New Roman",serif;font-weight:700}
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--grid-strong);padding:8px 10px;text-align:center}
+th{background:var(--paper);font-size:.9rem}
+td.l,th.l{text-align:left}
+td.calc{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);text-align:left;white-space:nowrap}
+table.rub td{text-align:left;vertical-align:top} table.rub td:last-child{text-align:center;white-space:nowrap}
+.figure{overflow-x:auto}
+.figure svg{display:block;width:100%;height:auto;min-width:300px}
+svg text{font-family:var(--f-body)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.9rem}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:18px;height:18px;border-radius:50%}
+.pill{display:inline-block;padding:3px 10px;border-radius:12px;font-weight:700;font-size:.86rem;white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)} .pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.a{background:var(--srcA-soft);color:var(--srcA)} .pill.b{background:var(--srcB-soft);color:var(--srcB)} .pill.both{background:var(--hl-soft);color:var(--hl)} .pill.none{background:var(--paper);color:var(--muted);border:1px solid var(--grid-strong)}
+.big{font-family:var(--f-display);font-weight:800;font-size:1.5rem;line-height:1.2}
+ul.check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ul.check label{flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;font-size:.98rem}
+ul.check input{width:22px;height:22px;flex:0 0 auto;margin-top:2px;accent-color:var(--navy)}
+.timeline{display:flex;flex-direction:column;gap:10px}
+.tl{display:grid;grid-template-columns:76px 1fr auto;gap:12px;align-items:center;padding:12px;border-radius:var(--r);border:1px solid var(--grid-strong);background:var(--surface)}
+.tl .d{font-family:var(--f-display);font-weight:800;line-height:1.1;text-align:center}
+.tl .d b{display:block;font-size:1.6rem}
+.tl.next{border:2px solid var(--hl);background:var(--hl-soft)}
+.bar{height:10px;border-radius:5px;background:var(--grid);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--good);border-radius:5px}
+.prog{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.prog a{font-weight:700;color:var(--ink)}
+blockquote{margin:0;padding:14px 16px;border-left:5px solid var(--hl);background:var(--hl-soft);border-radius:0 var(--r) var(--r) 0;font-style:italic;font-size:1.05rem}
+.lm{display:grid;grid-template-columns:minmax(0,1fr) 72px 72px 40px;gap:8px;align-items:end}
+.lm input{min-height:42px;padding:8px 10px}
+.entry{display:flex;flex-direction:column;gap:10px}
+.entry .row{display:flex;flex-direction:column;gap:6px}
+.entry .row b{font-size:.9rem}
+.counter{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+nav.pager{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--surface);border-top:1px solid var(--grid-strong);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.pager .wrap{display:flex;justify-content:space-between;gap:10px;padding-block:10px}
+nav.pager button{flex:1}
+.warn{color:var(--bad);font-weight:700}
+.muted{color:var(--muted)}
+.count{font-size:.88rem;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:20px;font-weight:700;z-index:20}
+@media (prefers-reduced-motion: no-preference){.view{animation:rise .25s ease-out}@keyframes rise{from{transform:translateY(6px)}to{transform:none}}}
+</style>
+
+<header class="app">
+  <div class="wrap">
+    <div class="brand"><h1>Signal Check Helper</h1><small>Math 10 · Q3 PT</small></div>
+    <nav class="steps" id="steps" aria-label="Parts of the task"></nav>
+  </div>
+</header>
+<main><div class="wrap" id="view"></div></main>
+<nav class="pager"><div class="wrap"><button id="prev" type="button">‹ Back</button><button id="next" class="primary" type="button">Next ›</button></div></nav>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+var KEY="signalCheck.v1";
+function rep(n,o){var a=[];for(var i=0;i<n;i++)a.push({n:o[0],g:o[1],i:o[2]});return a;}
+var EXAMPLE_SURVEY=[].concat(
+  rep(9,["A",1,1]),rep(3,["A",1,0]),rep(2,["A",0,1]),rep(4,["A",0,0]),
+  rep(5,["B",1,1]),rep(2,["B",1,0]),rep(3,["B",0,1]),rep(5,["B",0,0]),
+  rep(1,["O",1,1]),rep(1,["O",1,0]),rep(1,["O",0,0]));
+/* shuffle deterministically so the example list looks like real collection order */
+(function(){var s=7;for(var i=EXAMPLE_SURVEY.length-1;i>0;i--){s=(s*9301+49297)%233280;var j=Math.floor(s/233280*(i+1));var t=EXAMPLE_SURVEY[i];EXAMPLE_SURVEY[i]=EXAMPLE_SURVEY[j];EXAMPLE_SURVEY[j]=t;}})();
+var EXAMPLE={
+  example:true, scale:100, area:"Barangay Dolores, Taytay",
+  A:{name:"Network A", h:2, k:3, r:4},
+  B:{name:"Network B", h:7, k:1, r:3},
+  lm:[{name:"Home",x:1,y:1},{name:"School",x:5,y:2},{name:"Chapel",x:3,y:6},{name:"Barangay hall",x:8,y:3},{name:"Market",x:10,y:5},{name:"Health center",x:7,y:-1}],
+  survey:EXAMPLE_SURVEY, exSurvey:true,
+  claim:{text:"“Strong signal everywhere in your barangay — 99% coverage!”", source:"Network A poster at the mall (photo attached)", about:"A", pct:99, verdict:"", discussion:""},
+  report:"", reflection:"", checks:{}
+};
+function clone(o){return JSON.parse(JSON.stringify(o));}
+var S=load();
+function load(){try{var t=localStorage.getItem(KEY);if(t)return Object.assign(clone(EXAMPLE),JSON.parse(t));}catch(e){}return clone(EXAMPLE);}
+var saveT=null;
+function save(){clearTimeout(saveT);saveT=setTimeout(function(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},250);}
+
+/* ---------- helpers ---------- */
+function num(v){var n=parseFloat(v);return isFinite(n)?n:null;}
+function r2(n){return Math.round(n*100)/100;}
+function f(n){if(n===null||!isFinite(n))return "?";var x=r2(n);if(Object.is(x,-0))x=0;return x.toLocaleString("en-US",{maximumFractionDigits:2});}
+function f4(n){return (Math.round(n*10000)/10000).toString();}
+function sn(n){return n<0?"−"+f(-n):f(n);}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=b;b=a%b;a=t;}return a||1;}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function V(s){return '<span class="v">'+s+'</span>';}
+/* probability as reduced fraction · decimal · percent */
+function P(n,d){if(!d)return {t:"undefined (0 in the group)",v:NaN};var g=gcd(n,d);var v=n/d;
+  var fr=n+"/"+d+(g>1?" = "+(n/g)+"/"+(d/g):"");return {t:fr+" ≈ "+f4(v)+" ≈ "+f(v*100)+"%",v:v,s:(n/g)+"/"+(d/g),pct:f(v*100)+"%"};}
+function sq(n){return n<0?"("+sn(n)+")²":f(n)+"²";}
+function minus(a,b){return b<0?a+" + "+f(-b):b===0?a:a+" − "+f(b);}
+function niceStep(range,target){var raw=range/(target||5),p=Math.pow(10,Math.floor(Math.log10(raw))),m=raw/p;var s=m<=1?1:m<=2?2:m<=5?5:10;return s*p;}
+function srcName(k){var o=S[k];return (o&&o.name&&o.name.trim())||("Source "+k);}
+function netName(k){return k==="A"?srcName("A"):k==="B"?srcName("B"):"Other";}
+
+/* ---------- circles ---------- */
+function circ(k){var o=S[k];var h=num(o.h),kk=num(o.k),r=num(o.r);if(h===null||kk===null||r===null||r<=0)return null;return {h:h,k:kk,r:r,D:-2*h,E:-2*kk,F:h*h+kk*kk-r*r};}
+function stdForm(c){return "("+minus("x",c.h)+")² + ("+minus("y",c.k)+")² = "+f(c.r*c.r);}
+function genForm(c){var s="x² + y²";if(c.D)s+=(c.D<0?" − ":" + ")+f(Math.abs(c.D))+"x";if(c.E)s+=(c.E<0?" − ":" + ")+f(Math.abs(c.E))+"y";if(c.F)s+=(c.F<0?" − ":" + ")+f(Math.abs(c.F));return s+" = 0";}
+function expandSteps(c){
+  var l1=stdForm(c);
+  var hx=c.h===0?"x²":"x² "+(c.h>0?"−":"+")+" "+f(Math.abs(2*c.h))+"x + "+f(c.h*c.h);
+  var ky=c.k===0?"y²":"y² "+(c.k>0?"−":"+")+" "+f(Math.abs(2*c.k))+"y + "+f(c.k*c.k);
+  return l1+"\n("+hx+") + ("+ky+") = "+f(c.r*c.r)+"\nx² + y²"+(c.D?(c.D<0?" − ":" + ")+f(Math.abs(c.D))+"x":"")+(c.E?(c.E<0?" − ":" + ")+f(Math.abs(c.E))+"y":"")+" + "+f(c.h*c.h+c.k*c.k)+" − "+f(c.r*c.r)+" = 0\n"+genForm(c)+"\n\nD = "+sn(c.D)+",  E = "+sn(c.E)+",  F = "+sn(c.F);
+}
+function dist(c,x,y){return Math.sqrt((x-c.h)*(x-c.h)+(y-c.k)*(y-c.k));}
+function landmarks(){return (S.lm||[]).map(function(l){return {name:(l.name||"").trim()||"Landmark",x:num(l.x),y:num(l.y)};}).filter(function(l){return l.x!==null&&l.y!==null;});}
+function classify(l,cA,cB){var a=cA&&dist(cA,l.x,l.y)<=cA.r+1e-9,b=cB&&dist(cB,l.x,l.y)<=cB.r+1e-9;return a&&b?"both":a?"A":b?"B":"none";}
+var CLS={both:["both","Both A and B"],A:["a","A only"],B:["b","B only"],none:["none","Neither"]};
+
+function mapSVG(cA,cB,lms,id){
+  var xs=[],ys=[];[cA,cB].forEach(function(c){if(c){xs.push(c.h-c.r,c.h+c.r);ys.push(c.k-c.r,c.k+c.r);}});
+  lms.forEach(function(l){xs.push(l.x);ys.push(l.y);});
+  if(!xs.length){xs=[-5,5];ys=[-5,5];}
+  var x0=Math.floor(Math.min.apply(null,xs.concat([0]))-1),x1=Math.ceil(Math.max.apply(null,xs.concat([0]))+1);
+  var y0=Math.floor(Math.min.apply(null,ys.concat([0]))-1),y1=Math.ceil(Math.max.apply(null,ys.concat([0]))+1);
+  var W=380,pad=30,u=(W-2*pad)/(x1-x0);
+  var H=Math.min(Math.round((y1-y0)*u+2*pad),620);
+  if((y1-y0)*u+2*pad>620){u=(620-2*pad)/(y1-y0);}
+  var ox=pad+(W-2*pad-(x1-x0)*u)/2;
+  function X(x){return ox+(x-x0)*u;} function Y(y){return pad+(y1-y)*u;}
+  var st=(x1-x0)>24||(y1-y0)>24?niceStep(Math.max(x1-x0,y1-y0),12):1;
+  var g=['<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Coverage map with two circles">'];
+  g.push('<rect x="'+X(x0)+'" y="'+Y(y1)+'" width="'+((x1-x0)*u)+'" height="'+((y1-y0)*u)+'" fill="var(--surface)" stroke="var(--grid-strong)"/>');
+  for(var x=Math.ceil(x0/st)*st;x<=x1;x+=st){g.push('<line x1="'+X(x)+'" y1="'+Y(y1)+'" x2="'+X(x)+'" y2="'+Y(y0)+'" stroke="var(--grid)"/>');
+    if(x!==0&&(x-x0)%(st*(u<16?2:1))===0)g.push('<text x="'+X(x)+'" y="'+(Y(0)+13)+'" text-anchor="middle" font-size="10" fill="var(--muted)">'+x+'</text>');}
+  for(var y=Math.ceil(y0/st)*st;y<=y1;y+=st){g.push('<line x1="'+X(x0)+'" y1="'+Y(y)+'" x2="'+X(x1)+'" y2="'+Y(y)+'" stroke="var(--grid)"/>');
+    if(y!==0&&(y-y0)%(st*(u<16?2:1))===0)g.push('<text x="'+(X(0)-5)+'" y="'+(Y(y)+3.5)+'" text-anchor="end" font-size="10" fill="var(--muted)">'+y+'</text>');}
+  g.push('<line x1="'+X(x0)+'" y1="'+Y(0)+'" x2="'+X(x1)+'" y2="'+Y(0)+'" stroke="var(--ink)" stroke-width="1.6"/><line x1="'+X(0)+'" y1="'+Y(y0)+'" x2="'+X(0)+'" y2="'+Y(y1)+'" stroke="var(--ink)" stroke-width="1.6"/>');
+  g.push('<text x="'+(X(x1)-4)+'" y="'+(Y(0)-6)+'" text-anchor="end" font-size="12" font-weight="700" fill="var(--ink)">x</text><text x="'+(X(0)+6)+'" y="'+(Y(y1)+12)+'" font-size="12" font-weight="700" fill="var(--ink)">y</text>');
+  var cid="clipA"+id;
+  if(cA) g.push('<clipPath id="'+cid+'"><circle cx="'+X(cA.h)+'" cy="'+Y(cA.k)+'" r="'+(cA.r*u)+'"/></clipPath>');
+  if(cA) g.push('<circle cx="'+X(cA.h)+'" cy="'+Y(cA.k)+'" r="'+(cA.r*u)+'" fill="var(--srcA-soft)" fill-opacity=".55" stroke="none"/>');
+  if(cB) g.push('<circle cx="'+X(cB.h)+'" cy="'+Y(cB.k)+'" r="'+(cB.r*u)+'" fill="var(--srcB-soft)" fill-opacity=".55" stroke="none"/>');
+  if(cA&&cB) g.push('<circle cx="'+X(cB.h)+'" cy="'+Y(cB.k)+'" r="'+(cB.r*u)+'" fill="var(--both)" clip-path="url(#'+cid+')"/>');
+  [["A",cA],["B",cB]].forEach(function(p){var c=p[1];if(!c)return;var col=p[0]==="A"?"var(--srcA)":"var(--srcB)";
+    g.push('<circle cx="'+X(c.h)+'" cy="'+Y(c.k)+'" r="'+(c.r*u)+'" fill="none" stroke="'+col+'" stroke-width="2.5"/>');
+    g.push('<line x1="'+X(c.h)+'" y1="'+Y(c.k)+'" x2="'+X(c.h+c.r)+'" y2="'+Y(c.k)+'" stroke="'+col+'" stroke-width="1.5" stroke-dasharray="4 3"/>');
+    g.push('<text x="'+X(c.h+c.r/2)+'" y="'+(Y(c.k)-5)+'" text-anchor="middle" font-size="11" font-weight="700" fill="'+col+'">r = '+f(c.r)+'</text>');
+    g.push('<path d="M'+X(c.h)+' '+(Y(c.k)-9)+' l7 14 h-14z" fill="'+col+'" stroke="var(--surface)" stroke-width="1.5"/>');
+    g.push('<text x="'+X(c.h)+'" y="'+(Y(c.k)+19)+'" text-anchor="middle" font-size="12" font-weight="800" fill="'+col+'">'+p[0]+' ('+f(c.h)+', '+f(c.k)+')</text>');});
+  lms.forEach(function(l,i){var cl=classify(l,cA,cB);
+    g.push('<circle cx="'+X(l.x)+'" cy="'+Y(l.y)+'" r="5.5" fill="var(--ink)" stroke="var(--surface)" stroke-width="2"/>');
+    var rt=X(l.x)>W-110;g.push('<text x="'+(X(l.x)+(rt?-8:8))+'" y="'+(Y(l.y)-7)+'" text-anchor="'+(rt?'end':'start')+'" font-size="11" font-weight="700" fill="var(--ink)" paint-order="stroke" stroke="var(--surface)" stroke-width="3">'+(i+1)+'. '+esc(l.name)+'</text>');});
+  g.push('</svg>');
+  return {svg:g.join(""),x0:x0,x1:x1,y0:y0,y1:y1};
+}
+
+/* ---------- survey ---------- */
+function counts(){
+  var s=S.survey||[],c={N:s.length,A:0,B:0,O:0,G:0,AG:0,BG:0,OG:0,In:0,InG:0,Out:0,OutG:0};
+  s.forEach(function(r){c[r.n]++;if(r.g){c.G++;c[r.n+"G"]++;}if(r.i){c.In++;if(r.g)c.InG++;}else{c.Out++;if(r.g)c.OutG++;}});
+  return c;
+}
+
+/* ---------- views ---------- */
+var ORDER=["plan","part-a","part-b","part-c","part-d","part-e","part-f"];
+var LABEL={"plan":"Plan","part-a":"A","part-b":"B","part-c":"C","part-d":"D","part-e":"E","part-f":"F"};
+var cur="plan";
+function exampleBanner(){
+  if(!S.example)return "";
+  return '<div class="example"><span><b>Example data is loaded.</b> Replace it with your own map and survey.</span><span class="seg"><button class="small" type="button" data-act="clear">Start with blank form</button></span></div>'+
+    '<div class="note" id="confirmClear" hidden>Clear every answer in this app, including survey responses? <span class="seg" style="margin-top:8px"><button class="small primary" type="button" data-act="clearYes">Yes, clear all</button><button class="small" type="button" data-act="clearNo">Keep</button></span></div>';
+}
+function get(path){return path.split(".").reduce(function(o,k){return o==null?o:o[k];},S);}
+function set(path,v){var ks=path.split("."),o=S;for(var i=0;i<ks.length-1;i++)o=o[ks[i]];o[ks[ks.length-1]]=v;}
+function field(path,lab,hint,type,extra){
+  var v=get(path);type=type||"text";var id="f-"+path.replace(/\./g,"-");
+  return '<label for="'+id+'">'+lab+(hint?'<span class="hint">'+hint+'</span>':'')+'<input id="'+id+'" type="'+type+'" '+(type==="number"?'inputmode="decimal" step="any"':'')+' data-k="'+path+'" value="'+esc(v==null?"":v)+'"'+(extra||"")+'></label>';
+}
+var VIEWS={};
+var CHECKS={
+  "part-a":["My map has at least five landmarks and a stated scale.","I wrote both circle equations in center-radius form and general form.","I graphed both circles on graph paper and shaded the region covered by both.","I used the distance formula for every landmark and stated A only, B only, both, or neither."],
+  "part-b":["I asked at least 30 people.","I recorded network/router, good signal (yes/no), and inside/outside for each.","I did not record any names.","I presented the data in a table."],
+  "part-c":["I made a contingency table or Venn diagram.","I found P(A), P(good), P(A ∪ good), and P(A ∩ good) with solutions.","I found P(not good) and explained what it means.","I found P(good | A) and P(good | B) and compared them.","I decided about independence and mutually exclusive events, with reasons."],
+  "part-d":["I found a real coverage claim and attached or cited it.","I compared the claim with my data and displays.","I discussed whether my sample is representative.","I said whether the claim is supported, exaggerated, or unclear, and why."],
+  "part-e":["My report fits on one page.","I summarized the map, survey, and probabilities.","I gave one practical recommendation.","I wrote the final copy in my report."],
+  "part-f":["I referred to Ephesians 4:25.","I explained why honesty with numbers matters.","I connected it to my own survey and report.","I wrote the final copy in my report."]
+};
+function partProgress(p){var c=CHECKS[p];if(!c)return 0;return c.filter(function(_,i){return S.checks[p+i];}).length/c.length;}
+function checklist(p){return '<div class="card"><h3>Before you move on</h3><ul class="check">'+CHECKS[p].map(function(t,i){var id="ck-"+p+i;return '<li><label for="'+id+'"><input type="checkbox" id="'+id+'" data-check="'+p+i+'"'+(S.checks[p+i]?" checked":"")+'>'+esc(t)+'</label></li>';}).join("")+'</ul></div>';}
+
+/* PLAN */
+VIEWS["plan"]={
+  stat:function(){
+    var today=new Date();today.setHours(0,0,0,0);
+    var dl=[["2026-11-13","Checkpoint 1","Part A: coverage map with circle equations and graphs",5],
+            ["2026-12-04","Checkpoint 2","Parts B and D (survey table and the claim), with Part C started",5],
+            ["2026-12-17","Final submission","The complete Coverage Map and Signal Report (all parts)",90]];
+    var ni=dl.findIndex(function(d){return new Date(d[0]+"T00:00:00")>=today;});
+    var tl=dl.map(function(d,i){var dt=new Date(d[0]+"T00:00:00"),days=Math.round((dt-today)/864e5);
+      var when=days<0?"done":days===0?"today":days===1?"tomorrow":"in "+days+" days";
+      return '<div class="tl'+(i===ni?' next':'')+'"><div class="d">'+dt.toLocaleDateString("en-US",{month:"short"})+'<b>'+dt.getDate()+'</b></div><div><b>'+d[1]+'</b><br><span class="muted">'+d[2]+'</span></div><div style="text-align:right"><span class="pill '+(days<0?'good':'a')+'">'+when+'</span><br><span class="count">'+d[3]+' pts</span></div></div>';}).join("");
+    return exampleBanner()+
+    '<div><div class="eyebrow">Mathematics 10 · Third Quarter Performance Task</div><h2>Signal Check</h2></div>'+
+    '<p class="lead">You are a <b>community data analyst</b> volunteering for your barangay. Map the coverage of two signal sources, survey real people, and test an advertised coverage claim.</p>'+
+    '<div class="card"><h3>How to use this app</h3><ul class="check" style="gap:6px"><li>1. Enter your two sources and landmarks in <b>Part A</b>.</li><li>2. Record each survey response in <b>Part B</b> as you collect it.</li><li>3. Parts C to E show the working with <i>your</i> data. Copy every step into your report and draw the map on graph paper.</li></ul>'+
+    '<p class="note">The task says: <i>“If you use a calculator or an app, write the steps you used.”</i> Write every step shown here in your report.</p></div>'+
+    '<div class="card"><h3>Deadlines</h3><div class="timeline">'+tl+'</div><p class="count">Checkpoints are for feedback. Bring your work in progress; you may improve it after your teacher returns it.</p></div>'+
+    '<div class="card" id="progress"></div>'+
+    '<div class="card"><h3>How each part is scored</h3><div class="tablebox"><table class="rub"><tr><th>Level</th><th>What it looks like</th><th>Score</th></tr>'+
+    '<tr><td><b>4 Excellent</b></td><td>Complete and correct; every step shown; clear explanations with correct terms; neat and labeled.</td><td>100%</td></tr>'+
+    '<tr><td><b>3 Proficient</b></td><td>Complete with minor errors; most steps shown; mostly clear.</td><td>80%</td></tr>'+
+    '<tr><td><b>2 Developing</b></td><td>Several errors or missing parts; some steps shown; unclear.</td><td>60%</td></tr>'+
+    '<tr><td><b>1 Beginning</b></td><td>Major errors; mostly incomplete; little explanation.</td><td>40%</td></tr>'+
+    '<tr><td><b>0</b></td><td>The part is missing.</td><td>0</td></tr></table></div></div>'+
+    '<div class="card"><h3>Copy all your steps</h3><p class="muted">Copies the equations, distances, survey table, probabilities, and drafts as plain text.</p><button type="button" class="primary" data-act="copyAll">Copy all as text</button><textarea id="copyBox" hidden readonly></textarea></div>'+
+    '<div class="card"><h3>Reminders</h3><ul class="check" style="gap:6px"><li>• This is an <b>individual</b> task. Copied work gets no points for the copied parts.</li><li>• Use long bond paper in a clear folder. All graphs on graph paper or drawn to scale.</li><li>• Report your data honestly, even when it does not look the way you hoped.</li></ul></div>';
+  },
+  live:function(){
+    var parts=[["part-a","A. Coverage map",20],["part-b","B. Survey",10],["part-c","C. Probability",25],["part-d","D. Evaluate a claim",15],["part-e","E. Signal report",10],["part-f","F. Reflection",10]];
+    var rows=parts.map(function(p){return '<a href="#'+p[0]+'">'+p[1]+'</a><div class="bar"><i style="width:'+Math.round(partProgress(p[0])*100)+'%"></i></div><span class="count">'+p[2]+' pts</span>';}).join("");
+    var all=parts.reduce(function(s,p){return s+partProgress(p[0]);},0)/parts.length;
+    var el=document.getElementById("progress");if(el)el.innerHTML='<h3>Your progress · '+Math.round(all*100)+'%</h3><div class="prog">'+rows+'</div><p class="count">Progress counts the boxes you tick at the end of each part.</p>';
+    return null;
+  }
+};
+
+/* PART A */
+function srcCard(k){var c=k==="A"?"a":"b";
+  return '<div class="card '+c+'"><h3 class="'+c+'t">Source '+k+'</h3>'+field(k+".name","Name","e.g. the cell site of a network, or the library Wi-Fi router")+
+  '<div class="grid3">'+field(k+".h","Center x (h)","","number")+field(k+".k","Center y (k)","","number")+field(k+".r","Radius r","in units","number",' min="0"')+'</div></div>';}
+VIEWS["part-a"]={
+  stat:function(){
+    return exampleBanner()+
+    '<div><div class="eyebrow">Part A <span class="pts">20 pts</span></div><h2>The Coverage Map</h2></div>'+
+    '<p class="lead">Put your area on a Cartesian plane. Each signal source reaches about a circle around it.</p>'+
+    '<div class="card"><div class="grid2">'+field("area","Mapped area","e.g. your barangay or school")+field("scale","Scale: 1 unit = how many meters?","","number",' min="1"')+'</div></div>'+
+    srcCard("A")+srcCard("B")+
+    '<div class="card"><h3>Landmarks <span class="count">(at least 5)</span></h3><div id="lmList" style="display:flex;flex-direction:column;gap:8px"></div><button type="button" class="small" data-act="addLm">+ Add landmark</button></div>'+
+    '<div class="card"><h3>1. Circle equations <span class="pts">8 pts</span></h3><div id="live"></div></div>'+
+    '<div class="card"><h3>2. Graph <span class="pts">6 pts</span></h3><div class="figure" id="live2"></div>'+
+      '<div class="legend"><span><i style="background:var(--srcA-soft);border:2px solid var(--srcA)"></i>Covered by A</span><span><i style="background:var(--srcB-soft);border:2px solid var(--srcB)"></i>Covered by B</span><span><i style="background:var(--both)"></i>Covered by both (shade this)</span></div><div id="live3"></div></div>'+
+    '<div class="card"><h3>3. Which landmarks are covered? <span class="pts">6 pts</span></h3><div id="live4"></div></div>'+checklist("part-a");
+  },
+  lmList:function(){
+    var el=document.getElementById("lmList");if(!el)return;
+    el.innerHTML='<div class="lm count"><span>Name</span><span>x</span><span>y</span><span></span></div>'+(S.lm||[]).map(function(l,i){
+      return '<div class="lm"><input type="text" aria-label="Landmark '+(i+1)+' name" id="f-lm-'+i+'-name" data-k="lm.'+i+'.name" value="'+esc(l.name)+'"><input type="number" inputmode="decimal" step="any" aria-label="x" id="f-lm-'+i+'-x" data-k="lm.'+i+'.x" value="'+esc(l.x)+'"><input type="number" inputmode="decimal" step="any" aria-label="y" id="f-lm-'+i+'-y" data-k="lm.'+i+'.y" value="'+esc(l.y)+'"><button type="button" class="x" data-rmlm="'+i+'" aria-label="Remove '+esc(l.name||"landmark")+'">×</button></div>';}).join("");
+  },
+  live:function(){
+    var out="";["A","B"].forEach(function(k){var c=circ(k),cl=k==="A"?"at":"bt";
+      if(!c){out+='<p class="warn">Enter the center and a positive radius for Source '+k+'.</p>';return;}
+      out+='<p><b class="'+cl+'">'+esc(srcName(k))+'</b>: center ('+f(c.h)+', '+f(c.k)+'), radius '+f(c.r)+' units = '+f(c.r*(num(S.scale)||1))+' m</p>'+
+        '<p class="muted">Center-radius form</p><p class="eq '+cl+'">'+esc(stdForm(c))+'</p><p class="muted">General form</p><p class="eq '+cl+'">'+esc(genForm(c))+'</p>'+
+        '<div class="math">'+esc(expandSteps(c))+'</div>';});
+    return out;
+  },
+  live2:function(){var M=mapSVG(circ("A"),circ("B"),landmarks(),"a");VIEWS["part-a"]._M=M;return M.svg;},
+  live3:function(){
+    var cA=circ("A"),cB=circ("B"),M=VIEWS["part-a"]._M,t="";
+    if(cA&&cB){var d=Math.sqrt(Math.pow(cA.h-cB.h,2)+Math.pow(cA.k-cB.k,2)),sum=cA.r+cB.r,dif=Math.abs(cA.r-cB.r);
+      var rel=d>sum+1e-9?"The circles do not meet, so no place is covered by both. Move a source or check your radii.":Math.abs(d-sum)<1e-9?"The circles touch at one point.":d<dif-1e-9?"One circle is completely inside the other.":"The circles overlap, so there is a region covered by both.";
+      t+='<div class="math">'+esc("Distance between centers:\nd = √[("+f(cB.h)+" − "+sn(cA.h)+")² + ("+f(cB.k)+" − "+sn(cA.k)+")²]\nd = √["+f(Math.pow(cB.h-cA.h,2))+" + "+f(Math.pow(cB.k-cA.k,2))+"] = √"+f(Math.pow(cB.h-cA.h,2)+Math.pow(cB.k-cA.k,2))+" ≈ "+f(d)+"\nr(A) + r(B) = "+f(sum))+'</div><p>'+rel+'</p>';}
+    if(M)t+='<p><b>On graph paper:</b> your map runs from x = '+M.x0+' to '+M.x1+' and y = '+M.y0+' to '+M.y1+'. Let 1 box = 1 unit ('+f(num(S.scale)||100)+' m). Draw each circle with a compass set to its radius.</p>';
+    return t;
+  },
+  live4:function(){
+    var cA=circ("A"),cB=circ("B"),L=landmarks();if(!cA||!cB)return '<p class="warn">Finish both sources first.</p>';
+    if(L.length<5)return '<p class="warn">Add at least '+(5-L.length)+' more landmark'+(5-L.length===1?"":"s")+'.</p>'+tableLm(L,cA,cB);
+    return tableLm(L,cA,cB);
+  }
+};
+function tableLm(L,cA,cB){
+  var rows=L.map(function(l,i){var dA=dist(cA,l.x,l.y),dB=dist(cB,l.x,l.y),c=classify(l,cA,cB);
+    return '<tr><td class="l"><b>'+(i+1)+'. '+esc(l.name)+'</b><br>('+f(l.x)+', '+f(l.y)+')</td><td class="calc">√[('+f(l.x)+' − '+sn(cA.h)+')² + ('+f(l.y)+' − '+sn(cA.k)+')²]<br>= √'+f(Math.pow(l.x-cA.h,2)+Math.pow(l.y-cA.k,2))+' ≈ <b>'+f(dA)+'</b> '+(dA<=cA.r+1e-9?'≤':'>')+' '+f(cA.r)+'</td><td class="calc">√[('+f(l.x)+' − '+sn(cB.h)+')² + ('+f(l.y)+' − '+sn(cB.k)+')²]<br>= √'+f(Math.pow(l.x-cB.h,2)+Math.pow(l.y-cB.k,2))+' ≈ <b>'+f(dB)+'</b> '+(dB<=cB.r+1e-9?'≤':'>')+' '+f(cB.r)+'</td><td><span class="pill '+CLS[c][0]+'">'+CLS[c][1]+'</span></td></tr>';}).join("");
+  return '<p>A landmark is covered when its distance from the source is less than or equal to the radius: '+V("d")+' ≤ '+V("r")+'.</p><div class="tablebox"><table><tr><th class="l">Landmark</th><th>Distance to A</th><th>Distance to B</th><th>Covered by</th></tr>'+rows+'</table></div>';
+}
+
+/* PART B */
+var draft={n:"A",g:1,i:1};
+VIEWS["part-b"]={
+  stat:function(){
+    function seg(key,opts){return '<div class="seg" role="group">'+opts.map(function(o){return '<button type="button" class="small" data-draft="'+key+'" data-val="'+o[0]+'" aria-pressed="'+(String(draft[key])===String(o[0]))+'">'+esc(o[1])+'</button>';}).join("")+'</div>';}
+    return exampleBanner()+
+    '<div><div class="eyebrow">Part B <span class="pts">10 pts</span></div><h2>The Survey</h2></div>'+
+    '<p class="lead">Ask at least <b>30 people</b>. Record their network or router, whether their signal is usually good, and whether they live inside your mapped area. <b>Do not record names.</b></p>'+
+    '<div class="card"><h3>Add a response</h3><div class="entry">'+
+      '<div class="row"><b>Network or router</b>'+seg("n",[["A",srcName("A")],["B",srcName("B")],["O","Other"]])+'</div>'+
+      '<div class="row"><b>Is their signal usually good?</b>'+seg("g",[[1,"Yes, good"],[0,"No, weak"]])+'</div>'+
+      '<div class="row"><b>Where do they live?</b>'+seg("i",[[1,"Inside mapped area"],[0,"Outside"]])+'</div>'+
+      '<button type="button" class="primary" data-act="addResp">Add response</button></div></div>'+
+    '<div class="card" id="live"></div>'+
+    '<div class="card" id="live2"></div>'+checklist("part-b");
+  },
+  live:function(){
+    var c=counts(),need=Math.max(0,30-c.N);
+    return '<div class="counter"><span class="big">'+c.N+' response'+(c.N===1?"":"s")+'</span>'+(need?'<span class="pill bad">'+need+' more needed</span>':'<span class="pill good">30 or more ✓</span>')+'</div><div class="bar"><i style="width:'+Math.min(100,c.N/30*100)+'%"></i></div>'+
+      '<h3>Summary table</h3><div class="tablebox"><table><tr><th class="l">Network / router</th><th>Good signal</th><th>Weak signal</th><th>Inside area</th><th>Outside</th><th>Total</th></tr>'+
+      ["A","B","O"].map(function(k){var rs=(S.survey||[]).filter(function(r){return r.n===k;});return '<tr><td class="l">'+esc(netName(k))+'</td><td>'+rs.filter(function(r){return r.g;}).length+'</td><td>'+rs.filter(function(r){return !r.g;}).length+'</td><td>'+rs.filter(function(r){return r.i;}).length+'</td><td>'+rs.filter(function(r){return !r.i;}).length+'</td><td><b>'+rs.length+'</b></td></tr>';}).join("")+
+      '<tr><th class="l">Total</th><th>'+c.G+'</th><th>'+(c.N-c.G)+'</th><th>'+c.In+'</th><th>'+c.Out+'</th><th>'+c.N+'</th></tr></table></div>';
+  },
+  live2:function(){
+    var s=S.survey||[];
+    return '<div class="counter"><h3>All responses (raw data)</h3>'+(s.length?'<button type="button" class="small" data-act="clearSurvey">Clear responses</button>':'')+'</div>'+
+      '<div class="note" id="confirmSurvey" hidden>Delete all '+s.length+' responses? <span class="seg" style="margin-top:8px"><button class="small primary" type="button" data-act="clearSurveyYes">Yes, delete</button><button class="small" type="button" data-act="clearSurveyNo">Keep</button></span></div>'+
+      (s.length?'<div class="tablebox"><table><tr><th>No.</th><th class="l">Network / router</th><th>Good signal?</th><th>Lives inside?</th><th></th></tr>'+
+      s.map(function(r,i){return '<tr><td>'+(i+1)+'</td><td class="l">'+esc(netName(r.n))+'</td><td>'+(r.g?"Yes":"No")+'</td><td>'+(r.i?"Inside":"Outside")+'</td><td><button type="button" class="x" data-rmresp="'+i+'" aria-label="Delete response '+(i+1)+'">×</button></td></tr>';}).reverse().join("")+'</table></div><p class="count">Newest first. Copy this table into your report as your raw data.</p>':'<p class="muted">No responses yet. Add the first one above.</p>');
+  }
+};
+
+/* PART C */
+function vennSVG(c){
+  var W=380,H=250,aOnly=c.A-c.AG,gOnly=c.G-c.AG,both=c.AG,neither=c.N-c.A-c.G+c.AG;
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Venn diagram of A and good signal">'+
+  '<rect x="6" y="6" width="'+(W-12)+'" height="'+(H-12)+'" rx="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"/>'+
+  '<text x="18" y="28" font-size="13" font-weight="700" fill="var(--ink)">U (all '+c.N+' people)</text>'+
+  '<circle cx="145" cy="135" r="82" fill="var(--srcA-soft)" fill-opacity=".8" stroke="var(--srcA)" stroke-width="2.5"/>'+
+  '<circle cx="235" cy="135" r="82" fill="var(--good-soft)" fill-opacity=".7" stroke="var(--good)" stroke-width="2.5"/>'+
+  '<text x="110" y="64" text-anchor="middle" font-size="13" font-weight="800" fill="var(--srcA)">A</text>'+
+  '<text x="272" y="64" text-anchor="middle" font-size="13" font-weight="800" fill="var(--good)">Good signal</text>'+
+  '<text x="112" y="142" text-anchor="middle" font-size="26" font-weight="800" fill="var(--ink)">'+aOnly+'</text>'+
+  '<text x="190" y="142" text-anchor="middle" font-size="26" font-weight="800" fill="var(--ink)">'+both+'</text>'+
+  '<text x="268" y="142" text-anchor="middle" font-size="26" font-weight="800" fill="var(--ink)">'+gOnly+'</text>'+
+  '<text x="190" y="160" text-anchor="middle" font-size="10" fill="var(--muted)">A ∩ Good</text>'+
+  '<text x="'+(W-20)+'" y="'+(H-18)+'" text-anchor="end" font-size="13" font-weight="700" fill="var(--ink)">outside both: '+neither+'</text></svg>';
+}
+VIEWS["part-c"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Part C <span class="pts">25 pts</span></div><h2>Probability</h2></div>'+
+    '<p class="lead">Event <b>A</b> = the person uses '+esc(srcName("A"))+'. Event <b>B</b> = uses '+esc(srcName("B"))+'. Event <b>G</b> = their signal is usually good.</p>'+
+    '<div id="live" style="display:flex;flex-direction:column;gap:16px"></div>'+checklist("part-c");
+  },
+  live:function(){
+    var c=counts();if(c.N===0)return '<div class="card"><p class="warn">Add survey responses in Part B first.</p></div>';
+    var N=c.N,pA=P(c.A,N),pG=P(c.G,N),pAG=P(c.AG,N),uN=c.A+c.G-c.AG,pU=P(uN,N),pNG=P(N-c.G,N),pGA=P(c.AG,c.A),pGB=P(c.BG,c.B);
+    var warn=N<30?'<p class="warn">You have '+N+' responses. The task needs at least 30.</p>':'';
+    var ct='<div class="card"><h3>Contingency table</h3>'+warn+'<div class="tablebox"><table><tr><th class="l"></th><th>Good (G)</th><th>Weak (G′)</th><th>Total</th></tr>'+
+      '<tr><td class="l"><b class="at">A</b> · '+esc(srcName("A"))+'</td><td>'+c.AG+'</td><td>'+(c.A-c.AG)+'</td><td><b>'+c.A+'</b></td></tr>'+
+      '<tr><td class="l"><b class="bt">B</b> · '+esc(srcName("B"))+'</td><td>'+c.BG+'</td><td>'+(c.B-c.BG)+'</td><td><b>'+c.B+'</b></td></tr>'+
+      (c.O?'<tr><td class="l">Other</td><td>'+c.OG+'</td><td>'+(c.O-c.OG)+'</td><td><b>'+c.O+'</b></td></tr>':'')+
+      '<tr><th class="l">Total</th><th>'+c.G+'</th><th>'+(N-c.G)+'</th><th>'+N+'</th></tr></table></div>'+
+      '<h3>Venn diagram</h3><div class="figure">'+vennSVG(c)+'</div></div>';
+    var s1="P(A) = n(A) / n(U) = "+pA.t+"\nP(G) = n(G) / n(U) = "+pG.t+"\nP(A ∩ G) = n(A ∩ G) / n(U) = "+pAG.t+"\n\nP(A ∪ G) = P(A) + P(G) − P(A ∩ G)\n         = "+c.A+"/"+N+" + "+c.G+"/"+N+" − "+c.AG+"/"+N+"\n         = "+pU.t+
+      "\nCheck by counting: n(A ∪ G) = "+(c.A-c.AG)+" + "+c.AG+" + "+(c.G-c.AG)+" = "+uN+" ✓";
+    var c1='<div class="card"><h3>1. Basic probabilities <span class="pts">8 pts</span></h3><div class="math">'+esc(s1)+'</div><p>We subtract P(A ∩ G) because the '+c.AG+' people who use A <i>and</i> have good signal were counted twice.</p></div>';
+    var c2='<div class="card"><h3>2. Complement <span class="pts">4 pts</span></h3><div class="math">'+esc("P(G′) = 1 − P(G)\n      = 1 − "+pG.s+"\n      = "+pNG.t)+'</div><p><b>Meaning:</b> about '+pNG.pct+' of the people surveyed, roughly '+Math.round(pNG.v*10)+' out of every 10, say their signal is usually <b>not</b> good. G and G′ together make up everyone: P(G) + P(G′) = 1.</p></div>';
+    var better=pGA.v>pGB.v?"A":pGB.v>pGA.v?"B":null;
+    var c3='<div class="card"><h3>3. Conditional probability <span class="pts">7 pts</span></h3><div class="math">'+esc("P(G | A) = n(A ∩ G) / n(A) = "+pGA.t+"\nP(G | B) = n(B ∩ G) / n(B) = "+pGB.t)+'</div>'+
+      (better?'<p><b>Compare:</b> among users of <b class="'+(better==="A"?"at":"bt")+'">'+esc(srcName(better))+'</b>, a larger share report good signal ('+(better==="A"?pGA.pct:pGB.pct)+' vs '+(better==="A"?pGB.pct:pGA.pct)+'). In our sample, '+esc(srcName(better))+' gives good signal more often.</p>':'<p>Both groups report good signal at the same rate.</p>')+
+      '<p class="muted">Note: the denominator is only the users of that network, not all '+N+' people.</p></div>';
+    var prod=pA.v*pG.v,eq=Math.abs(prod-pAG.v)<1e-9;
+    var c4='<div class="card"><h3>4. Independent? Mutually exclusive? <span class="pts">6 pts</span></h3>'+
+      '<p><b>Are “using A” and “good signal” independent?</b> They are independent if P(A ∩ G) = P(A) · P(G), which is the same as P(G | A) = P(G).</p>'+
+      '<div class="math">'+esc("P(A) · P(G) = "+pA.s+" × "+pG.s+" ≈ "+f4(prod)+"\nP(A ∩ G)    = "+pAG.s+" ≈ "+f4(pAG.v)+"\n\nP(G | A) ≈ "+f4(pGA.v)+"   vs   P(G) ≈ "+f4(pG.v))+'</div>'+
+      '<p class="big">'+(eq?'Independent':'Dependent (not independent)')+'</p><p>'+(eq?'The two values are equal, so knowing that a person uses A does not change the chance of good signal.':'The two values are not equal, so knowing that a person uses A '+(pGA.v>pG.v?'raises':'lowers')+' the chance of good signal (from '+pG.pct+' to '+pGA.pct+'). The events are dependent.')+'</p>'+
+      '<p><b>Mutually exclusive events</b> cannot happen at the same time, so their intersection is empty.</p>'+
+      '<ul class="check" style="gap:6px"><li>• <b>A and B:</b> each person reported one network, so n(A ∩ B) = 0. <span class="pill good">mutually exclusive</span></li>'+
+      '<li>• <b>A and G:</b> n(A ∩ G) = '+c.AG+(c.AG?' ≠ 0. <span class="pill bad">not mutually exclusive</span>':' . <span class="pill good">mutually exclusive</span>')+'</li>'+
+      '<li>• <b>G and G′:</b> no one can have good and weak signal at once. <span class="pill good">mutually exclusive</span> They are also complementary.</li></ul></div>';
+    return ct+c1+c2+c3+c4;
+  }
+};
+
+/* PART D */
+function barRows(rows){
+  return '<div style="display:flex;flex-direction:column;gap:10px">'+rows.map(function(r){var w=isFinite(r[1])?Math.max(0,Math.min(100,r[1])):0;
+    return '<div><div style="display:flex;justify-content:space-between;gap:8px;font-size:.92rem"><span>'+r[0]+'</span><b>'+(isFinite(r[1])?f(r[1])+'%':'—')+'</b></div><div class="bar" style="height:16px;border-radius:8px"><i style="width:'+w+'%;background:'+r[2]+';border-radius:8px"></i></div></div>';}).join("")+'</div>';
+}
+VIEWS["part-d"]={
+  stat:function(){
+    var C=S.claim;
+    return '<div><div class="eyebrow">Part D <span class="pts">15 pts</span></div><h2>Evaluate a Claim</h2></div>'+
+    '<p class="lead">Find a <b>real</b> coverage claim: an advertisement, a website, or a school notice. Then test it against your data.</p>'+
+    '<div class="card"><label for="f-claim-text">The claim, word for word<textarea id="f-claim-text" data-k="claim.text" style="min-height:90px">'+esc(C.text)+'</textarea></label>'+
+      field("claim.source","Where you found it","attach a photo or screenshot to your report")+
+      '<div class="grid2"><label for="f-claim-about">The claim is about<select id="f-claim-about" data-k="claim.about"><option value="A"'+(C.about==="A"?" selected":"")+'>'+esc(srcName("A"))+'</option><option value="B"'+(C.about==="B"?" selected":"")+'>'+esc(srcName("B"))+'</option></select></label>'+
+      field("claim.pct","Percent it claims","leave blank if the claim has no number","number",' min="0" max="100"')+'</div></div>'+
+    '<div class="card" id="live"></div>'+
+    '<div class="card" id="live2"></div>'+
+    '<div class="card"><h3>Your verdict</h3><div class="seg" role="group" aria-label="Verdict">'+["Supported","Exaggerated","Unclear"].map(function(v){return '<button type="button" class="small" data-verdict="'+v+'" aria-pressed="'+(C.verdict===v)+'">'+v+'</button>';}).join("")+'</div>'+
+      '<label for="f-claim-discussion">Explain your verdict in your own words<textarea id="f-claim-discussion" data-k="claim.discussion">'+esc(C.discussion)+'</textarea></label></div>'+checklist("part-d");
+  },
+  live:function(){
+    var c=counts(),C=S.claim,k=C.about==="B"?"B":"A";if(!c.N)return '<p class="warn">Add survey responses in Part B first.</p>';
+    var n=c[k],g=c[k+"G"],obs=n?g/n*100:NaN,cl=num(C.pct),col=k==="A"?"var(--srcA)":"var(--srcB)";
+    var cA=circ("A"),cB=circ("B"),L=landmarks(),cov=L.filter(function(l){var x=classify(l,cA,cB);return x==="both"||x===k;}).length;
+    var rows=[];if(cl!==null)rows.push(["Claimed by the ad",cl,"var(--muted)"]);
+    rows.push(["Good signal among "+esc(srcName(k))+" users (P(G | "+k+"))",obs,col]);
+    rows.push(["Good signal, everyone surveyed (P(G))",c.N?c.G/c.N*100:NaN,"var(--hl)"]);
+    if(L.length)rows.push(["Landmarks on your map covered by "+k,cov/L.length*100,col]);
+    var verdict="";
+    if(cl===null)verdict='<p>The claim gives no number, so it is hard to test exactly. Words like “strong” or “everywhere” are vague. That may make the claim <b>unclear</b>.</p>';
+    else if(isFinite(obs)){var gap=cl-obs;
+      verdict='<p>The claim says '+f(cl)+'%. Your survey found '+f(obs)+'% of '+esc(srcName(k))+' users have good signal, a difference of '+f(Math.abs(gap))+' percentage points.</p><p class="muted">'+(gap>15?'A gap this large suggests the claim may be <b>exaggerated</b>, at least for your area.':Math.abs(gap)<=10?'This is fairly close, so your data may <b>support</b> the claim.':'The data is somewhat different from the claim. Explain why it could be supported or exaggerated.')+' You decide the verdict.</p>';}
+    return '<h3>Claim vs. your data</h3>'+barRows(rows)+verdict+
+      '<p class="count">Also check: does “coverage” in the ad mean the same as “good signal” in your survey? An ad may count weak signal as covered.</p>';
+  },
+  live2:function(){
+    var c=counts();if(!c.N)return "";
+    var items=[
+      [c.N>=30,"Sample size: "+c.N+" people "+(c.N>=30?"(meets the minimum of 30)":"(below 30)")],
+      [c.A>=8&&c.B>=8,"Both networks represented: A has "+c.A+", B has "+c.B+(c.A<8||c.B<8?". A small group makes its percent less reliable.":".")],
+      [c.In>0&&c.Out>0,"Inside vs outside the area: "+c.In+" inside, "+c.Out+" outside."]
+    ];
+    var pIn=c.In?c.InG/c.In*100:NaN,pOut=c.Out?c.OutG/c.Out*100:NaN;
+    return '<h3>Is your sample representative?</h3><ul class="check" style="gap:8px">'+items.map(function(it){return '<li><span class="pill '+(it[0]?'good':'bad')+'">'+(it[0]?'✓':'!')+'</span> '+it[1]+'</li>';}).join("")+'</ul>'+
+      (c.In&&c.Out?'<p>Good signal inside the mapped area: <b>'+f(pIn)+'%</b> ('+c.InG+'/'+c.In+'). Outside: <b>'+f(pOut)+'%</b> ('+c.OutG+'/'+c.Out+').</p>':'')+
+      '<p class="muted">Also discuss: Who did you ask (only classmates? only family)? Were they from different streets or puroks? Is “usually good” an opinion that changes by time of day? An ad may cover a whole city, but your sample covers only your area.</p>';
+  }
+};
+
+/* PART E */
+function wc(s){return (s||"").trim().split(/\s+/).filter(Boolean).length;}
+function facts(){
+  var cA=circ("A"),cB=circ("B"),L=landmarks(),c=counts(),out=[];
+  if(cA&&cB&&L.length){var g={both:[],A:[],B:[],none:[]};L.forEach(function(l){g[classify(l,cA,cB)].push(l.name);});
+    out.push("Map: both sources cover "+(g.both.join(", ")||"no landmark")+". Only A: "+(g.A.join(", ")||"none")+". Only B: "+(g.B.join(", ")||"none")+". Neither: "+(g.none.join(", ")||"none")+".");}
+  if(c.N){out.push("Survey: "+c.N+" people, "+c.G+" with good signal (P(G) ≈ "+f(c.G/c.N*100)+"%).");
+    if(c.A&&c.B)out.push("P(G | A) ≈ "+f(c.AG/c.A*100)+"% and P(G | B) ≈ "+f(c.BG/c.B*100)+"%.");
+    out.push("P(G′) ≈ "+f((c.N-c.G)/c.N*100)+"% say their signal is usually weak.");}
+  var C=S.claim;if(C.text)out.push("Claim: "+C.text+(C.verdict?" Your verdict: "+C.verdict+".":""));
+  return out.length?'<ul class="check">'+out.map(function(t){return '<li>• '+esc(t)+'</li>';}).join("")+'</ul>':'<p class="warn">Finish Parts A to D first.</p>';
+}
+VIEWS["part-e"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Part E <span class="pts">10 pts</span></div><h2>The Signal Report</h2></div>'+
+    '<p class="lead">In one page, summarize your findings for the barangay officials or the school administration, and give <b>one</b> practical recommendation.</p>'+
+    '<div class="card"><h3>Your findings to use</h3><div id="live"></div></div>'+
+    '<div class="card"><h3>A one-page report that scores well has…</h3><ul class="check" style="gap:6px">'+
+      '<li>• <b>Title, date, and who it is for</b></li><li>• <b>Purpose</b> in one sentence</li><li>• <b>Map summary:</b> which places have coverage and which do not</li><li>• <b>Survey and probability:</b> 2 or 3 key numbers, explained simply</li><li>• <b>The claim</b> and your verdict</li><li>• <b>One practical recommendation</b> that your data supports (e.g. where a new router or a signal booster would help most)</li><li>• <b>Limits</b> of your data, stated honestly</li></ul></div>'+
+    '<div class="card"><label for="f-report">Draft your report in your own words<span class="hint">Saved on this phone. Copy the final version into your report.</span><textarea id="f-report" data-k="report" style="min-height:300px">'+esc(S.report)+'</textarea></label><p class="count" id="wc"></p></div>'+checklist("part-e");
+  },
+  live:function(){var e=document.getElementById("wc");if(e)e.textContent=wc(S.report)+" words (one page is about 250–400 words)";return facts();}
+};
+
+/* PART F */
+VIEWS["part-f"]={
+  stat:function(){
+    return '<div><div class="eyebrow">Part F <span class="pts">10 pts</span></div><h2>Biblical Reflection</h2></div>'+
+    '<blockquote>“Therefore, ridding yourselves of falsehood, speak truth each one of you with his neighbor, because we are parts of one another.”<br><b style="font-style:normal">Ephesians 4:25, NASB</b></blockquote>'+
+    '<div class="card"><h3>Think about these before you write</h3><ul class="check" style="gap:8px">'+
+      '<li>• How could a report mislead people even if every number is “true”? (a tiny sample, asking only friends, hiding weak results)</li>'+
+      '<li>• Did your data turn out the way you expected? Did you report it anyway?</li>'+
+      '<li>• Who could be hurt if barangay officials acted on false numbers?</li>'+
+      '<li>• What does “we are parts of one another” mean for a community data analyst?</li></ul>'+
+      '<p class="note">Write <b>one honest paragraph</b> in your own words.</p></div>'+
+    '<div class="card"><label for="f-reflection">Draft your paragraph<span class="hint">Saved on this phone. Copy the final version into your report.</span><textarea id="f-reflection" data-k="reflection">'+esc(S.reflection)+'</textarea></label><p class="count" id="live"></p></div>'+checklist("part-f");
+  },
+  live:function(){return wc(S.reflection)+" words";}
+};
+
+/* ---------- export ---------- */
+function allText(){
+  function strip(h){var d=document.createElement("div");d.innerHTML=h.replace(/<br\s*\/?>/g,"\n").replace(/<\/(p|li|div|tr|h3|td|th)>/g,function(m){return m==="</td>"||m==="</th>"?" | ":"\n";});return d.textContent.replace(/\n{3,}/g,"\n\n").trim();}
+  var t=["SIGNAL CHECK: COVERAGE MAP AND SIGNAL REPORT\n"+(S.area||"")+" · 1 unit = "+(S.scale||"")+" m"];
+  t.push("PART A\n"+strip(VIEWS["part-a"].live())+"\n"+strip(VIEWS["part-a"].live3())+"\n"+strip(VIEWS["part-a"].live4()));
+  t.push("PART B\n"+strip(VIEWS["part-b"].live())+"\n"+strip(VIEWS["part-b"].live2()));
+  t.push("PART C\n"+strip(VIEWS["part-c"].live()));
+  t.push("PART D\nClaim: "+S.claim.text+"\nSource: "+S.claim.source+"\n"+strip(VIEWS["part-d"].live())+"\n"+strip(VIEWS["part-d"].live2())+"\nVerdict: "+(S.claim.verdict||"")+"\n"+(S.claim.discussion||""));
+  t.push("PART E (draft)\n"+(S.report||""));t.push("PART F (draft)\n"+(S.reflection||""));
+  return t.join("\n\n");
+}
+
+/* ---------- rendering ---------- */
+var viewEl=document.getElementById("view"),stepsEl=document.getElementById("steps");
+function renderSteps(){
+  stepsEl.innerHTML=ORDER.map(function(k){var done=CHECKS[k]&&partProgress(k)===1;return '<a href="#'+k+'"'+(k===cur?' class="on" aria-current="page"':'')+'>'+LABEL[k]+(done?'<span class="dot" aria-label="done"></span>':'')+'</a>';}).join("");
+  var on=stepsEl.querySelector(".on");if(on&&on.scrollIntoView)on.scrollIntoView({block:"nearest",inline:"center"});
+}
+function renderLive(){var v=VIEWS[cur];["live","live2","live3","live4"].forEach(function(id){if(!v[id])return;var h=v[id]();var el=document.getElementById(id);if(el&&h!==null)el.innerHTML=h;});}
+function show(k){
+  if(ORDER.indexOf(k)<0)k="plan";cur=k;
+  viewEl.innerHTML='<div class="view" style="display:flex;flex-direction:column;gap:16px">'+VIEWS[k].stat()+'</div>';
+  if(VIEWS[k].lmList)VIEWS[k].lmList();
+  renderLive();renderSteps();
+  var i=ORDER.indexOf(k);document.getElementById("prev").disabled=i===0;
+  document.getElementById("next").textContent=i===ORDER.length-1?"Back to Plan":"Next ›";
+  window.scrollTo(0,0);
+}
+function route(){show((location.hash||"#plan").slice(1));}
+window.addEventListener("hashchange",route);
+document.getElementById("prev").addEventListener("click",function(){var i=ORDER.indexOf(cur);if(i>0)location.hash=ORDER[i-1];});
+document.getElementById("next").addEventListener("click",function(){var i=ORDER.indexOf(cur);location.hash=ORDER[(i+1)%ORDER.length];});
+function toast(m){var t=document.getElementById("toast");t.textContent=m;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(function(){t.hidden=true;},2000);}
+
+viewEl.addEventListener("input",function(e){
+  var el=e.target,k=el.getAttribute("data-k");if(!k||el.tagName==="SELECT")return;
+  var v=el.value;if(el.type==="number"){var n=num(v);v=n===null?"":n;}
+  set(k,v);if(/^(A|B|lm|scale)/.test(k))S.example=false;save();renderLive();
+});
+viewEl.addEventListener("change",function(e){
+  var el=e.target;
+  if(el.getAttribute("data-check")){S.checks[el.getAttribute("data-check")]=el.checked;save();renderSteps();renderLive();return;}
+  if(el.tagName==="SELECT"){set(el.getAttribute("data-k"),el.value);save();renderLive();}
+});
+viewEl.addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  if(b.hasAttribute("data-draft")){var key=b.getAttribute("data-draft"),val=b.getAttribute("data-val");draft[key]=key==="n"?val:Number(val);
+    b.parentNode.querySelectorAll("button").forEach(function(x){x.setAttribute("aria-pressed",String(x===b));});return;}
+  if(b.hasAttribute("data-verdict")){S.claim.verdict=b.getAttribute("data-verdict");save();b.parentNode.querySelectorAll("button").forEach(function(x){x.setAttribute("aria-pressed",String(x===b));});return;}
+  if(b.hasAttribute("data-rmlm")){S.lm.splice(Number(b.getAttribute("data-rmlm")),1);S.example=false;save();VIEWS["part-a"].lmList();renderLive();return;}
+  if(b.hasAttribute("data-rmresp")){S.survey.splice(Number(b.getAttribute("data-rmresp")),1);save();renderLive();toast("Response deleted");return;}
+  var a=b.getAttribute("data-act");
+  if(a==="addLm"){S.lm.push({name:"",x:"",y:""});save();VIEWS["part-a"].lmList();renderLive();var ins=document.querySelectorAll("#lmList input[type=text]");if(ins.length)ins[ins.length-1].focus();}
+  if(a==="addResp"){if(S.exSurvey){S.survey=[];S.exSurvey=false;toast("Example responses removed. Response 1 added");}else toast("Response "+(S.survey.length+1)+" added");
+    S.survey.push({n:draft.n,g:draft.g,i:draft.i});save();renderLive();}
+  if(a==="clearSurvey"){document.getElementById("confirmSurvey").hidden=false;}
+  if(a==="clearSurveyNo"){document.getElementById("confirmSurvey").hidden=true;}
+  if(a==="clearSurveyYes"){S.survey=[];S.exSurvey=false;save();renderLive();toast("Responses deleted");}
+  if(a==="clear"){document.getElementById("confirmClear").hidden=false;}
+  if(a==="clearNo"){document.getElementById("confirmClear").hidden=true;}
+  if(a==="clearYes"){var bl=clone(EXAMPLE);bl.example=false;bl.area="";bl.A={name:"",h:"",k:"",r:""};bl.B={name:"",h:"",k:"",r:""};
+    bl.lm=[0,1,2,3,4].map(function(){return {name:"",x:"",y:""};});bl.survey=[];bl.exSurvey=false;bl.claim={text:"",source:"",about:"A",pct:"",verdict:"",discussion:""};
+    S=bl;save();location.hash="part-a";show("part-a");toast("Form cleared");}
+  if(a==="copyAll"){var txt=allText(),box=document.getElementById("copyBox");
+    var fb=function(){box.hidden=false;box.value=txt;box.focus();box.select();toast("Select all and copy");};
+    try{navigator.clipboard.writeText(txt).then(function(){toast("Copied");},fb);}catch(err){fb();}}
+});
+
+route();
+if("serviceWorker" in navigator&&location.protocol==="https:"&&!/claude\.ai|claudeusercontent/.test(location.hostname)){try{navigator.serviceWorker.register("sw.js").catch(function(){});}catch(e){}}
+})();
+</script>
+<!--/APP-->
+</body>
+</html>
