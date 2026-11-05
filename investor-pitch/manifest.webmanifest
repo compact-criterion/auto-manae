@@ -1,0 +1,11 @@
+{
+  "name": "Investor Pitch Helper",
+  "short_name": "Investor Pitch",
+  "description": "Grade 12 Entrepreneurship performance task helper: needs assessment, prototype, business plan, financial plan, and investor pitch.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f4f2",
+  "theme_color": "#4a1d2f",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4a1d2f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<!--APP-->
+<title>Investor Pitch Helper</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: phone-first team app — sticky header with Part A–D chips (plus ₱ for the financial plan) over a graph-paper ground; one phase per screen; Back/Next bar at the bottom. */
+:root{
+  --paper:#f7f4f2; --surface:#ffffff; --ink:#2a1219; --muted:#6a5257; --grid:#ece2df; --grid-strong:#d8c8c4;
+  --navy:#4a1d2f; --on-navy:#ffffff; --hl:#a65a00; --hl-ink:#ffffff; --hl-soft:#fbefdc;
+  --bio:#2e7d32; --rec:#1f5fbf; --res:#6d5a4b; --curve:#1f5fbf; --shade:rgba(181,82,27,.35); --bar:#3b8f88;
+  --good:#1f7a43; --good-soft:#e2f4e8; --bad:#b3261e; --bad-soft:#fbe5e3; --btn-border:#4a1d2f;
+  --f-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#150b0f; --surface:#211318; --ink:#f2e8ea; --muted:#c3aab0; --grid:#2a1a20; --grid-strong:#46303a;
+  --navy:#3a1524; --on-navy:#ffffff; --hl:#ffb35c; --hl-ink:#2a1700; --hl-soft:#3a2a14;
+  --bio:#7fd37f; --rec:#7fa4ff; --res:#cdb7a3; --curve:#7fa4ff; --shade:rgba(255,154,95,.35); --bar:#5fc2b9;
+  --good:#6fd394; --good-soft:#15301f; --bad:#ff8a80; --bad-soft:#3a1714; --btn-border:#6a4552;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0c1615; --surface:#132220; --ink:#e3efed; --muted:#9fb6b2; --grid:#1b2c2a; --grid-strong:#2c4441;
+  --navy:#112e2e; --on-navy:#ffffff; --hl:#ff9a5f; --hl-ink:#2a1200; --hl-soft:#3a2317;
+  --bio:#7fd37f; --rec:#7fa4ff; --res:#cdb7a3; --curve:#7fa4ff; --shade:rgba(255,154,95,.35); --bar:#5fc2b9;
+  --good:#6fd394; --good-soft:#15301f; --bad:#ff8a80; --bad-soft:#3a1714; --btn-border:#3d5c58;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--navy)}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.app{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--navy);color:var(--on-navy);box-shadow:0 2px 10px rgba(0,0,0,.18)}
+header.app .wrap{padding-block:10px 8px}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand h1{font-family:var(--f-display);font-weight:800;font-size:1.3rem;margin:0}
+.brand small{font-size:.78rem;opacity:.8;letter-spacing:.06em;text-transform:uppercase}
+.steps{display:flex;gap:6px;overflow-x:auto;padding-block:8px 2px;scrollbar-width:none}
+.steps::-webkit-scrollbar{display:none}
+.steps a{flex:0 0 auto;min-width:44px;height:40px;padding:0 12px;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:20px;color:var(--on-navy);text-decoration:none;font-weight:700;border:1.5px solid rgba(255,255,255,.35);font-size:.95rem}
+.steps a.on{background:var(--hl);border-color:var(--hl);color:var(--hl-ink)}
+.steps a .dot{width:7px;height:7px;border-radius:50%;background:#7be09e}
+main .wrap{padding-block:18px 110px;display:flex;flex-direction:column;gap:16px}
+.eyebrow{font-size:.78rem;letter-spacing:.09em;text-transform:uppercase;color:var(--hl);font-weight:700}
+h2{font-family:var(--f-display);font-weight:800;font-size:1.75rem;line-height:1.15;margin:2px 0 0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:1.18rem;margin:0 0 4px;text-wrap:balance}
+p{margin:0}
+.lead{color:var(--muted)}
+.tag{display:inline-block;font-size:.76rem;font-weight:700;padding:2px 8px;border-radius:8px;margin-right:4px;vertical-align:middle}
+.tag.m{background:#e5edfd;color:#1f4fa8} .tag.g{background:#fbe9de;color:#9a4214}
+:root[data-theme="dark"] .tag.m{background:#1b2950;color:#a9c2ff} :root[data-theme="dark"] .tag.g{background:#3a2317;color:#ffb98f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tag.m{background:#1b2950;color:#a9c2ff} :root:not([data-theme="light"]) .tag.g{background:#3a2317;color:#ffb98f}}
+.card{background:var(--surface);border:1px solid var(--grid-strong);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.note{background:var(--hl-soft);border-radius:var(--r);padding:12px 14px;font-size:.95rem}
+.example{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--hl-soft);border:1.5px dashed var(--hl);border-radius:var(--r);padding:12px 14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.grid2{grid-template-columns:1fr}}
+label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.92rem;min-width:0}
+label .hint{font-weight:400;color:var(--muted);font-size:.85rem}
+input[type=text],input[type=number],input[type=password],textarea,select{font:inherit;font-weight:400;color:var(--ink);background:var(--paper);border:1.5px solid var(--grid-strong);border-radius:10px;padding:10px 12px;width:100%;min-height:46px}
+textarea{min-height:200px;resize:vertical;line-height:1.6}
+textarea.short{min-height:90px}
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--hl);outline-offset:2px}
+.unit{position:relative}
+.unit input{padding-right:52px}
+.unit::after{content:attr(data-u);position:absolute;right:12px;bottom:11px;color:var(--muted);font-weight:700}
+.peso{position:relative}
+.peso::before{content:"₱";position:absolute;left:12px;bottom:11px;color:var(--muted);font-weight:700}
+.peso input{padding-left:28px}
+button,a.btn{font:inherit;font-weight:700;border-radius:10px;border:1.5px solid var(--btn-border);background:var(--surface);color:var(--ink);padding:10px 16px;min-height:46px;cursor:pointer}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+button.primary{background:var(--navy);color:var(--on-navy);border-color:var(--btn-border)}
+button.small{min-height:38px;padding:6px 12px;font-size:.9rem}
+button.x{min-height:36px;min-width:36px;padding:4px 8px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button[aria-pressed=true]{background:var(--hl);border-color:var(--hl);color:var(--hl-ink)}
+.math{font-family:var(--f-mono);font-size:.95rem;background:var(--paper);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre;line-height:1.75;border:1px solid var(--grid)}
+.eq{font-family:var(--f-mono);font-weight:600;font-size:1.1rem;overflow-x:auto}
+code{font-family:var(--f-mono);font-size:.88rem;background:var(--paper);border:1px solid var(--grid);border-radius:6px;padding:1px 6px;white-space:nowrap}
+.v{font-style:italic;font-family:Georgia,"Times New Roman",serif;font-weight:700}
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--grid-strong);padding:7px 9px;text-align:center}
+th{background:var(--paper);font-size:.88rem}
+td.l,th.l{text-align:left}
+td.calc{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);text-align:left;white-space:nowrap}
+table.rub td{text-align:left;vertical-align:top} table.rub td:last-child{text-align:center;white-space:nowrap}
+table.dense td,table.dense th{padding:4px 6px;font-size:.85rem}
+.dense input{min-height:36px;padding:4px 6px;width:58px}
+.figure{overflow-x:auto}
+.figure svg{display:block;width:100%;height:auto;min-width:300px}
+svg text{font-family:var(--f-body)}
+.pill{display:inline-block;padding:3px 10px;border-radius:12px;font-weight:700;font-size:.86rem;white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)} .pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.hl{background:var(--hl-soft);color:var(--hl)}
+.big{font-family:var(--f-display);font-weight:800;font-size:1.45rem;line-height:1.2}
+ul.check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ul.check label{flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;font-size:.98rem}
+ul.check input{width:22px;height:22px;flex:0 0 auto;margin-top:2px;accent-color:var(--navy)}
+.timeline{display:flex;flex-direction:column;gap:10px}
+.tl{display:grid;grid-template-columns:76px 1fr auto;gap:12px;align-items:center;padding:12px;border-radius:var(--r);border:1px solid var(--grid-strong);background:var(--surface)}
+.tl .d{font-family:var(--f-display);font-weight:800;line-height:1.1;text-align:center}
+.tl .d b{display:block;font-size:1.5rem}
+.tl.next{border:2px solid var(--hl);background:var(--hl-soft)}
+.bar{height:10px;border-radius:5px;background:var(--grid);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--good);border-radius:5px}
+.prog{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.prog a{font-weight:700;color:var(--ink)}
+blockquote{margin:0;padding:14px 16px;border-left:5px solid var(--hl);background:var(--hl-soft);border-radius:0 var(--r) var(--r) 0;font-style:italic;font-size:1.05rem}
+details.card>summary,details.sub>summary{cursor:pointer;font-family:var(--f-display);font-weight:600;font-size:1.1rem;list-style-position:inside}
+.teacher-tag{display:inline-block;background:var(--ink);color:var(--paper);border-radius:8px;padding:2px 8px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.member{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:8px}
+.src{border:1px solid var(--grid-strong);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.timer{font-family:var(--f-mono);font-size:3rem;font-weight:600;text-align:center;line-height:1}
+.segbar{display:flex;gap:4px}
+.segbar span{flex:1;height:10px;border-radius:5px;background:var(--grid)}
+.segbar span.done{background:var(--good)} .segbar span.now{background:var(--hl)}
+nav.pager{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--surface);border-top:1px solid var(--grid-strong);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.pager .wrap{display:flex;justify-content:space-between;gap:10px;padding-block:10px}
+nav.pager button{flex:1}
+.warn{color:var(--bad);font-weight:700}
+.muted{color:var(--muted)}
+.count{font-size:.88rem;color:var(--muted)}
+.math[data-tex]{white-space:normal;font-family:var(--f-body);font-size:1.02rem;line-height:1.4}
+.math mjx-container[display="true"]{margin:0!important;text-align:left!important}
+td.calc[data-tex]{white-space:nowrap}
+.eq[data-tex]{font-size:1.1rem}
+mjx-container{color:inherit}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:20px;font-weight:700;z-index:20}
+@media (prefers-reduced-motion: no-preference){.view{animation:rise .25s ease-out}@keyframes rise{from{transform:translateY(6px)}to{transform:none}}}
+</style>
+
+<header class="app">
+  <div class="wrap">
+    <div class="brand"><h1>Investor Pitch Helper</h1><small>G12 Entrep · Q3 PT</small></div>
+    <nav class="steps" id="steps" aria-label="Parts of the task"></nav>
+  </div>
+</header>
+<main><div class="wrap" id="view"></div></main>
+<nav class="pager"><div class="wrap"><button id="prev" type="button">‹ Back</button><button id="next" class="primary" type="button">Next ›</button></div></nav>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+var KEY="investorPitch.v1";
+var ROLES=["Team leader","Operations head","Marketing head","Finance head"];
+var CRIT=[["need","Size of need","5 = many people have this problem"],["pay","Ability to pay","5 = customers can easily afford it"],["comp","Competition","5 = little or no competition"],["cap","Team capability","5 = we can surely make it"],["cost","Cost","5 = cheap to start"],["eth","Ethics","5 = fully honest, safe, and fair"]];
+var EXAMPLE={
+  example:true, team:{name:"",members:["","",""],roles:{"Team leader":0,"Operations head":1,"Marketing head":2,"Finance head":1}}, steps:{},
+  interviews:[
+    {who:"Sari-sari store owner, Kaytikling",problem:"Too many sachets",wish:"Cheaper soap without sachets"},
+    {who:"Mother of three, Dolores",problem:"Too many sachets",wish:"Refill near the house"},
+    {who:"Carinderia owner",problem:"Soap is expensive",wish:"Bulk soap at fair price"},
+    {who:"Tricycle driver",problem:"Plastic in canals",wish:"Less trash in the street"},
+    {who:"Student's grandmother",problem:"Too many sachets",wish:"Refill station"},
+    {who:"Laundry woman",problem:"Soap is expensive",wish:"Buy by the liter"},
+    {who:"Barangay tanod",problem:"Plastic in canals",wish:"Clean canals"},
+    {who:"Bakery owner",problem:"Soap is expensive",wish:"Discount for regular buyers"},
+    {who:"Young professional",problem:"Too many sachets",wish:"Eco-friendly option"},
+    {who:"Mother, Kaytikling",problem:"Too many sachets",wish:"Refill delivered"}],
+  observe:"Many sachets of dishwashing liquid in the canal along the main road; three sari-sari stores sell only sachets.",
+  fish:{People:"Families buy small amounts daily",Methods:"Stores sell only sachets",Materials:"Sachet packaging cannot be recycled",Machines:"No refill dispensers nearby",Money:"Families have small daily budgets",Environment:"Canals collect plastic"},
+  tree:{effects:"Clogged canals and flooding\nHigher cost per milliliter for families",core:"Households in Kaytikling throw away many dishwashing-liquid sachets",causes:"Only sachets are sold nearby\nFamilies have small daily budgets\nNo refill option exists"},
+  ideas:[{name:"Dishwashing-liquid refill station",s:{need:5,pay:4,comp:4,cap:4,cost:4,eth:5}},{name:"Ulam delivery for working parents",s:{need:4,pay:3,comp:2,cap:3,cost:3,eth:5}},{name:"Phone charging kiosk",s:{need:2,pay:3,comp:3,cap:4,cost:3,eth:5}}],
+  vp:{customer:"Kaytikling families",need:"buy dishwashing liquid in small amounts every day",product:"Tipid-Refill station",benefit:"sells the same soap by the 250 mL in reusable bottles at a lower price per mL",competitor:"sachets from sari-sari stores",market:"Families near the BBSI campus who wash dishes daily",howMany:"About 400 households within a 10-minute walk (estimate from the barangay household count)",canPay:"₱15–₱20 per refill (from prototype testing)"},
+  proto:"A labeled 250 mL bottle and a sample dispenser made from a water jug with a faucet.",
+  tests:[{who:"Mother",liked:"Cheaper",disliked:"Bottle too small",pay:15},{who:"Store owner",liked:"Less trash",disliked:"Needs a lid",pay:18},{who:"Student",liked:"Easy to use",disliked:"",pay:20},{who:"Laundry woman",liked:"Can buy more",disliked:"Wants 500 mL",pay:20},{who:"Grandmother",liked:"Smells good",disliked:"Far from house",pay:18}],
+  changes:"Added a screw lid; offer 250 mL and 500 mL sizes.",
+  pitch:{hook:"",problem:"",solution:"",market:"",team:"",ask:""},
+  plan:{desc:"",org:"",prod:"",mkt:"",exec:""},
+  m4:{manpower:"",method:"",machine:"",material:""},
+  p7:{product:"",price:"",place:"",promotion:"",people:"",process:"",evidence:""},
+  permits:{bn:false,brgy:false,mayor:false,bir:false}, permitNotes:{bn:"",brgy:"",mayor:"",bir:""},
+  csr:{workers:"",customers:"",environment:""},
+  fin:{
+    startup:[{item:"Refill dispenser (20 L) with faucet",qty:2,s1:1250,s2:1180},{item:"Reusable 250 mL bottles",qty:60,s1:18,s2:20},{item:"Table and shelf",qty:1,s1:1500,s2:1650},{item:"Signage and labels",qty:1,s1:350,s2:300}],
+    fixed:[{item:"Stall space (per month)",amt:1200},{item:"Electricity and water",amt:250},{item:"Permits and fees, spread per month",amt:200}],
+    variable:[{item:"Dishwashing liquid, 250 mL",s1:9.5,s2:10},{item:"Label and lid",s1:1.5,s2:1.5}],
+    units:400, markup:15, round:1, months:[300,380,450], drop:30, buffer:1500,
+    sources:"Supplier 1: hardware store on Ortigas Ave. Ext.; Supplier 2: wholesale store in Taytay market (example)"},
+  ask:{use:""}, qa:{why:"",price:"",bep:"",low:""}, deck:"", feedback:"", improve:"",
+  tc:{FC:"",VC:"",units:"",markup:"",P:"",m1:"",m2:"",m3:"",start:""}
+};
+function clone(o){return JSON.parse(JSON.stringify(o));}
+var S=load();
+function load(){try{var t=localStorage.getItem(KEY);if(t)return Object.assign(clone(EXAMPLE),JSON.parse(t));}catch(e){}return clone(EXAMPLE);}
+var saveT=null;
+function save(){clearTimeout(saveT);saveT=setTimeout(function(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},250);}
+
+/* ---------- number helpers ---------- */
+function num(v){if(v===""||v==null)return null;var n=parseFloat(v);return isFinite(n)?n:null;}
+function rd(n,d){var p=Math.pow(10,d==null?4:d);return Math.round(n*p)/p;}
+function f(n,d){if(n===null||n===undefined||!isFinite(n))return "?";var x=rd(n,d==null?4:d);if(Object.is(x,-0))x=0;return (x<0?"−":"")+Math.abs(x).toLocaleString("en-US",{maximumFractionDigits:d==null?4:d});}
+function peso(n){if(n===null||!isFinite(n))return "₱?";return (n<0?"−":"")+"₱"+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function V(s){return '<span class="v">'+s+'</span>';}
+function wc(s){return (s||"").trim().split(/\s+/).filter(Boolean).length;}
+function low(a,b){var x=num(a),y=num(b);if(x===null)return y;if(y===null)return x;return Math.min(x,y);}
+
+/* ---------- finance model ---------- */
+function finance(F){F=F||S.fin;
+  var st=F.startup.map(function(r){var u=low(r.s1,r.s2),q=num(r.qty)||0;return {item:r.item,qty:q,s1:num(r.s1),s2:num(r.s2),u:u,total:u===null?0:u*q};});
+  var start=st.reduce(function(a,r){return a+r.total;},0);
+  var FC=F.fixed.reduce(function(a,r){return a+(num(r.amt)||0);},0);
+  var vr=F.variable.map(function(r){return {item:r.item,s1:num(r.s1),s2:num(r.s2),u:low(r.s1,r.s2)};}),VC=vr.reduce(function(a,r){return a+(r.u||0);},0);
+  var q=num(F.units),mk=num(F.markup),uc=q?(FC+VC*q)/q:null,raw=(uc!==null&&mk!==null)?uc*(1+mk/100):null;
+  var step=num(F.round),P=raw===null?null:(step&&step>0?Math.ceil(raw/step-1e-9)*step:raw);
+  if(F.P!==undefined&&num(F.P)!==null)P=num(F.P);
+  var cm=P!==null?P-VC:null,bep=(cm&&cm>0)?FC/cm:null;
+  var months=(F.months||[]).map(num);
+  var inc=months.map(function(m){if(m===null||P===null)return null;var sales=P*m,vc=VC*m;return {q:m,sales:sales,vc:vc,gross:sales-vc,fc:FC,net:sales-vc-FC};});
+  var net3=inc.every(function(x){return x;})?inc.reduce(function(a,x){return a+x.net;},0):null;
+  var inv=start+(num(F.buffer)||0);
+  return {st:st,start:start,FC:FC,vr:vr,VC:VC,q:q,mk:mk,uc:uc,raw:raw,P:P,cm:cm,bep:bep,bepUp:bep===null?null:Math.ceil(bep-1e-9),inc:inc,net3:net3,inv:inv,roi:(net3!==null&&inv)?net3/inv*100:null};
+}
+
+/* ---------- views ---------- */
+var ORDER=["plan","part-a","part-b","part-c","part-d","part-e"];
+var LABEL={"plan":"Plan","part-a":"A","part-b":"B","part-c":"C","part-d":"₱","part-e":"D"};
+var cur="plan";
+var STEPS=[["part-a",1,"Organize your team"],["part-a",2,"Do the needs assessment"],["part-a",3,"Choose the opportunity"],
+  ["part-b",4,"Write the value proposition"],["part-b",5,"Make a prototype"],["part-b",6,"Test and improve"],
+  ["part-c",7,"Draft the pitch"],["part-c",8,"Write the plan sections"],["part-c",9,"Plan operations and marketing"],["part-d",10,"Build the financial plan"],["part-c",11,"Plan compliance and social responsibility"],
+  ["part-e",12,"Assemble the written proposal"],["part-e",13,"Make the pitch deck"],["part-e",14,"Rehearse with a timer"],["part-e",15,"Pitch and reflect"]];
+function partProgress(p){var st=STEPS.filter(function(s){return s[0]===p;});if(!st.length)return 0;return st.filter(function(s){return S.steps[s[1]];}).length/st.length;}
+function stepList(p){return '<div class="card"><h3>Check off with your team</h3><ul class="check">'+STEPS.filter(function(s){return s[0]===p;}).map(function(s){var id="st-"+s[1];
+  return '<li><label for="'+id+'"><input type="checkbox" id="'+id+'" data-step="'+s[1]+'"'+(S.steps[s[1]]?" checked":"")+'>Step '+s[1]+'. '+esc(s[2])+'</label></li>';}).join("")+'</ul></div>';}
+function exampleBanner(){
+  if(!S.example)return "";
+  return '<div class="example"><span><b>An example venture is loaded</b> (a dishwashing-liquid refill station). Replace it with your team’s own.</span><span class="seg"><button class="small" type="button" data-act="clear">Start with blank form</button></span></div>'+
+    '<div class="note" id="confirmClear" hidden>Clear every answer in this app? <span class="seg" style="margin-top:8px"><button class="small primary" type="button" data-act="clearYes">Yes, clear all</button><button class="small" type="button" data-act="clearNo">Keep</button></span></div>';
+}
+function get(path){return path.split(".").reduce(function(o,k){return o==null?o:o[k];},S);}
+function set(path,v){var ks=path.split("."),o=S;for(var i=0;i<ks.length-1;i++)o=o[ks[i]];o[ks[ks.length-1]]=v;}
+function field(path,lab,hint,type,extra,unit){
+  var v=get(path);type=type||"text";var id="f-"+path.replace(/\./g,"-");
+  var inp='<input id="'+id+'" type="'+(type==="peso"?"number":type)+'" '+(type==="number"||type==="peso"?'inputmode="decimal" step="any"':'')+' data-k="'+path+'" value="'+esc(v==null?"":v)+'"'+(extra||"")+'>';
+  if(unit)inp='<span class="unit" data-u="'+unit+'">'+inp+'</span>';
+  if(type==="peso")inp='<span class="peso">'+inp+'</span>';
+  return '<label for="'+id+'">'+lab+(hint?'<span class="hint">'+hint+'</span>':'')+inp+'</label>';
+}
+function area(path,lab,hint,cls){var id="f-"+path.replace(/\./g,"-");return '<label for="'+id+'">'+lab+(hint?'<span class="hint">'+hint+'</span>':'')+'<textarea id="'+id+'" data-k="'+path+'"'+(cls?' class="'+cls+'"':'')+'>'+esc(get(path))+'</textarea></label>';}
+function cell(path,type,ph,w){var v=get(path),id="f-"+path.replace(/\./g,"-");return '<input id="'+id+'" aria-label="'+esc(ph||path)+'" type="'+(type||"text")+'" '+(type==="number"?'inputmode="decimal" step="any"':'')+' data-k="'+path+'" value="'+esc(v==null?"":v)+'" placeholder="'+esc(ph||"")+'"'+(w?' style="width:'+w+'"':'')+'>';}
+function memberName(i){var n=(S.team.members[i]||"").trim();return n||("Member "+(i+1));}
+var VIEWS={};
+
+/* PLAN */
+VIEWS["plan"]={
+  stat:function(){
+    var today=new Date();today.setHours(0,0,0,0);
+    var dl=[["2026-11-13","Community Needs Report","After interviewing at least 10 residents or store owners"],["2026-11-16","Chosen need and opportunity","Ideas scored and one chosen"],["2026-11-20","Prototype and test feedback","Tested with at least five people"],
+      ["2026-11-26","One-minute pitch and organizational chart",""],["2026-12-04","Draft plan sections","Production, marketing, financial, compliance"],["2026-12-11","Operations and marketing notes","4Ms and 7Ps"],["2026-12-17","Section plan and proposal draft","First rehearsal"],
+      ["2027-01-06","Written proposal submitted","Final rehearsal with panel-style questions"],["2027-01-07","Investor Pitch Day","Jan. 7: Teams 1–2 · Jan. 8: Team 3 and panel feedback"]];
+    var ni=dl.findIndex(function(d){return new Date(d[0]+"T00:00:00")>=today;});
+    var tl=dl.map(function(d,i){var dt=new Date(d[0]+"T00:00:00"),days=Math.round((dt-today)/864e5);var when=days<0?"done":days===0?"today":days===1?"tomorrow":"in "+days+" days";
+      return '<div class="tl'+(i===ni?' next':'')+'"><div class="d">'+dt.toLocaleDateString("en-US",{month:"short"})+'<b>'+dt.getDate()+'</b></div><div><b>'+d[1]+'</b>'+(d[2]?'<br><span class="muted">'+d[2]+'</span>':'')+'</div><div><span class="pill '+(days<0?'good':'hl')+'">'+when+'</span></div></div>';}).join("");
+    return exampleBanner()+
+    '<div><div class="eyebrow">Grade 12 Entrepreneurship · Third Quarter</div><h2>Investor Proposal</h2></div>'+
+    '<p class="lead">Your team turns a real need in Kaytikling or Taytay into a product or service, writes a proposal, and pitches it for seed funding to a panel of investors on January 7–8, 2027.</p>'+
+    '<blockquote>“Without counsel, plans go awry, but in the multitude of counselors they are established.”<br><b style="font-style:normal">Proverbs 15:22</b></blockquote>'+
+    '<div class="card"><h3>Your team</h3>'+field("team.name","Team or business name","")+
+      '<div class="grid3">'+[0,1,2].map(function(i){return field("team.members."+i,"Member "+(i+1),"");}).join("")+'</div>'+
+      '<div class="tablebox"><table><tr><th class="l">Role</th><th>Member</th></tr>'+ROLES.map(function(r){var id="f-role-"+r.replace(/\W/g,"");return '<tr><td class="l"><b>'+r+'</b></td><td><select id="'+id+'" aria-label="'+r+'" data-role="'+esc(r)+'">'+[0,1,2].map(function(i){return '<option value="'+i+'"'+(Number(S.team.roles[r])===i?" selected":"")+'>'+esc(memberName(i))+'</option>';}).join("")+'</select></td></tr>';}).join("")+'</table></div>'+
+      '<p class="count">One member may hold two roles. Everyone speaks at the pitch.</p></div>'+
+    '<div class="card"><h3>Key dates</h3><div class="timeline">'+tl+'</div></div>'+
+    '<div class="card" id="progress"></div>'+
+    '<div class="card"><h3>Investor Proposal rubric · 50 pts</h3><div class="tablebox"><table class="rub"><tr><th>Criterion</th><th>Full points when…</th><th>Pts</th></tr>'+
+      [["Community need and evidence","Need is real and clearly shown with data from the needs assessment.",8],["Product concept and prototype","Clearly meets the need; prototype works and was improved after testing.",8],["Operations and marketing plan","4Ms and 7Ps are specific, realistic, and consistent with the target market.",8],["Financial plan","Start-up cost, pricing, break-even point, and projected income computed correctly from realistic figures.",10],["Compliance and social responsibility","Permits and registrations listed; fair treatment of workers, customers, and the environment.",6],["Pitch and response to investors","Clear, honest, within time; every member speaks; answers with evidence and humility.",10]].map(function(r){return '<tr><td><b>'+r[0]+'</b></td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>';}).join("")+'</table></div></div>'+
+    '<div class="card"><h3>Copy all your work</h3><p class="muted">Copies the needs data, value proposition, plans, and every financial computation as plain text for your proposal.</p><button type="button" class="primary" data-act="copyAll">Copy all as text</button><textarea id="copyBox" hidden readonly></textarea></div>'+
+    '<div class="card"><h3>For teachers</h3><p class="muted">Check a team’s financial plan: type in their costs and see every computation.</p><a class="btn" href="#teacher">Open Teacher Check</a></div>';
+  },
+  live:function(){var el=document.getElementById("progress");
+    if(el){var parts=[["part-a","A. Find a real need"],["part-b","B. Build the product"],["part-c","C. Plan the business"],["part-d","Financial plan"],["part-e","D. Proposal and pitch"]];
+      var all=STEPS.filter(function(s){return S.steps[s[1]];}).length;
+      el.innerHTML='<h3>Your progress · '+all+' of 15 steps</h3><div class="prog">'+parts.map(function(p){return '<a href="#'+p[0]+'">'+p[1]+'</a><div class="bar"><i style="width:'+Math.round(partProgress(p[0])*100)+'%"></i></div><span class="count">'+Math.round(partProgress(p[0])*100)+'%</span>';}).join("")+'</div>';}
+    return null;}
+};
+
+/* PART A */
+function problemTally(){var t={};S.interviews.forEach(function(r){var p=(r.problem||"").trim();if(!p)return;var k=p.toLowerCase();if(!t[k])t[k]={label:p,n:0};t[k].n++;});return Object.keys(t).map(function(k){return t[k];}).sort(function(a,b){return b.n-a.n;});}
+function fishSVG(){var F=S.fish,cats=Object.keys(F),W=380,H=250,midY=125,head=S.tree.core||"Main problem";
+  var g=['<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Fishbone diagram">'];
+  g.push('<line x1="16" y1="'+midY+'" x2="300" y2="'+midY+'" stroke="var(--ink)" stroke-width="3"/><path d="M300 '+(midY-26)+' L372 '+midY+' L300 '+(midY+26)+' Z" fill="var(--hl)"/>');
+  g.push('<text x="334" y="'+(midY+4)+'" text-anchor="middle" font-size="10" font-weight="800" fill="var(--hl-ink)">PROBLEM</text>');
+  cats.forEach(function(c,i){var top=i%2===0,col=Math.floor(i/2),x=60+col*85,y2=top?24:226;
+    g.push('<line x1="'+(x+40)+'" y1="'+midY+'" x2="'+x+'" y2="'+y2+'" stroke="var(--muted)" stroke-width="2"/>');
+    g.push('<text x="'+x+'" y="'+(top?16:244)+'" text-anchor="middle" font-size="11" font-weight="800" fill="var(--ink)">'+esc(c)+'</text>');
+    var txt=(F[c]||"").slice(0,26);g.push('<text x="'+(x+22)+'" y="'+(top?70:186)+'" text-anchor="middle" font-size="9" fill="var(--muted)">'+esc(txt)+'</text>');});
+  g.push('</svg>');return g.join("");}
+VIEWS["part-a"]={
+  stat:function(){
+    return exampleBanner()+'<div><div class="eyebrow">Part A · Nov. 9–16</div><h2>Find a Real Need</h2></div>'+
+    '<div class="card"><h3>Step 2 · Interviews (at least 10)</h3><p class="muted">Ask residents or store owners in Kaytikling or Taytay what problems they face and what they wish were available. Describe each person without their full name.</p><div id="ivList" style="display:flex;flex-direction:column;gap:8px"></div><button type="button" class="small" data-act="addIv">+ Add interview</button><div id="live"></div>'+
+      area("observe","What you observed in the area","","short")+'</div>'+
+    '<div class="card"><h3>Fishbone diagram</h3><p class="muted">The head is the main problem (from your problem tree). Each bone is a group of causes.</p><div class="grid2">'+Object.keys(S.fish).map(function(c){return field("fish."+c,c,"");}).join("")+'</div><div class="figure" id="live2"></div></div>'+
+    '<div class="card"><h3>Problem tree</h3>'+area("tree.effects","Effects (branches), one per line","","short")+field("tree.core","Core problem (trunk)","")+area("tree.causes","Root causes, one per line","","short")+'<div id="live3"></div></div>'+
+    '<div class="card"><h3>Step 3 · Score your ideas</h3><p class="muted">Score each idea from 1 to 5. Choose the best total that your team can honestly carry out.</p><div id="ideaTable"></div><button type="button" class="small" data-act="addIdea">+ Add idea</button><div id="live4"></div></div>'+stepList("part-a");
+  },
+  ivList:function(){var el=document.getElementById("ivList");if(!el)return;
+    el.innerHTML=S.interviews.map(function(r,i){return '<div class="src"><div style="display:flex;justify-content:space-between;align-items:center"><b>Interview '+(i+1)+'</b><button type="button" class="x" data-rmiv="'+i+'" aria-label="Remove interview '+(i+1)+'">×</button></div>'+
+      cell("interviews."+i+".who","text","Who (e.g. store owner, mother of three)")+cell("interviews."+i+".problem","text","Main problem (use the same words for the same problem)")+cell("interviews."+i+".wish","text","What they wish were available")+'</div>';}).join("");},
+  ideaTable:function(){var el=document.getElementById("ideaTable");if(!el)return;
+    el.innerHTML='<div class="tablebox"><table class="dense"><tr><th class="l">Idea</th>'+CRIT.map(function(c){return '<th title="'+esc(c[2])+'">'+c[1]+'</th>';}).join("")+'<th></th></tr>'+
+      S.ideas.map(function(d,i){return '<tr><td class="l">'+cell("ideas."+i+".name","text","Idea","150px")+'</td>'+CRIT.map(function(c){return '<td>'+cell("ideas."+i+".s."+c[0],"number","1–5","48px")+'</td>';}).join("")+'<td><button type="button" class="x" data-rmidea="'+i+'" aria-label="Remove idea">×</button></td></tr>';}).join("")+'</table></div>'+
+      '<p class="count">'+CRIT.map(function(c){return '<b>'+c[1]+':</b> '+c[2];}).join(" · ")+'</p>';},
+  live:function(){var T=problemTally(),n=S.interviews.filter(function(r){return (r.problem||"").trim();}).length;if(!n)return '<p class="muted">No interviews yet.</p>';
+    var mx=T[0].n;return '<p>'+(n>=10?'<span class="pill good">'+n+' interviews ✓</span>':'<span class="pill bad">'+n+' of 10 interviews</span>')+'</p><p><b>Problems mentioned</b> (evidence for your Community Needs Report):</p>'+
+      T.map(function(t){return '<div><div style="display:flex;justify-content:space-between;font-size:.92rem"><span>'+esc(t.label)+'</span><b>'+t.n+' of '+n+' ('+f(t.n/n*100,0)+'%)</b></div><div class="bar" style="height:14px"><i style="width:'+(t.n/mx*100)+'%;background:var(--hl)"></i></div></div>';}).join("");},
+  live2:function(){return fishSVG();},
+  live3:function(){var e=(S.tree.effects||"").split("\n").filter(Boolean),c=(S.tree.causes||"").split("\n").filter(Boolean);
+    function box(t,cls){return '<div style="border:1.5px solid var(--grid-strong);border-radius:10px;padding:8px 10px;font-size:.9rem;background:'+(cls||'var(--surface)')+'">'+esc(t)+'</div>';}
+    return '<div style="display:flex;flex-direction:column;gap:8px;align-items:stretch"><b class="count">EFFECTS</b><div class="grid2">'+e.map(function(t){return box(t);}).join("")+'</div><b class="count" style="text-align:center">▲</b>'+box(S.tree.core||"Core problem","var(--hl-soft)")+'<b class="count" style="text-align:center">▲</b><div class="grid2">'+c.map(function(t){return box(t);}).join("")+'</div><b class="count">ROOT CAUSES</b></div>';},
+  live4:function(){var rows=S.ideas.map(function(d){var t=CRIT.reduce(function(a,c){return a+(num(d.s[c[0]])||0);},0);return {name:d.name||"(unnamed)",t:t};}).sort(function(a,b){return b.t-a.t;});
+    if(!rows.length)return "";return '<div class="tablebox"><table><tr><th>Rank</th><th class="l">Idea</th><th>Total (of 30)</th></tr>'+rows.map(function(r,i){return '<tr><td>'+(i+1)+'</td><td class="l">'+(i===0?'<b>':'')+esc(r.name)+(i===0?'</b>':'')+'</td><td>'+r.t+'</td></tr>';}).join("")+'</table></div><p>Highest total: <b>'+esc(rows[0].name)+'</b>. Check that your team can honestly carry it out before you choose it.</p>';}
+};
+
+/* PART B */
+VIEWS["part-b"]={
+  stat:function(){
+    return exampleBanner()+'<div><div class="eyebrow">Part B · Nov. 17–20</div><h2>Build the Product</h2></div>'+
+    '<div class="card"><h3>Step 4 · Value proposition</h3><div class="grid2">'+field("vp.customer","For [customer]","")+field("vp.need","who [need]","")+field("vp.product","our [product or service]","")+field("vp.benefit","[benefit]","")+field("vp.competitor","unlike [competitor]","")+'</div><div id="live"></div>'+
+      '<h3>Target market</h3>'+field("vp.market","Who they are","")+field("vp.howMany","How many","say how you estimated it")+field("vp.canPay","How much they can pay","")+'</div>'+
+    '<div class="card"><h3>Step 5 · Prototype</h3>'+area("proto","Describe your low-cost sample or model","For a service, describe your storyboard or sample session.","short")+'</div>'+
+    '<div class="card"><h3>Step 6 · Test with at least five people</h3><div id="testList" style="display:flex;flex-direction:column;gap:8px"></div><button type="button" class="small" data-act="addTest">+ Add tester</button><div id="live2"></div>'+area("changes","What you changed after testing","","short")+'</div>'+stepList("part-b");
+  },
+  testList:function(){var el=document.getElementById("testList");if(!el)return;
+    el.innerHTML=S.tests.map(function(r,i){return '<div class="src"><div style="display:flex;justify-content:space-between;align-items:center"><b>Tester '+(i+1)+'</b><button type="button" class="x" data-rmtest="'+i+'" aria-label="Remove tester '+(i+1)+'">×</button></div>'+
+      cell("tests."+i+".who","text","Who (from the target market)")+cell("tests."+i+".liked","text","What they liked")+cell("tests."+i+".disliked","text","What they disliked")+'<span class="peso">'+cell("tests."+i+".pay","number","Would pay (₱)")+'</span></div>';}).join("");},
+  live:function(){var v=S.vp;return '<blockquote style="font-style:normal">“For <b>'+esc(v.customer||"[customer]")+'</b> who <b>'+esc(v.need||"[need]")+'</b>, our <b>'+esc(v.product||"[product]")+'</b> <b>'+esc(v.benefit||"[benefit]")+'</b>, unlike <b>'+esc(v.competitor||"[competitor]")+'</b>.”</blockquote>';},
+  live2:function(){var p=S.tests.map(function(t){return num(t.pay);}).filter(function(x){return x!==null;}),n=S.tests.filter(function(t){return (t.who||"").trim();}).length;
+    if(!p.length)return '<p class="muted">Record what each tester would pay.</p>';var avg=p.reduce(function(a,b){return a+b;},0)/p.length,F=finance();
+    var above=F.P!==null?p.filter(function(x){return x>=F.P;}).length:null;
+    return '<p>'+(n>=5?'<span class="pill good">'+n+' testers ✓</span>':'<span class="pill bad">'+n+' of 5 testers</span>')+'</p>'+
+      '<div class="math">'+esc("average willingness to pay = "+p.map(function(x){return f(x,2);}).join(" + ")+" ÷ "+p.length+" ≈ "+peso(avg))+'</div>'+
+      '<p>Range: '+peso(Math.min.apply(null,p))+' to '+peso(Math.max.apply(null,p))+'.'+(above!==null?' At your planned price of '+peso(F.P)+', <b>'+above+' of '+p.length+'</b> testers said they would pay that much.':'')+'</p>';}
+};
+
+/* PART C */
+function secs(t){return Math.round(wc(t)/130*60);}
+VIEWS["part-c"]={
+  stat:function(){var P=S.pitch;
+    return exampleBanner()+'<div><div class="eyebrow">Part C · Nov. 23 – Dec. 11</div><h2>Plan the Business</h2></div>'+
+    '<div class="card"><h3>Step 7 · Draft the pitch</h3><p class="muted">Follow this order. Keep every claim truthful. The app estimates speaking time at about 130 words a minute.</p>'+
+      [["hook","Hook"],["problem","Problem"],["solution","Solution"],["market","Target market"],["team","Why your team"],["ask","The ask"]].map(function(x){return area("pitch."+x[0],x[1],"","short");}).join("")+'<div id="live"></div></div>'+
+    '<div class="card"><h3>Step 8 · Plan sections</h3><p class="muted">Write the executive summary last.</p>'+area("plan.desc","Business description","","short")+'<div id="live2"></div>'+area("plan.org","Organizational plan","Duties of each role","short")+area("plan.prod","Production plan","","short")+area("plan.mkt","Marketing plan","","short")+area("plan.exec","Executive summary (write last)","","short")+'</div>'+
+    '<div class="card"><h3>Step 9 · Operations: the 4Ms</h3><p class="muted">Be specific: who does what, where, and how often.</p>'+[["manpower","Manpower"],["method","Method"],["machine","Machine"],["material","Material"]].map(function(x){return area("m4."+x[0],x[1],"","short");}).join("")+'</div>'+
+    '<div class="card"><h3>Step 9 · Marketing mix: the 7Ps</h3>'+[["product","Product"],["price","Price"],["place","Place"],["promotion","Promotion"],["people","People"],["process","Process"],["evidence","Physical evidence"]].map(function(x){return area("p7."+x[0],x[1],"","short");}).join("")+'<div id="live3"></div></div>'+
+    '<div class="card"><h3>Step 11 · Compliance</h3><p class="muted">Find out the office, requirements, and fee for each. Do not guess the fee: ask or check the office’s website, and write your source.</p><ul class="check">'+
+      [["bn","Business name registration"],["brgy","Barangay clearance"],["mayor","Mayor’s permit"],["bir","BIR registration"]].map(function(x){var id="pm-"+x[0];return '<li><label for="'+id+'"><input type="checkbox" id="'+id+'" data-permit="'+x[0]+'"'+(S.permits[x[0]]?" checked":"")+'><span style="flex:1;display:flex;flex-direction:column;gap:6px"><b>'+x[1]+'</b>'+cell("permitNotes."+x[0],"text","Office, requirements, fee, and source")+'</span></label></li>';}).join("")+'</ul></div>'+
+    '<div class="card"><h3>Step 11 · Social responsibility</h3>'+area("csr.workers","How you will treat workers fairly","","short")+area("csr.customers","How you will treat customers fairly","","short")+area("csr.environment","How you will care for the environment","","short")+'</div>'+stepList("part-c");
+  },
+  live:function(){var P=S.pitch,t=["hook","problem","solution","market","team","ask"].reduce(function(a,k){return a+secs(P[k]);},0),m=Math.floor(t/60),s=t%60;
+    return '<p>Estimated pitch length: <b>'+m+':'+(s<10?"0":"")+s+'</b> '+(t>300?'<span class="pill bad">Over 5 minutes</span>':t>0?'<span class="pill good">Within 5 minutes</span>':'')+'</p>';},
+  live2:function(){var r=S.team.roles,by={};ROLES.forEach(function(x){var i=Number(r[x]);(by[i]=by[i]||[]).push(x);});
+    return '<p class="muted"><b>Organizational chart</b> (from your roles on the Plan screen):</p><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="src" style="text-align:center;background:var(--hl-soft)"><b>Team leader</b><br>'+esc(memberName(Number(r["Team leader"])))+'</div><b class="count">│</b><div class="grid3" style="width:100%">'+
+      ["Operations head","Marketing head","Finance head"].map(function(x){return '<div class="src" style="text-align:center"><b>'+x+'</b><br>'+esc(memberName(Number(r[x])))+'</div>';}).join("")+'</div></div>';},
+  live3:function(){var F=finance();return F.P!==null?'<p class="count">Your Price entry should match the financial plan: '+peso(F.P)+' per unit.</p>':'';}
+};
+
+/* PART D (financial plan) */
+function bepSVG(F){if(!F.bep||!F.P)return "";var qMax=Math.max(F.bepUp*2,F.q||0,10),rMax=F.P*qMax;
+  var W=380,H=240,L=58,R=14,T=14,B=40,pw=W-L-R,ph=H-T-B;function X(q){return L+q/qMax*pw;}function Y(v){return T+ph-v/rMax*ph;}
+  var g=['<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Break-even chart">'];
+  for(var i=0;i<=4;i++){var v=rMax*i/4;g.push('<line x1="'+L+'" y1="'+Y(v)+'" x2="'+(W-R)+'" y2="'+Y(v)+'" stroke="var(--grid)"/><text x="'+(L-5)+'" y="'+(Y(v)+4)+'" text-anchor="end" font-size="10" fill="var(--muted)">'+f(v,0)+'</text>');
+    var qq=qMax*i/4;g.push('<text x="'+X(qq)+'" y="'+(T+ph+15)+'" text-anchor="middle" font-size="10" fill="var(--muted)">'+f(qq,0)+'</text>');}
+  g.push('<polygon points="'+X(0)+','+Y(F.FC)+' '+X(F.bep)+','+Y(F.P*F.bep)+' '+X(0)+','+Y(0)+'" fill="var(--bad-soft)"/>');
+  g.push('<polygon points="'+X(F.bep)+','+Y(F.P*F.bep)+' '+X(qMax)+','+Y(rMax)+' '+X(qMax)+','+Y(F.FC+F.VC*qMax)+'" fill="var(--good-soft)"/>');
+  g.push('<line x1="'+X(0)+'" y1="'+Y(F.FC)+'" x2="'+X(qMax)+'" y2="'+Y(F.FC)+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>');
+  g.push('<line x1="'+X(0)+'" y1="'+Y(F.FC)+'" x2="'+X(qMax)+'" y2="'+Y(F.FC+F.VC*qMax)+'" stroke="var(--bad)" stroke-width="3"/>');
+  g.push('<line x1="'+X(0)+'" y1="'+Y(0)+'" x2="'+X(qMax)+'" y2="'+Y(rMax)+'" stroke="var(--good)" stroke-width="3"/>');
+  g.push('<circle cx="'+X(F.bep)+'" cy="'+Y(F.P*F.bep)+'" r="6" fill="var(--hl)" stroke="var(--surface)" stroke-width="2"/><text x="'+(X(F.bep)-8)+'" y="'+(Y(F.P*F.bep)-10)+'" text-anchor="end" font-size="11" font-weight="800" fill="var(--hl)">BEP ≈ '+f(F.bep,1)+' units</text>');
+  g.push('<text x="'+(W-R)+'" y="'+(Y(rMax)+14)+'" text-anchor="end" font-size="11" font-weight="700" fill="var(--good)">sales</text><text x="'+(W-R)+'" y="'+(Y(F.FC+F.VC*qMax)+16)+'" text-anchor="end" font-size="11" font-weight="700" fill="var(--bad)">total cost</text>');
+  g.push('<line x1="'+L+'" y1="'+(T+ph)+'" x2="'+(W-R)+'" y2="'+(T+ph)+'" stroke="var(--ink)" stroke-width="1.5"/><text x="'+(W-R)+'" y="'+(H-4)+'" text-anchor="end" font-size="11" font-weight="700" fill="var(--ink)">units sold per month</text><text x="4" y="'+(T+6)+'" font-size="11" font-weight="700" fill="var(--ink)">₱</text>');
+  g.push('</svg>');return g.join("");}
+function incomeTable(F){if(!F.inc.length||F.inc.some(function(x){return !x;}))return '<p class="warn">Enter the units for all three months and a selling price.</p>';
+  var tot={sales:0,vc:0,gross:0,fc:0,net:0};F.inc.forEach(function(x){["sales","vc","gross","fc","net"].forEach(function(k){tot[k]+=x[k];});});
+  function row(lab,k,b){return '<tr><td class="l">'+(b?'<b>'+lab+'</b>':lab)+'</td>'+F.inc.map(function(x){return '<td>'+(b?'<b>':'')+peso(x[k])+(b?'</b>':'')+'</td>';}).join("")+'<td><b>'+peso(tot[k])+'</b></td></tr>';}
+  return '<div class="tablebox"><table><tr><th class="l"></th><th>Month 1</th><th>Month 2</th><th>Month 3</th><th>Total</th></tr><tr><td class="l">Units sold (q)</td>'+F.inc.map(function(x){return '<td>'+f(x.q)+'</td>';}).join("")+'<td>'+f(F.inc.reduce(function(a,x){return a+x.q;},0))+'</td></tr>'+
+    row("Sales (P × q)","sales")+row("Less: variable costs (VC × q)","vc")+row("Gross profit","gross",true)+row("Less: fixed costs","fc")+row("Net income (before tax)","net",true)+'</table></div>';}
+VIEWS["part-d"]={
+  stat:function(){var Fn=S.fin;
+    function list(key,cols){return '<div class="tablebox"><table class="dense"><tr>'+cols.map(function(c){return '<th class="'+(c[2]||"")+'">'+c[1]+'</th>';}).join("")+'<th></th></tr>'+Fn[key].map(function(r,i){return '<tr>'+cols.map(function(c){return '<td class="'+(c[2]||"")+'">'+cell("fin."+key+"."+i+"."+c[0],c[0]==="item"?"text":"number",c[1],c[0]==="item"?"170px":"74px")+'</td>';}).join("")+'<td><button type="button" class="x" data-rmfin="'+key+'.'+i+'" aria-label="Remove row">×</button></td></tr>';}).join("")+'</table></div><button type="button" class="small" data-addfin="'+key+'">+ Add row</button>';}
+    return exampleBanner()+'<div><div class="eyebrow">Step 10 · Dec. 1–4</div><h2>The Financial Plan</h2></div>'+
+    '<p class="lead">Canvass prices from at least two Taytay suppliers. The app uses the lower price for each item. Show every computation in your proposal.</p>'+
+    '<div class="card">'+area("fin.sources","Your two suppliers","Name and place of each; if a figure is estimated, say how you estimated it.","short")+'</div>'+
+    '<div class="card"><h3>Start-up costs</h3>'+list("startup",[["item","Item","l"],["qty","Qty"],["s1","Supplier 1 ₱"],["s2","Supplier 2 ₱"]])+'<div id="live"></div></div>'+
+    '<div class="card"><h3>Fixed costs per month (FC)</h3><p class="count">Costs that stay the same however many units you sell.</p>'+list("fixed",[["item","Item","l"],["amt","₱ per month"]])+'</div>'+
+    '<div class="card"><h3>Variable cost per unit (VC)</h3><p class="count">Costs for each unit you make.</p>'+list("variable",[["item","Item","l"],["s1","Supplier 1 ₱"],["s2","Supplier 2 ₱"]])+'<div id="live2"></div></div>'+
+    '<div class="card"><h3>Unit cost and selling price</h3><div class="grid3">'+field("fin.units","Expected units per month","","number",' min="1"')+field("fin.markup","Markup","","number",' min="0"',"%")+field("fin.round","Round the price up to","₱1, ₱0.50, or 0 for no rounding","number",' min="0"')+'</div><div id="live3"></div></div>'+
+    '<div class="card"><h3>Break-even point</h3><div id="live4"></div></div>'+
+    '<div class="card"><h3>Three-month projected income statement</h3><div class="grid3">'+[0,1,2].map(function(i){return field("fin.months."+i,"Month "+(i+1)+" units","","number",' min="0"');}).join("")+'</div><div id="live5"></div></div>'+
+    '<div class="card"><h3>Return on investment</h3>'+field("fin.buffer","Extra cash for the first weeks (working capital)","added to the start-up cost to make the investment","peso",' min="0"')+'<div id="live6"></div></div>'+
+    '<div class="card"><h3>What if sales are lower than planned?</h3>'+field("fin.drop","Sales lower by","","number",' min="0" max="100"',"%")+'<div id="live7"></div></div>'+stepList("part-d");
+  },
+  live:function(){var F=finance();return '<div class="tablebox"><table><tr><th class="l">Item</th><th>Qty</th><th>Lower price</th><th>Subtotal</th></tr>'+F.st.map(function(r){return '<tr><td class="l">'+esc(r.item)+'</td><td>'+f(r.qty)+'</td><td>'+(r.u===null?'—':peso(r.u))+'</td><td>'+peso(r.total)+'</td></tr>';}).join("")+'<tr><th class="l" colspan="3">Total start-up cost</th><th>'+peso(F.start)+'</th></tr></table></div>';},
+  live2:function(){var F=finance();return '<div class="math">'+esc("FC = "+S.fin.fixed.map(function(r){return f(num(r.amt)||0,2);}).join(" + ")+" = "+peso(F.FC)+" per month\nVC = "+F.vr.map(function(r){return f(r.u||0,2);}).join(" + ")+" = "+peso(F.VC)+" per unit")+'</div>';},
+  live3:function(){var F=finance();if(F.uc===null||F.mk===null)return '<p class="warn">Enter the expected units and the markup.</p>';
+    var t="unit cost = (FC + VC · q) / q\n= ("+f(F.FC,2)+" + "+f(F.VC,2)+" × "+f(F.q)+") / "+f(F.q)+"\n= "+f(F.FC+F.VC*F.q,2)+" ÷ "+f(F.q)+" ≈ "+peso(F.uc)+
+      "\n\nselling price = unit cost × (1 + markup)\n= "+f(F.uc,2)+" × (1 + "+f(F.mk/100,2)+")\n≈ "+peso(F.raw)+(F.P!==F.raw?"\nrounded up: "+peso(F.P):"");
+    var p=S.tests.map(function(x){return num(x.pay);}).filter(function(x){return x!==null;}),avg=p.length?p.reduce(function(a,b){return a+b;},0)/p.length:null;
+    return '<div class="math">'+esc(t)+'</div><p class="big">Selling price: '+peso(F.P)+' per unit</p>'+(avg!==null?'<p>'+(F.P<=avg?'<span class="pill good">Below</span> the average your testers would pay ('+peso(avg)+').':'<span class="pill bad">Above</span> the average your testers would pay ('+peso(avg)+'). Investors will ask about this.')+'</p>':'');},
+  live4:function(){var F=finance();if(F.P===null)return '<p class="warn">Set a selling price first.</p>';if(!(F.cm>0))return '<p class="warn">The price must be higher than the variable cost per unit ('+peso(F.VC)+'), or you lose money on every unit.</p>';
+    return '<div class="math">'+esc("BEP (units) = FC / (P − VC)\n= "+f(F.FC,2)+" / ("+f(F.P,2)+" − "+f(F.VC,2)+")\n= "+f(F.FC,2)+" ÷ "+f(F.cm,2)+"\n≈ "+f(F.bep,2)+" units\nBEP (₱) = "+f(F.bepUp)+" × "+f(F.P,2)+" = "+peso(F.bepUp*F.P))+'</div>'+
+      '<p class="big">Break even at '+F.bepUp+' units a month</p><p>Selling '+F.bepUp+' units a month (about '+f(F.bepUp/30,1)+' a day) covers all fixed costs. Every unit after that earns '+peso(F.cm)+' profit.</p><div class="figure">'+bepSVG(F)+'</div>';},
+  live5:function(){var F=finance();var h=incomeTable(F);if(F.inc.every(function(x){return x;})){var x=F.inc[0];h+='<div class="math">'+esc("Month 1: Profit = (P − VC)q − FC\n= ("+f(F.P,2)+" − "+f(F.VC,2)+")("+f(x.q)+") − "+f(F.FC,2)+"\n= "+peso(x.net))+'</div>';}return h;},
+  live6:function(){var F=finance();if(F.net3===null)return "";
+    var pay=F.inc[2]&&F.inc[2].net>0?F.inv/F.inc[2].net:null;
+    return '<div class="math">'+esc("investment = start-up cost + working capital = "+f(F.start,2)+" + "+f(num(S.fin.buffer)||0,2)+" = "+peso(F.inv)+"\nROI = (net profit) / (investment) × 100%\n= "+f(F.net3,2)+" / "+f(F.inv,2)+" × 100%\n≈ "+f(F.roi,1)+"%")+'</div>'+
+      '<p class="big">3-month ROI ≈ '+f(F.roi,1)+'%</p>'+(pay?'<p>At the Month 3 profit, the investment is earned back in about <b>'+f(pay,1)+' months</b>.</p>':'')+'<p class="count">This is before tax and before paying the owners for their time. Say so in your proposal.</p>';},
+  live7:function(){var F=finance(),d=num(S.fin.drop);if(F.net3===null||d===null)return "";
+    var rows=F.inc.map(function(x){var q=Math.round(x.q*(1-d/100));return {q:q,net:(F.P-F.VC)*q-F.FC};}),tot=rows.reduce(function(a,r){return a+r.net;},0);
+    return '<div class="tablebox"><table><tr><th></th><th>Month 1</th><th>Month 2</th><th>Month 3</th><th>Total</th></tr><tr><td class="l">Units</td>'+rows.map(function(r){return '<td>'+r.q+'</td>';}).join("")+'<td></td></tr><tr><td class="l">Net income</td>'+rows.map(function(r){return '<td class="'+(r.net<0?'warn':'')+'">'+peso(r.net)+'</td>';}).join("")+'<td><b>'+peso(tot)+'</b></td></tr></table></div>'+
+      '<p>With sales '+f(d)+'% lower, the 3-month net income is <b>'+peso(tot)+'</b>'+(tot<0?', a loss. Plan what you would do: lower costs, change the price, or sell in a new place.':'. '+(rows.some(function(r){return r.q<F.bepUp;})?'Some months fall below the break-even point of '+F.bepUp+' units.':'Every month stays above the break-even point.'))+'</p>';}
+};
+
+/* PART E (proposal and pitch) */
+var SECT=[["Executive summary",function(){return S.plan.exec;}],["Business description",function(){return S.plan.desc;}],["Organizational plan",function(){return S.plan.org;}],["Production plan",function(){return S.plan.prod;}],["Marketing plan (7Ps)",function(){var p=S.p7;return p.product&&p.price&&p.place&&p.promotion&&p.people&&p.process&&p.evidence;}],["Operations (4Ms)",function(){var m=S.m4;return m.manpower&&m.method&&m.machine&&m.material;}],["Financial plan",function(){var F=finance();return F.start>0&&F.P&&F.bep&&F.net3!==null;}],["Compliance",function(){var p=S.permits;return p.bn&&p.brgy&&p.mayor&&p.bir;}],["Social responsibility",function(){var c=S.csr;return c.workers&&c.customers&&c.environment;}],["The investor ask",function(){return S.ask.use;}]];
+var TM={mode:0,left:300,run:false,iv:null};
+function drawTimer(){var el=document.getElementById("timer");if(!el)return;var m=Math.floor(TM.left/60),s=TM.left%60;
+  el.innerHTML='<div class="seg" role="group" aria-label="Timer"><button type="button" class="small" data-act="tPitch" aria-pressed="'+(TM.mode===0)+'">Pitch · 5 min</button><button type="button" class="small" data-act="tQA" aria-pressed="'+(TM.mode===1)+'">Questions · 3 min</button></div>'+
+    '<div class="timer'+(TM.left===0?' warn':'')+'" aria-live="polite">'+m+':'+(s<10?"0":"")+s+'</div><div class="seg" style="justify-content:center"><button type="button" class="primary" data-act="tStart">'+(TM.run?'Pause':'Start')+'</button><button type="button" data-act="tReset">Reset</button></div>';}
+function tick(){if(!TM.run)return;if(TM.left>0)TM.left--;else{TM.run=false;clearInterval(TM.iv);toast("Time is up");}drawTimer();}
+VIEWS["part-e"]={
+  stat:function(){
+    return exampleBanner()+'<div><div class="eyebrow">Part D · Dec. 14 – Jan. 8</div><h2>Proposal and Pitch</h2></div>'+
+    '<div class="card"><h3>Step 12 · The investor ask</h3><div id="live"></div>'+area("ask.use","What the money will buy","","short")+'</div>'+
+    '<div class="card"><h3>Step 12 · Proposal checklist</h3><p class="muted">Put the sections in this order. Submit on January 6.</p><div id="live2"></div></div>'+
+    '<div class="card"><h3>Step 13 · Pitch deck (10 slides or fewer)</h3><p class="muted">Big text, one idea per slide, photos of your prototype and customer feedback.</p>'+area("deck","Slide plan, one slide per line","e.g. 1 Hook · 2 Problem (interview results) · 3 Solution (prototype photo) …","short")+'<p id="live3" class="count"></p></div>'+
+    '<div class="card"><h3>Step 14 · Rehearse with a timer</h3><div id="timer"></div></div>'+
+    '<div class="card"><h3>Step 14 · Likely investor questions</h3><div id="live4"></div>'+
+      area("qa.why","Why will people buy?","","short")+area("qa.price","How did you set the price?","","short")+area("qa.bep","When will you break even?","","short")+area("qa.low","What if sales are lower than planned?","","short")+'</div>'+
+    '<div class="card"><h3>Step 15 · After the pitch</h3>'+area("feedback","Investor feedback","Write what each investor said, including the Investor’s Choice play-money decisions (feedback only, not graded).","short")+area("improve","What your team will improve in Quarter 4","","short")+'</div>'+stepList("part-e");
+  },
+  live:function(){var F=finance();return '<div class="math">'+esc("investor ask = start-up cost + working capital\n= "+f(F.start,2)+" + "+f(num(S.fin.buffer)||0,2)+" = "+peso(F.inv))+'</div><p class="big">We are asking for '+peso(F.inv)+'</p><p class="count">It buys: '+esc(F.st.filter(function(r){return r.total>0;}).map(function(r){return r.item;}).join(", "))+(num(S.fin.buffer)?', and cash for the first weeks':'')+'.</p>';},
+  live2:function(){return '<ul class="check" style="gap:6px">'+SECT.map(function(s,i){var ok=!!s[1]();return '<li><span class="pill '+(ok?'good':'bad')+'">'+(ok?'✓':'…')+'</span> '+(i+1)+'. '+s[0]+'</li>';}).join("")+'</ul><p class="count">A ✓ means the app has your entries for that section. You still write and proofread the final proposal together.</p>';},
+  live3:function(){var n=(S.deck||"").split("\n").filter(function(l){return l.trim();}).length;return n+' slide'+(n===1?'':'s')+(n>10?' · too many, cut to 10':'');},
+  live4:function(){var F=finance(),p=S.tests.map(function(x){return num(x.pay);}).filter(function(x){return x!==null;}),T=problemTally(),n=S.interviews.filter(function(r){return (r.problem||"").trim();}).length;
+    var h=[];if(T.length)h.push("Need: "+T[0].n+" of "+n+" people interviewed named “"+T[0].label+"”.");
+    if(p.length)h.push("Testers would pay "+peso(Math.min.apply(null,p))+"–"+peso(Math.max.apply(null,p))+"; your price is "+peso(F.P)+".");
+    if(F.P!==null&&F.uc!==null)h.push("Price = unit cost "+peso(F.uc)+" + "+f(F.mk)+"% markup.");
+    if(F.bepUp)h.push("Break-even: "+F.bepUp+" units a month (about "+f(F.bepUp/30,1)+" a day).");
+    var d=num(S.fin.drop);if(F.net3!==null&&d!==null){var tot=F.inc.reduce(function(a,x){return a+(F.P-F.VC)*Math.round(x.q*(1-d/100))-F.FC;},0);h.push("If sales are "+f(d)+"% lower: 3-month net income "+peso(tot)+".");}
+    return h.length?'<p class="muted"><b>Numbers to use in your answers:</b></p><ul class="check" style="gap:4px">'+h.map(function(t){return '<li>• '+esc(t)+'</li>';}).join("")+'</ul>':'';}
+};
+
+/* TEACHER PIN: only a SHA-256 hash of the PIN is kept here */
+var TC_HASH="de1eb175ef518fa562e531a56601cad6b08d1a3979d91559594f687100332128";
+var tcOpen=false;try{tcOpen=sessionStorage.getItem("tcOpen")===TC_HASH;}catch(e){}
+var tcFails=0,tcWaitUntil=0;
+function sha256hex(t){return crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)).then(function(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return ("0"+x.toString(16)).slice(-2);}).join("");});}
+function viewFor(k){return (k==="teacher"&&!tcOpen)?VIEWS["teacher-lock"]:VIEWS[k];}
+VIEWS["teacher-lock"]={stat:function(){
+  return '<div><span class="teacher-tag">For teachers</span><h2>Teacher Check</h2></div><p class="lead">This screen shows answer keys, so it is locked. Enter the teacher PIN to open it.</p>'+
+  '<form class="card" id="pinForm" autocomplete="off"><label for="pin">Teacher PIN<input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="40"></label><button type="submit" class="primary">Unlock</button><p class="warn" id="pinMsg" aria-live="polite"></p></form><p class="count">It stays unlocked on this phone until you close the browser or tap Lock.</p>';}};
+
+/* TEACHER CHECK */
+function withT(fn){var keep=S,t=keep.tc;S=clone(EXAMPLE);S.example=false;S.tests=[];
+  S.fin={startup:[{item:"Start-up cost (team’s total)",qty:1,s1:t.start,s2:""}],fixed:[{item:"Fixed costs per month",amt:t.FC}],variable:[{item:"Variable cost per unit",s1:t.VC,s2:""}],units:t.units,markup:t.markup,round:0,months:[t.m1,t.m2,t.m3],drop:30,buffer:0,sources:""};
+  if(num(t.P)!==null)S.fin.P=t.P;
+  try{return fn();}finally{S=keep;}}
+VIEWS["teacher"]={
+  stat:function(){return '<div><span class="teacher-tag">For teachers</span><h2>Teacher Check</h2></div><p class="lead">Type in a team’s totals to see the correct financial computations. The team’s own screens on this phone are not changed.</p>'+
+    '<div class="card"><div class="grid2">'+field("tc.start","Total start-up cost (investment)","","peso")+field("tc.FC","Fixed costs per month (FC)","","peso")+field("tc.VC","Variable cost per unit (VC)","","peso")+field("tc.units","Expected units per month","","number")+field("tc.markup","Markup","","number","","%")+field("tc.P","Team’s selling price","enter their rounded price to match their numbers; leave blank to use unit cost × (1 + markup) without rounding","peso")+'</div>'+
+    '<div class="grid3">'+field("tc.m1","Month 1 units","","number")+field("tc.m2","Month 2 units","","number")+field("tc.m3","Month 3 units","","number")+'</div></div>'+
+    '<div id="live" style="display:flex;flex-direction:column;gap:16px"></div><div class="seg"><button type="button" data-act="tcClear">Clear for the next team</button><button type="button" data-act="tcLock">Lock Teacher Check</button></div>';},
+  live:function(){return withT(function(){var D=VIEWS["part-d"],F=finance(),o='';
+    if(F.q&&F.mk!==null)o+='<details class="card" open><summary>Unit cost and price</summary>'+D.live3()+'</details>';
+    if(F.P!==null)o+='<details class="card" open><summary>Break-even point</summary>'+D.live4()+'</details>';
+    if(F.net3!==null)o+='<details class="card" open><summary>Income statement and ROI</summary>'+D.live5()+D.live6()+'</details>';
+    return o||'<div class="card"><p class="muted">Enter FC, VC, units, and markup (or a price).</p></div>';});}
+};
+
+/* ---------- export ---------- */
+function allText(){
+  function strip(h){var d=document.createElement("div");d.innerHTML=String(h||"").replace(/<svg[\s\S]*?<\/svg>/g,"").replace(/<br\s*\/?>/g,"\n").replace(/<\/(p|li|div|tr|h3|td|th|summary|blockquote)>/g,function(m){return m==="</td>"||m==="</th>"?" | ":"\n";});return d.textContent.replace(/\n{3,}/g,"\n\n").trim();}
+  var t=["INVESTOR PROPOSAL · "+(S.team.name||"Team")];
+  t.push("TEAM\n"+ROLES.map(function(r){return r+": "+memberName(Number(S.team.roles[r]));}).join("\n"));
+  t.push("NEEDS ASSESSMENT\n"+S.interviews.map(function(r,i){return (i+1)+". "+r.who+" — problem: "+r.problem+"; wish: "+r.wish;}).join("\n")+"\n"+strip(VIEWS["part-a"].live())+"\nObservation: "+S.observe);
+  t.push("FISHBONE\n"+Object.keys(S.fish).map(function(k){return k+": "+S.fish[k];}).join("\n")+"\nPROBLEM TREE\nEffects: "+S.tree.effects.replace(/\n/g,"; ")+"\nCore problem: "+S.tree.core+"\nRoot causes: "+S.tree.causes.replace(/\n/g,"; "));
+  t.push("OPPORTUNITY SCREENING\n"+strip(VIEWS["part-a"].live4()));
+  t.push("VALUE PROPOSITION\n"+strip(VIEWS["part-b"].live())+"\nTarget market: "+S.vp.market+"; how many: "+S.vp.howMany+"; can pay: "+S.vp.canPay);
+  t.push("PROTOTYPE\n"+S.proto+"\nTESTING\n"+S.tests.map(function(r,i){return (i+1)+". "+r.who+": liked "+r.liked+"; disliked "+r.disliked+"; would pay "+r.pay;}).join("\n")+"\n"+strip(VIEWS["part-b"].live2())+"\nChanges: "+S.changes);
+  t.push("PITCH\n"+["hook","problem","solution","market","team","ask"].map(function(k){return k.toUpperCase()+": "+S.pitch[k];}).join("\n"));
+  t.push("4Ms\n"+Object.keys(S.m4).map(function(k){return k+": "+S.m4[k];}).join("\n")+"\n7Ps\n"+Object.keys(S.p7).map(function(k){return k+": "+S.p7[k];}).join("\n"));
+  var D=VIEWS["part-d"];t.push("FINANCIAL PLAN\n"+S.fin.sources+"\n"+[D.live(),D.live2(),D.live3(),D.live4(),D.live5(),D.live6(),D.live7()].map(strip).join("\n\n"));
+  t.push("COMPLIANCE\n"+[["bn","Business name registration"],["brgy","Barangay clearance"],["mayor","Mayor’s permit"],["bir","BIR registration"]].map(function(x){return x[1]+": "+(S.permitNotes[x[0]]||"");}).join("\n")+"\nSOCIAL RESPONSIBILITY\nWorkers: "+S.csr.workers+"\nCustomers: "+S.csr.customers+"\nEnvironment: "+S.csr.environment);
+  t.push("INVESTOR ASK\n"+strip(VIEWS["part-e"].live())+"\n"+S.ask.use);
+  return t.join("\n\n");
+}
+
+/* ---------- math typesetting (MathJax): plain steps -> LaTeX ---------- */
+var TX_SYM={"−":"-","×":"\\times ","÷":"\\div ","≤":"\\le ","≥":"\\ge ","≠":"\\ne ","≈":"\\approx ","±":"\\pm ","∪":"\\cup ","∩":"\\cap ","′":"'","|":"\\mid ","✓":"\\;\\checkmark","✗":"","·":"\\cdot ","→":"\\rightarrow ","…":"\\ldots ","%":"\\%","₱":"\\text{₱}","&":"\\&","#":"\\#","{":"\\{","}":"\\}","$":"\\$","°":"^\\circ ","\\":"\\backslash ",
+  "μ":"\\mu ","σ":"\\sigma ","ρ":"\\rho ","θ":"\\theta ","Σ":"\\sum ","₀":"_0","ₕ":"_h","\u0005":"^{-1}","\u0006":"\\,\\text{kg/m}^3"};
+var TX_SUP={"²":"2","³":"3"},TX_FN={tan:1,sin:1,cos:1};
+function txText(t){return t.replace(/[\\{}%&#$_]/g,function(c){return "\\"+c;});}
+function txMatch(s,i,open,close){var d=0;for(var j=i;j<s.length;j++){if(s[j]===open)d++;else if(s[j]===close){d--;if(!d)return j;}}return -1;}
+function txOperand(s,i){var m=s.slice(i).match(/^\d+(\.\d+)?/)||s.slice(i).match(/^[A-Za-zμσρθ]/);return m?m[0]:null;}
+/* "[A] / (B)", "x / [B]", "(A) / σ" become stacked fractions */
+function txGroupFrac(s){
+  for(var q=0;q<s.length;q++){
+    if(s[q]!=="/")continue;var spaced=s[q-1]===" "&&s[q+1]===" ";
+    var a=q-1;while(a>=0&&s[a]===" ")a--;var b=q+1;while(b<s.length&&s[b]===" ")b++;if(a<0)continue;
+    var st=-1,endA=a;if(s[a]==="²"&&(s[a-1]===")"||s[a-1]==="]"))a--;
+    if(s[a]===")"||s[a]==="]"){var op=s[a]===")"?"(":"[",d=0;for(var k=a;k>=0;k--){if(s[k]===s[a])d++;else if(s[k]===op){d--;if(!d){st=k;break;}}}
+      if(st<0)continue;if(st>0&&(/[A-Za-zΣ]/.test(s[st-1]))&&!/[A-Za-z]/.test(s[st-2]||" "))st--;}
+    else if(spaced){var mm=s.slice(0,a+1).match(/Σ?[A-Za-z]{2,}$|Σ?[A-Za-zμσρθ][₀ₕ]?$|\d{1,3}(,\d{3})+(\.\d+)?$|\d+(\.\d+)?$/);if(!mm)continue;st=a+1-mm[0].length;}
+    else continue;
+    var rb=b,cl;if(/[A-Za-z]/.test(s[rb]||"")&&/[(\[]/.test(s[rb+1]||""))rb++;
+    if(/[(\[]/.test(s[rb]||"")){cl=txMatch(s,rb,s[rb],s[rb]==="("?")":"]");if(cl<0)continue;}
+    else{var rm=s.slice(b).match(/^\d{1,3}(,\d{3})+(\.\d+)?|^\d+(\.\d+)?|^[A-Za-z]{2,}|^[A-Za-zμσρθ][₀ₕ]?/);if(!rm)continue;cl=b+rm[0].length-1;}
+    return s.slice(0,st)+"\u0001"+s.slice(st,endA+1)+"\u0002"+s.slice(b,cl+1)+"\u0003"+txGroupFrac(s.slice(cl+1));
+  }
+  return s;
+}
+function txStrip(g){g=g.trim();if(/^[(\[]/.test(g)&&txMatch(g,0,g[0],g[0]==="("?")":"]")===g.length-1)return g.slice(1,-1);return g;}
+function toTex(s){
+  s=txGroupFrac(s.replace(/⁻¹/g,"\u0005").replace(/kg\/m³/g,"\u0006"));
+  var r="",i=0,L=s.length,m;
+  while(i<L){
+    var c=s[i],rest=s.slice(i);
+    if(c==="\u0001"){var e2=s.indexOf("\u0002",i),e3=s.indexOf("\u0003",i);r+="\\dfrac{"+toTex(txStrip(s.slice(i+1,e2)))+"}{"+toTex(txStrip(s.slice(e2+1,e3)))+"}";i=e3+1;continue;}
+    if(c==="("||c==="["){var cg=txMatch(s,i,c,c==="("?")":"]");
+      if(cg>0){var inner=toTex(s.slice(i+1,cg));if(/\\frac|\\sqrt|\\dfrac/.test(inner)){r+=(c==="("?"\\left(":"\\left[")+inner+(c==="("?"\\right)":"\\right]");i=cg+1;continue;}}}
+    if(i===0&&(m=rest.match(/^\((\d)\)\s+/))){r+="("+m[1]+")\\quad ";i+=m[0].length;continue;}
+    if(/\s/.test(c)){m=rest.match(/^\s{2,}(\(\d\))\s*$/);if(m){r+="\\qquad "+m[1];break;}r+=" ";i++;continue;}
+    if(c==="_"&&(m=rest.match(/^_([A-Za-z]+)/))){r+="_{\\text{"+m[1]+"}}";i+=m[0].length;continue;}
+    if((m=rest.match(/^\d+(?:-\d+)+/))){r+="\\text{"+m[0]+"}";i+=m[0].length;continue;}
+    if((m=rest.match(/^\d{1,3}(?:,\d{3})+(?:\.\d+)?|^\d+(?:\.\d+)?/))){
+      var tok=m[0].replace(/,/g,"{,}");i+=m[0].length;
+      if(s[i]==="/"){var den=txOperand(s,i+1);if(den){r+="\\frac{"+tok+"}{"+(TX_SYM[den]||den)+"}";i+=1+den.length;continue;}}
+      r+=tok;continue;}
+    if((m=rest.match(/^[A-Za-z][A-Za-z’'\-]*[A-Za-z’']|^[A-Za-z]/))){
+      var w=m[0],prev=i>0?s[i-1]:" ",nx=s[i+w.length]||" ";
+      if(w.length===1&&nx==="̄"){r+="\\bar{"+w+"}";i+=2;continue;}
+      if(TX_FN[w]){r+="\\"+w+" ";i+=w.length;continue;}
+      if(/^(m|cm|mm|km|kg|g|L)$/.test(w)&&/\d\s$/.test(s.slice(Math.max(0,i-2),i))&&!/[A-Za-z(]/.test(nx)){r+="\\,\\text{"+w+"}";i+=w.length;continue;}
+      if(w.length===1||/[0-9)²\]]/.test(prev)||/^[LWH]{2,3}$/.test(w)){
+        if(w.length===1&&s[i+1]==="/"){var dn=txOperand(s,i+2);if(dn){r+="\\frac{"+w+"}{"+(TX_SYM[dn]||dn)+"}";i+=2+dn.length;continue;}}
+        r+=w;i+=w.length;continue;}
+      var j=i+w.length,run=w;
+      while(true){var mm2=s.slice(j).match(/^([ ,.:;?!“”"’']*)([A-Za-z][A-Za-z’'\-]*)/);
+        if(mm2&&mm2[2].length>1&&!TX_FN[mm2[2]]&&!/^(kg|cm|mm|km)$/.test(mm2[2])){run+=mm2[1]+mm2[2];j+=mm2[0].length;}else break;}
+      var tp=s.slice(j).match(/^[,.:;?!]+/);if(tp){run+=tp[0];j+=tp[0].length;}
+      var pre=(i>0&&/\s/.test(s[i-1])&&r.trim()!=="")?" ":"",post=/\s/.test(s[j]||"")&&s.slice(j).trim()!==""?" ":"";
+      r+="\\text{"+pre+txText(run)+post+"}";i=j;continue;}
+    if(c==="√"){var o=s[i+1];
+      if(o==="["||o==="("){var cl2=txMatch(s,i+1,o,o==="["?"]":")");if(cl2>0){r+="\\sqrt{"+toTex(s.slice(i+2,cl2))+"}";i=cl2+1;continue;}}
+      var op2=s.slice(i+1).match(/^\d+(\.\d+)?|^[A-Za-z]/);if(op2){r+="\\sqrt{"+op2[0]+"}";i+=1+op2[0].length;continue;}
+      r+="\\sqrt{\\ }";i++;continue;}
+    if(TX_SUP[c]){r+="^{"+TX_SUP[c]+"}";i++;continue;}
+    if(c==="̄"){i++;continue;}
+    if(TX_SYM[c]!==undefined){r+=TX_SYM[c];i++;continue;}
+    r+=c;i++;
+  }
+  return r;
+}
+function mathify(root){
+  if(!(window.MathJax&&MathJax.typeset)||!root)return;
+  var els=root.querySelectorAll(".math,.eq,td.calc,.mx"),any=false;
+  Array.prototype.forEach.call(els,function(el){
+    if(el.getAttribute("data-tex"))return;
+    var plain=(el.innerText||el.textContent||"").replace(/ /g," ").replace(/\s+$/,"");if(!plain.trim())return;
+    var lines=plain.split("\n"),tex;
+    if(el.classList.contains("math")){tex="\\[\\begin{aligned}"+lines.map(function(l){if(!l.trim())return "&\\phantom{0}";return "&"+toTex(l).replace(/^\s*-/,"{-}");}).join("\\\\")+"\\end{aligned}\\]";}
+    else if(lines.length>1){tex="\\(\\begin{aligned}"+lines.map(function(l){return "&"+toTex(l);}).join("\\\\")+"\\end{aligned}\\)";}
+    else tex="\\("+(el.classList.contains("eq")||el.classList.contains("mx")?"\\displaystyle ":"")+toTex(plain)+"\\)";
+    el.setAttribute("data-plain",plain);el.textContent=tex;el.setAttribute("data-tex","1");any=true;});
+  if(!any)return;
+  try{MathJax.typesetClear([root]);MathJax.typeset([root]);}catch(e){}
+}
+window.__mathify=function(){mathify(document.getElementById("view"));};
+
+/* ---------- rendering ---------- */
+var viewEl=document.getElementById("view"),stepsEl=document.getElementById("steps");
+function renderSteps(){
+  stepsEl.innerHTML=ORDER.map(function(k){var done=k!=="plan"&&partProgress(k)===1;return '<a href="#'+k+'"'+(k===cur?' class="on" aria-current="page"':'')+(k==="part-d"?' aria-label="Financial plan"':'')+'>'+LABEL[k]+(done?'<span class="dot" aria-label="done"></span>':'')+'</a>';}).join("");
+  var on=stepsEl.querySelector(".on");if(on&&on.scrollIntoView)on.scrollIntoView({block:"nearest",inline:"center"});
+}
+function renderLive(){var v=viewFor(cur);["live","live2","live3","live4","live5","live6","live7"].forEach(function(id){if(!v[id])return;var h=v[id]();var el=document.getElementById(id);if(el&&h!==null)el.innerHTML=h;});mathify(viewEl);}
+function show(k){
+  if(!VIEWS[k])k="plan";cur=k;var v=viewFor(k);
+  viewEl.innerHTML='<div class="view" style="display:flex;flex-direction:column;gap:16px">'+v.stat()+'</div>';
+  ["ivList","ideaTable","testList"].forEach(function(h){if(v[h])v[h]();});if(k==="part-e")drawTimer();
+  renderLive();renderSteps();
+  var i=ORDER.indexOf(k);document.getElementById("prev").disabled=i===0;
+  document.getElementById("next").textContent=(i===ORDER.length-1||i<0)?"Back to Plan":"Next ›";
+  window.scrollTo(0,0);
+}
+function route(){show((location.hash||"#plan").slice(1));}
+window.addEventListener("hashchange",route);
+document.getElementById("prev").addEventListener("click",function(){var i=ORDER.indexOf(cur);if(i<0)location.hash="plan";else if(i>0)location.hash=ORDER[i-1];});
+document.getElementById("next").addEventListener("click",function(){var i=ORDER.indexOf(cur);location.hash=ORDER[(i+1)%ORDER.length];});
+function toast(m){var t=document.getElementById("toast");t.textContent=m;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(function(){t.hidden=true;},2200);}
+function copyText(txt,box){var fb=function(){if(box){box.hidden=false;box.value=txt;box.focus();box.select();}toast("Select all and copy");};try{navigator.clipboard.writeText(txt).then(function(){toast("Copied");},fb);}catch(err){fb();}}
+
+viewEl.addEventListener("input",function(e){
+  var el=e.target,k=el.getAttribute("data-k");if(!k||el.tagName==="SELECT")return;
+  var v=el.value;if(el.type==="number"){var n=num(v);v=n===null?"":n;}
+  set(k,v);if(/^(fin|vp|interviews|tests|ideas)/.test(k))S.example=false;save();renderLive();
+  if(/^team\.members/.test(k))document.querySelectorAll("select[data-role]").forEach(function(sel){Array.prototype.forEach.call(sel.options,function(o,i){o.textContent=memberName(i);});});
+});
+viewEl.addEventListener("change",function(e){
+  var el=e.target;
+  if(el.getAttribute("data-step")){S.steps[el.getAttribute("data-step")]=el.checked;save();renderSteps();renderLive();return;}
+  if(el.getAttribute("data-permit")){S.permits[el.getAttribute("data-permit")]=el.checked;save();renderLive();return;}
+  if(el.getAttribute("data-role")){S.team.roles[el.getAttribute("data-role")]=Number(el.value);save();renderLive();return;}
+  if(el.tagName==="SELECT"&&el.getAttribute("data-k")){set(el.getAttribute("data-k"),el.value);save();renderLive();}
+});
+viewEl.addEventListener("submit",function(e){
+  if(e.target.id!=="pinForm")return;e.preventDefault();
+  var inp=document.getElementById("pin"),msg=document.getElementById("pinMsg");
+  var wait=Math.ceil((tcWaitUntil-Date.now())/1000);
+  if(wait>0){msg.textContent="Too many tries. Wait "+wait+" seconds, then try again.";return;}
+  var tries;try{tries=sha256hex("bbsi-teacher-check|"+inp.value.trim());}catch(err){tries=Promise.reject(err);}
+  tries.then(function(h){
+    if(h===TC_HASH){tcOpen=true;tcFails=0;try{sessionStorage.setItem("tcOpen",TC_HASH);}catch(e2){}show("teacher");toast("Teacher Check unlocked");}
+    else{tcFails++;inp.value="";inp.focus();
+      if(tcFails>=5){tcFails=0;tcWaitUntil=Date.now()+30000;msg.textContent="That PIN is not correct. Too many tries: wait 30 seconds.";}
+      else msg.textContent="That PIN is not correct.";}
+  },function(){msg.textContent="This browser cannot check the PIN. Open the app from its https:// link.";});
+});
+viewEl.addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  function rm(attr,arr,redraw){if(!b.hasAttribute(attr))return false;arr.splice(Number(b.getAttribute(attr)),1);S.example=false;save();redraw();renderLive();return true;}
+  if(rm("data-rmiv",S.interviews,function(){VIEWS["part-a"].ivList();}))return;
+  if(rm("data-rmidea",S.ideas,function(){VIEWS["part-a"].ideaTable();}))return;
+  if(rm("data-rmtest",S.tests,function(){VIEWS["part-b"].testList();}))return;
+  if(b.hasAttribute("data-rmfin")){var pr=b.getAttribute("data-rmfin").split(".");S.fin[pr[0]].splice(Number(pr[1]),1);S.example=false;save();show(cur);return;}
+  if(b.hasAttribute("data-addfin")){var key=b.getAttribute("data-addfin");S.fin[key].push(key==="startup"?{item:"",qty:1,s1:"",s2:""}:key==="fixed"?{item:"",amt:""}:{item:"",s1:"",s2:""});save();show(cur);return;}
+  var a=b.getAttribute("data-act");
+  if(a==="addIv"){S.interviews.push({who:"",problem:"",wish:""});save();VIEWS["part-a"].ivList();renderLive();}
+  if(a==="addIdea"){var s={};CRIT.forEach(function(c){s[c[0]]="";});S.ideas.push({name:"",s:s});save();VIEWS["part-a"].ideaTable();renderLive();}
+  if(a==="addTest"){S.tests.push({who:"",liked:"",disliked:"",pay:""});save();VIEWS["part-b"].testList();renderLive();}
+  if(a==="tPitch"||a==="tQA"){TM.mode=a==="tPitch"?0:1;TM.run=false;clearInterval(TM.iv);TM.left=TM.mode?180:300;drawTimer();}
+  if(a==="tStart"){TM.run=!TM.run;clearInterval(TM.iv);if(TM.run)TM.iv=setInterval(tick,1000);drawTimer();}
+  if(a==="tReset"){TM.run=false;clearInterval(TM.iv);TM.left=TM.mode?180:300;drawTimer();}
+  if(a==="clear"){document.getElementById("confirmClear").hidden=false;}
+  if(a==="clearNo"){document.getElementById("confirmClear").hidden=true;}
+  if(a==="clearYes"){var bl=clone(EXAMPLE);bl.example=false;bl.team=S.team;bl.tc=S.tc;bl.steps=S.steps;
+    bl.interviews=[{who:"",problem:"",wish:""}];bl.observe="";Object.keys(bl.fish).forEach(function(k){bl.fish[k]="";});bl.tree={effects:"",core:"",causes:""};
+    var s0={};CRIT.forEach(function(c){s0[c[0]]="";});bl.ideas=[{name:"",s:s0}];
+    Object.keys(bl.vp).forEach(function(k){bl.vp[k]="";});bl.proto="";bl.tests=[{who:"",liked:"",disliked:"",pay:""}];bl.changes="";
+    bl.fin={startup:[{item:"",qty:1,s1:"",s2:""}],fixed:[{item:"",amt:""}],variable:[{item:"",s1:"",s2:""}],units:"",markup:"",round:1,months:["","",""],drop:30,buffer:"",sources:""};
+    S=bl;save();location.hash="part-a";show("part-a");toast("Form cleared");}
+  if(a==="tcLock"){tcOpen=false;try{sessionStorage.removeItem("tcOpen");}catch(e3){}location.hash="plan";toast("Teacher Check locked");}
+  if(a==="tcClear"){S.tc=clone(EXAMPLE.tc);save();show("teacher");toast("Cleared");}
+  if(a==="copyAll")copyText(allText(),document.getElementById("copyBox"));
+});
+
+route();
+if("serviceWorker" in navigator&&location.protocol==="https:"&&!/claude\.ai|claudeusercontent/.test(location.hostname)){try{navigator.serviceWorker.register("sw.js").catch(function(){});}catch(e){}}
+})();
+</script>
+<script>
+window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"]]},
+  svg:{fontCache:"global",displayAlign:"left",displayIndent:"0"},
+  options:{enableMenu:false,skipHtmlTags:["script","noscript","style","textarea","pre","code","input","select","option"]},
+  startup:{typeset:false,ready:function(){MathJax.startup.defaultReady();MathJax.startup.promise.then(function(){if(window.__mathify)window.__mathify();});}}};
+</script>
+<script src="../lib/mathjax/tex-svg.js" async></script>
+<!--/APP-->
+</body>
+</html>
