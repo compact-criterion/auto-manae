@@ -122,6 +122,9 @@ nav.pager button{flex:1}
 .warn{color:var(--bad);font-weight:700}
 .muted{color:var(--muted)}
 .count{font-size:.88rem;color:var(--muted)}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:var(--ink)}
+details.card>summary{cursor:pointer;font-family:var(--f-display);font-weight:600;font-size:1.15rem;list-style-position:inside}
+.teacher-tag{display:inline-block;background:var(--ink);color:var(--paper);border-radius:8px;padding:2px 8px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:20px;font-weight:700;z-index:20}
 @media (prefers-reduced-motion: no-preference){.view{animation:rise .25s ease-out}@keyframes rise{from{transform:translateY(6px)}to{transform:none}}}
 </style>
@@ -156,7 +159,9 @@ var EXAMPLE={
         xdef:"number of refills bought at the membership price (₱25 each)",
         ydef:"number of refills bought by regular delivery (₱37 each)",
         p1:[4,6], p2:[12,10]},
-  letter:"", reflection:"", checks:{}
+  letter:"", reflection:"", checks:{},
+  tc:{who:"", unit:"use", units:"uses", o1:{b:"",m:""}, o2:{b:"",m:""}, budget:"", step:5,
+      ineq:{a:"",b:"",op:"≤",c:"",p1:["",""],p2:["",""]}}
 };
 function clone(o){return JSON.parse(JSON.stringify(o));}
 var S=load();
@@ -387,6 +392,7 @@ VIEWS["plan"]={
     '<tr><td><b>1 Beginning</b></td><td>Major errors; mostly incomplete; little explanation.</td><td>40%</td></tr>'+
     '<tr><td><b>0</b></td><td>The part is missing.</td><td>0</td></tr></table></div></div>'+
     '<div class="card"><h3>Copy all your steps</h3><p class="muted">Copies the equations, tables, solutions, and drafts as plain text so you can print or paste them.</p><button type="button" class="primary" data-act="copyAll">Copy all as text</button><textarea id="copyBox" hidden readonly></textarea></div>'+
+    '<div class="card"><h3>For teachers</h3><p class="muted">Check a student’s answers: type in their numbers and see the full answer key.</p><a class="btn" href="#teacher">Open Teacher Check</a></div>'+
     '<div class="card"><h3>Reminders</h3><ul class="check" style="gap:6px"><li>• This is an <b>individual</b> task. Copied work gets no points for the copied parts.</li><li>• Use long bond paper in a clear folder. Handwritten or printed is fine.</li><li>• All graphs must be on graph paper or drawn to scale.</li></ul></div>';
   },
   live:function(){
@@ -655,6 +661,47 @@ VIEWS["part-g"]={
   live:function(){return wc(S.reflection)+" words";}
 };
 
+/* TEACHER CHECK */
+function withT(fn){
+  var keep=S,t=keep.tc;
+  S={example:false,expense:"",unit:t.unit||"use",units:t.units||"uses",
+     o1:{name:"Option 1",b:t.o1.b,m:t.o1.m},o2:{name:"Option 2",b:t.o2.b,m:t.o2.m},
+     budget:t.budget,usual:"",tbl:{start:0,step:num(t.step)||5},showBudget:true,method:"sub",ineq:t.ineq,checks:{},who:t.who||""};
+  try{return fn();}finally{S=keep;}
+}
+VIEWS["teacher"]={
+  stat:function(){
+    var I=S.tc.ineq;
+    return '<div><span class="teacher-tag">For teachers</span><h2>Teacher Check</h2></div>'+
+    '<p class="lead">Type in one student’s numbers to see the answer key. The student screens on this phone are not changed.</p>'+
+    '<div class="card">'+field("tc.who","Student","name or section (optional)")+'<div class="grid2">'+field("tc.unit","One use is called","")+field("tc.units","Plural","")+'</div></div>'+
+    '<div class="card o1"><h3 class="o1t">Option 1</h3><div class="grid2">'+field("tc.o1.b","Starting cost","","peso")+field("tc.o1.m","Cost per use","","peso")+'</div></div>'+
+    '<div class="card o2"><h3 class="o2t">Option 2</h3><div class="grid2">'+field("tc.o2.b","Starting cost","","peso")+field("tc.o2.m","Cost per use","","peso")+'</div></div>'+
+    '<div class="card"><div class="grid2">'+field("tc.budget","Monthly budget","","peso")+field("tc.step","Student’s table counts by","so the table matches theirs","number",' min="1"')+'</div></div>'+
+    '<details class="card"><summary>Part E.2 inequality (optional)</summary><p class="muted">The student’s own ax + by ? c and the two points they tested.</p>'+
+      '<div class="grid2">'+field("tc.ineq.a","a","","number")+field("tc.ineq.b","b","","number")+'</div>'+
+      '<div class="grid2"><label for="f-tc-ineq-op">Symbol<select id="f-tc-ineq-op" data-k="tc.ineq.op">'+["≤","<","≥",">"].map(function(o){return '<option'+(I.op===o?" selected":"")+'>'+o+'</option>';}).join("")+'</select></label>'+field("tc.ineq.c","c","","number")+'</div>'+
+      '<div class="grid2">'+field("tc.ineq.p1.0","P1 x","","number")+field("tc.ineq.p1.1","P1 y","","number")+'</div>'+
+      '<div class="grid2">'+field("tc.ineq.p2.0","P2 x","","number")+field("tc.ineq.p2.1","P2 y","","number")+'</div></details>'+
+    '<div id="live" style="display:flex;flex-direction:column;gap:16px"></div>'+
+    '<button type="button" data-act="tcClear">Clear for the next student</button>';
+  },
+  live:function(){
+    return withT(function(){
+      var M=model(); if(!M.ok) return '<div class="card"><p class="warn">Enter both options’ starting cost and cost per use to see the answer key.</p></div>';
+      var out='<div class="card"><h3>Answer key'+(S.who?': '+esc(S.who):'')+'</h3><p class="muted">Compare each part with the student’s folder.</p></div>';
+      out+='<details class="card" open><summary>Part B · equations and tables</summary>'+VIEWS["part-b"].live()+VIEWS["part-b"].live2()+'</details>';
+      out+='<details class="card" open><summary>Part C · graph</summary><div class="figure">'+graphLines(M,{budget:true,id:"t"}).svg+'</div><p class="muted">Intercepts (0, '+f(M.b1)+') and (0, '+f(M.b2)+').</p></details>';
+      S.method="sub"; var sub=VIEWS["part-d"].live3(); S.method="elim"; var el=VIEWS["part-d"].live3();
+      out+='<details class="card" open><summary>Part D · break-even point</summary>'+VIEWS["part-d"].live2()+'<h3>Substitution</h3>'+sub+'<h3>Elimination</h3>'+el+VIEWS["part-d"].live4()+VIEWS["part-d"].live5()+'</details>';
+      out+='<details class="card" open><summary>Part E.1 · budget limit</summary><div style="display:flex;flex-direction:column;gap:16px">'+VIEWS["part-e"].live()+'</div></details>';
+      var I=S.ineq; if(num(I.a)!==null&&num(I.b)!==null&&num(I.c)!==null)
+        out+='<details class="card" open><summary>Part E.2 · inequality in two variables</summary>'+VIEWS["part-e"].live2()+VIEWS["part-e"].live3()+'</details>';
+      return out;
+    });
+  }
+};
+
 /* ---------- plain-text export ---------- */
 function allText(){
   var M=model(), t=[];
@@ -687,17 +734,17 @@ function renderLive(){
     if(!v[id]) return; var h=v[id](); var el=document.getElementById(id); if(el&&h!==null) el.innerHTML=h;});
 }
 function show(k){
-  if(ORDER.indexOf(k)<0) k="plan"; cur=k;
+  if(!VIEWS[k]) k="plan"; cur=k;
   viewEl.innerHTML='<div class="view" style="display:flex;flex-direction:column;gap:16px">'+VIEWS[k].stat()+'</div>';
   renderLive(); renderSteps();
   var i=ORDER.indexOf(k);
   document.getElementById("prev").disabled=i===0;
-  document.getElementById("next").textContent=i===ORDER.length-1?"Back to Plan":"Next ›";
+  document.getElementById("next").textContent=(i===ORDER.length-1||i<0)?"Back to Plan":"Next ›";
   window.scrollTo(0,0);
 }
 function route(){show((location.hash||"#plan").slice(1));}
 window.addEventListener("hashchange",route);
-document.getElementById("prev").addEventListener("click",function(){var i=ORDER.indexOf(cur);if(i>0)location.hash=ORDER[i-1];});
+document.getElementById("prev").addEventListener("click",function(){var i=ORDER.indexOf(cur);if(i<0)location.hash="plan";else if(i>0)location.hash=ORDER[i-1];});
 document.getElementById("next").addEventListener("click",function(){var i=ORDER.indexOf(cur);location.hash=ORDER[(i+1)%ORDER.length];});
 
 function toast(msg){var t=document.getElementById("toast");t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(function(){t.hidden=true;},2200);}
@@ -730,6 +777,7 @@ viewEl.addEventListener("click",function(e){
   if(a==="clearYes"){var blank=clone(EXAMPLE);blank.example=false;blank.expense="";blank.unit="use";blank.units="uses";
     blank.o1={name:"",b:"",m:""};blank.o2={name:"",b:"",m:""};blank.budget="";blank.usual="";blank.source="";
     blank.ineq={a:"",b:"",op:"≤",c:"",xdef:"",ydef:"",p1:["",""],p2:["",""]};S=blank;save();location.hash="part-a";show("part-a");toast("Form cleared");}
+  if(a==="tcClear"){S.tc=clone(EXAMPLE.tc);save();show("teacher");toast("Cleared");}
   if(a==="rmPhoto"){S.photo=null;save();renderLive();}
   if(a==="fillIneq"){var M=model();if(!M.ok){toast("Fill in Part A first");return;}
     S.ineq.a=M.m1;S.ineq.b=M.m2;S.ineq.c=M.B!==null?M.B:"";S.ineq.op="≤";

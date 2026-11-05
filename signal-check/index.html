@@ -127,6 +127,9 @@ nav.pager button{flex:1}
 .warn{color:var(--bad);font-weight:700}
 .muted{color:var(--muted)}
 .count{font-size:.88rem;color:var(--muted)}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:var(--ink);font-weight:700;border-radius:10px;border:1.5px solid var(--btn-border);background:var(--surface);padding:10px 16px;min-height:46px}
+details.card>summary{cursor:pointer;font-family:var(--f-display);font-weight:600;font-size:1.15rem;list-style-position:inside}
+.teacher-tag{display:inline-block;background:var(--ink);color:var(--paper);border-radius:8px;padding:2px 8px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:20px;font-weight:700;z-index:20}
 @media (prefers-reduced-motion: no-preference){.view{animation:rise .25s ease-out}@keyframes rise{from{transform:translateY(6px)}to{transform:none}}}
 </style>
@@ -159,7 +162,10 @@ var EXAMPLE={
   lm:[{name:"Home",x:1,y:1},{name:"School",x:5,y:2},{name:"Chapel",x:3,y:6},{name:"Barangay hall",x:8,y:3},{name:"Market",x:10,y:5},{name:"Health center",x:7,y:-1}],
   survey:EXAMPLE_SURVEY, exSurvey:true,
   claim:{text:"“Strong signal everywhere in your barangay — 99% coverage!”", source:"Network A poster at the mall (photo attached)", about:"A", pct:99, verdict:"", discussion:""},
-  report:"", reflection:"", checks:{}
+  report:"", reflection:"", checks:{},
+  tc:{who:"", scale:100, A:{h:"",k:"",r:""}, B:{h:"",k:"",r:""},
+      lm:[{name:"",x:"",y:""},{name:"",x:"",y:""},{name:"",x:"",y:""},{name:"",x:"",y:""},{name:"",x:"",y:""}],
+      c:{AG:"",AW:"",BG:"",BW:"",OG:"",OW:"",In:"",InG:""}, about:"A", pct:""}
 };
 function clone(o){return JSON.parse(JSON.stringify(o));}
 var S=load();
@@ -297,6 +303,7 @@ VIEWS["plan"]={
     '<tr><td><b>1 Beginning</b></td><td>Major errors; mostly incomplete; little explanation.</td><td>40%</td></tr>'+
     '<tr><td><b>0</b></td><td>The part is missing.</td><td>0</td></tr></table></div></div>'+
     '<div class="card"><h3>Copy all your steps</h3><p class="muted">Copies the equations, distances, survey table, probabilities, and drafts as plain text.</p><button type="button" class="primary" data-act="copyAll">Copy all as text</button><textarea id="copyBox" hidden readonly></textarea></div>'+
+    '<div class="card"><h3>For teachers</h3><p class="muted">Check a student’s answers: type in their map and survey counts and see the full answer key.</p><a class="btn" href="#teacher">Open Teacher Check</a></div>'+
     '<div class="card"><h3>Reminders</h3><ul class="check" style="gap:6px"><li>• This is an <b>individual</b> task. Copied work gets no points for the copied parts.</li><li>• Use long bond paper in a clear folder. All graphs on graph paper or drawn to scale.</li><li>• Report your data honestly, even when it does not look the way you hoped.</li></ul></div>';
   },
   live:function(){
@@ -532,6 +539,60 @@ VIEWS["part-f"]={
   live:function(){return wc(S.reflection)+" words";}
 };
 
+/* TEACHER CHECK */
+function cnt(v){var n=parseInt(v,10);return isFinite(n)&&n>0?n:0;}
+function withT(fn){
+  var keep=S,t=keep.tc,c=t.c,recs=[];
+  [["A",cnt(c.AG),cnt(c.AW)],["B",cnt(c.BG),cnt(c.BW)],["O",cnt(c.OG),cnt(c.OW)]].forEach(function(r){
+    for(var i=0;i<r[1];i++)recs.push({n:r[0],g:1,i:0});for(var j=0;j<r[2];j++)recs.push({n:r[0],g:0,i:0});});
+  /* place the inside-area counts: good ones first, then weak */
+  var inG=cnt(c.InG),inAll=cnt(c.In),inW=Math.max(0,inAll-inG);
+  recs.forEach(function(r){if(r.g&&inG>0){r.i=1;inG--;}else if(!r.g&&inW>0){r.i=1;inW--;}});
+  S={example:false,area:"",scale:t.scale,A:{name:"Source A",h:t.A.h,k:t.A.k,r:t.A.r},B:{name:"Source B",h:t.B.h,k:t.B.k,r:t.B.r},
+     lm:t.lm,survey:recs,claim:{text:"",source:"",about:t.about,pct:t.pct,verdict:"",discussion:""},checks:{},who:t.who||"",hasIn:c.In!==""&&c.In!==null};
+  try{return fn();}finally{S=keep;}
+}
+VIEWS["teacher"]={
+  stat:function(){
+    var t=S.tc;
+    function src(k){var cl=k==="A"?"a":"b";return '<div class="card '+cl+'"><h3 class="'+cl+'t">Source '+k+'</h3><div class="grid3">'+field("tc."+k+".h","Center x (h)","","number")+field("tc."+k+".k","Center y (k)","","number")+field("tc."+k+".r","Radius r","","number",' min="0"')+'</div></div>';}
+    return '<div><span class="teacher-tag">For teachers</span><h2>Teacher Check</h2></div>'+
+    '<p class="lead">Type in one student’s map and survey counts to see the answer key. The student screens on this phone are not changed.</p>'+
+    '<div class="card">'+field("tc.who","Student","name or section (optional)")+'</div>'+
+    src("A")+src("B")+
+    '<details class="card" open><summary>Landmarks</summary><div id="tlmList" style="display:flex;flex-direction:column;gap:8px"></div><button type="button" class="small" data-act="addTLm">+ Add landmark</button></details>'+
+    '<div class="card"><h3>Survey counts</h3><p class="muted">Copy these from the student’s survey table.</p>'+
+      '<div class="tablebox"><table><tr><th class="l"></th><th>Good</th><th>Weak</th></tr>'+
+      [["A","Source A"],["B","Source B"],["O","Other"]].map(function(r){return '<tr><td class="l"><b>'+r[1]+'</b></td><td><input type="number" inputmode="numeric" min="0" aria-label="'+r[1]+' good" id="f-tc-c-'+r[0]+'G" data-k="tc.c.'+r[0]+'G" value="'+esc(t.c[r[0]+"G"])+'"></td><td><input type="number" inputmode="numeric" min="0" aria-label="'+r[1]+' weak" id="f-tc-c-'+r[0]+'W" data-k="tc.c.'+r[0]+'W" value="'+esc(t.c[r[0]+"W"])+'"></td></tr>';}).join("")+
+      '</table></div>'+
+      '<div class="grid2">'+field("tc.c.In","Live inside the area (all)","optional, for Part D","number",' min="0"')+field("tc.c.InG","…of those, good signal","optional","number",' min="0"')+'</div></div>'+
+    '<div class="card"><h3>Claim (Part D)</h3><div class="grid2"><label for="f-tc-about">The claim is about<select id="f-tc-about" data-k="tc.about"><option value="A"'+(t.about==="A"?" selected":"")+'>Source A</option><option value="B"'+(t.about==="B"?" selected":"")+'>Source B</option></select></label>'+field("tc.pct","Percent it claims","blank if none","number",' min="0" max="100"')+'</div></div>'+
+    '<div id="live" style="display:flex;flex-direction:column;gap:16px"></div>'+
+    '<button type="button" data-act="tcClear">Clear for the next student</button>';
+  },
+  lmList:function(){
+    var el=document.getElementById("tlmList");if(!el)return;
+    el.innerHTML='<div class="lm count"><span>Name</span><span>x</span><span>y</span><span></span></div>'+(S.tc.lm||[]).map(function(l,i){
+      return '<div class="lm"><input type="text" aria-label="Landmark '+(i+1)+' name" id="f-tlm-'+i+'-name" data-k="tc.lm.'+i+'.name" value="'+esc(l.name)+'"><input type="number" inputmode="decimal" step="any" aria-label="x" id="f-tlm-'+i+'-x" data-k="tc.lm.'+i+'.x" value="'+esc(l.x)+'"><input type="number" inputmode="decimal" step="any" aria-label="y" id="f-tlm-'+i+'-y" data-k="tc.lm.'+i+'.y" value="'+esc(l.y)+'"><button type="button" class="x" data-rmtlm="'+i+'" aria-label="Remove landmark '+(i+1)+'">×</button></div>';}).join("");
+  },
+  live:function(){
+    return withT(function(){
+      var out='<div class="card"><h3>Answer key'+(S.who?': '+esc(S.who):'')+'</h3><p class="muted">Compare each part with the student’s folder.</p></div>';
+      var cA=circ("A"),cB=circ("B");
+      if(cA||cB){
+        out+='<details class="card" open><summary>Part A.1 · circle equations</summary>'+VIEWS["part-a"].live()+'</details>';
+        out+='<details class="card" open><summary>Part A.2 · graph</summary><div class="figure">'+VIEWS["part-a"].live2()+'</div>'+VIEWS["part-a"].live3()+'</details>';
+        if(cA&&cB&&landmarks().length) out+='<details class="card" open><summary>Part A.3 · landmarks</summary>'+VIEWS["part-a"].live4()+'</details>';
+      } else out+='<div class="card"><p class="muted">Enter the two circles to check Part A.</p></div>';
+      if(S.survey.length){
+        out+='<details class="card" open><summary>Part C · probability</summary><div style="display:flex;flex-direction:column;gap:16px">'+VIEWS["part-c"].live()+'</div></details>';
+        out+='<details class="card" open><summary>Part D · claim vs. data</summary>'+VIEWS["part-d"].live()+(S.hasIn?VIEWS["part-d"].live2():'')+'</details>';
+      } else out+='<div class="card"><p class="muted">Enter the survey counts to check Parts C and D.</p></div>';
+      return out;
+    });
+  }
+};
+
 /* ---------- export ---------- */
 function allText(){
   function strip(h){var d=document.createElement("div");d.innerHTML=h.replace(/<br\s*\/?>/g,"\n").replace(/<\/(p|li|div|tr|h3|td|th)>/g,function(m){return m==="</td>"||m==="</th>"?" | ":"\n";});return d.textContent.replace(/\n{3,}/g,"\n\n").trim();}
@@ -552,17 +613,17 @@ function renderSteps(){
 }
 function renderLive(){var v=VIEWS[cur];["live","live2","live3","live4"].forEach(function(id){if(!v[id])return;var h=v[id]();var el=document.getElementById(id);if(el&&h!==null)el.innerHTML=h;});}
 function show(k){
-  if(ORDER.indexOf(k)<0)k="plan";cur=k;
+  if(!VIEWS[k])k="plan";cur=k;
   viewEl.innerHTML='<div class="view" style="display:flex;flex-direction:column;gap:16px">'+VIEWS[k].stat()+'</div>';
   if(VIEWS[k].lmList)VIEWS[k].lmList();
   renderLive();renderSteps();
   var i=ORDER.indexOf(k);document.getElementById("prev").disabled=i===0;
-  document.getElementById("next").textContent=i===ORDER.length-1?"Back to Plan":"Next ›";
+  document.getElementById("next").textContent=(i===ORDER.length-1||i<0)?"Back to Plan":"Next ›";
   window.scrollTo(0,0);
 }
 function route(){show((location.hash||"#plan").slice(1));}
 window.addEventListener("hashchange",route);
-document.getElementById("prev").addEventListener("click",function(){var i=ORDER.indexOf(cur);if(i>0)location.hash=ORDER[i-1];});
+document.getElementById("prev").addEventListener("click",function(){var i=ORDER.indexOf(cur);if(i<0)location.hash="plan";else if(i>0)location.hash=ORDER[i-1];});
 document.getElementById("next").addEventListener("click",function(){var i=ORDER.indexOf(cur);location.hash=ORDER[(i+1)%ORDER.length];});
 function toast(m){var t=document.getElementById("toast");t.textContent=m;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(function(){t.hidden=true;},2000);}
 
@@ -582,9 +643,12 @@ viewEl.addEventListener("click",function(e){
     b.parentNode.querySelectorAll("button").forEach(function(x){x.setAttribute("aria-pressed",String(x===b));});return;}
   if(b.hasAttribute("data-verdict")){S.claim.verdict=b.getAttribute("data-verdict");save();b.parentNode.querySelectorAll("button").forEach(function(x){x.setAttribute("aria-pressed",String(x===b));});return;}
   if(b.hasAttribute("data-rmlm")){S.lm.splice(Number(b.getAttribute("data-rmlm")),1);S.example=false;save();VIEWS["part-a"].lmList();renderLive();return;}
+  if(b.hasAttribute("data-rmtlm")){S.tc.lm.splice(Number(b.getAttribute("data-rmtlm")),1);save();VIEWS["teacher"].lmList();renderLive();return;}
   if(b.hasAttribute("data-rmresp")){S.survey.splice(Number(b.getAttribute("data-rmresp")),1);save();renderLive();toast("Response deleted");return;}
   var a=b.getAttribute("data-act");
   if(a==="addLm"){S.lm.push({name:"",x:"",y:""});save();VIEWS["part-a"].lmList();renderLive();var ins=document.querySelectorAll("#lmList input[type=text]");if(ins.length)ins[ins.length-1].focus();}
+  if(a==="addTLm"){S.tc.lm.push({name:"",x:"",y:""});save();VIEWS["teacher"].lmList();renderLive();}
+  if(a==="tcClear"){S.tc=clone(EXAMPLE.tc);save();show("teacher");toast("Cleared");}
   if(a==="addResp"){if(S.exSurvey){S.survey=[];S.exSurvey=false;toast("Example responses removed. Response 1 added");}else toast("Response "+(S.survey.length+1)+" added");
     S.survey.push({n:draft.n,g:draft.g,i:draft.i});save();renderLive();}
   if(a==="clearSurvey"){document.getElementById("confirmSurvey").hidden=false;}

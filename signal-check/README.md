@@ -13,6 +13,10 @@ probability of compound events).
 | D | Claim vs. data bar chart, representativeness checklist, verdict and discussion |
 | E, F | Findings summary, report outline, Ephesians 4:25 prompts, and draft boxes (students write these themselves) |
 
+## Teacher Check
+
+Open **Plan → Open Teacher Check** (or add `#teacher` to the link). Type in a student's circles, landmarks and survey counts to get the full answer key for Parts A, C and D. It is kept separate from the student screens on the same phone; **Clear for the next student** resets it.
+
 Everything is saved in the phone's browser. Works offline after the first visit.
 
 Link for students (GitHub Pages): `https://compact-criterion.github.io/auto-manae/signal-check/`
