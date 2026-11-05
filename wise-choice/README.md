@@ -20,7 +20,7 @@ their own numbers:
 
 ## Teacher Check
 
-Open **Plan → Open Teacher Check** (or add `#teacher` to the link). Type in a student's two options and budget to get the full answer key for Parts B to E (both solving methods). It is kept separate from the student screens on the same phone; **Clear for the next student** resets it.
+Open **Plan → Open Teacher Check** (or add `#teacher` to the link). It asks for the teacher PIN first; only a SHA-256 hash of the PIN is stored in the code (`TC_HASH`). Type in a student's two options and budget to get the full answer key for Parts B to E (both solving methods). It is kept separate from the student screens on the same phone; **Clear for the next student** resets it.
 
 Everything is saved in the phone's browser (no account, no server). It works offline after
 the first visit and can be added to the home screen ("Install app" / "Add to Home Screen").

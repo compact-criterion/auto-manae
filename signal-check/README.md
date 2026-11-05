@@ -15,7 +15,7 @@ probability of compound events).
 
 ## Teacher Check
 
-Open **Plan → Open Teacher Check** (or add `#teacher` to the link). Type in a student's circles, landmarks and survey counts to get the full answer key for Parts A, C and D. It is kept separate from the student screens on the same phone; **Clear for the next student** resets it.
+Open **Plan → Open Teacher Check** (or add `#teacher` to the link). It asks for the teacher PIN first; only a SHA-256 hash of the PIN is stored in the code (`TC_HASH`). Type in a student's circles, landmarks and survey counts to get the full answer key for Parts A, C and D. It is kept separate from the student screens on the same phone; **Clear for the next student** resets it.
 
 Everything is saved in the phone's browser. Works offline after the first visit.
 

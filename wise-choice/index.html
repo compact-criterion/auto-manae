@@ -661,6 +661,20 @@ VIEWS["part-g"]={
   live:function(){return wc(S.reflection)+" words";}
 };
 
+/* TEACHER PIN: only a SHA-256 hash of the PIN is kept here */
+var TC_HASH="de1eb175ef518fa562e531a56601cad6b08d1a3979d91559594f687100332128";
+var tcOpen=false; try{tcOpen=sessionStorage.getItem("tcOpen")===TC_HASH;}catch(e){}
+var tcFails=0, tcWaitUntil=0;
+function sha256hex(t){return crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)).then(function(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return ("0"+x.toString(16)).slice(-2);}).join("");});}
+function viewFor(k){return (k==="teacher"&&!tcOpen)?VIEWS["teacher-lock"]:VIEWS[k];}
+VIEWS["teacher-lock"]={stat:function(){
+  return '<div><span class="teacher-tag">For teachers</span><h2>Teacher Check</h2></div>'+
+  '<p class="lead">This screen shows answer keys, so it is locked. Enter the teacher PIN to open it.</p>'+
+  '<form class="card" id="pinForm" autocomplete="off"><label for="pin">Teacher PIN<input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="40"></label>'+
+  '<button type="submit" class="primary">Unlock</button><p class="warn" id="pinMsg" aria-live="polite"></p></form>'+
+  '<p class="count">It stays unlocked on this phone until you close the browser or tap Lock.</p>';
+}};
+
 /* TEACHER CHECK */
 function withT(fn){
   var keep=S,t=keep.tc;
@@ -684,7 +698,7 @@ VIEWS["teacher"]={
       '<div class="grid2">'+field("tc.ineq.p1.0","P1 x","","number")+field("tc.ineq.p1.1","P1 y","","number")+'</div>'+
       '<div class="grid2">'+field("tc.ineq.p2.0","P2 x","","number")+field("tc.ineq.p2.1","P2 y","","number")+'</div></details>'+
     '<div id="live" style="display:flex;flex-direction:column;gap:16px"></div>'+
-    '<button type="button" data-act="tcClear">Clear for the next student</button>';
+    '<div class="seg"><button type="button" data-act="tcClear">Clear for the next student</button><button type="button" data-act="tcLock">Lock Teacher Check</button></div>';
   },
   live:function(){
     return withT(function(){
@@ -729,13 +743,13 @@ function renderSteps(){
   var on=stepsEl.querySelector(".on"); if(on&&on.scrollIntoView) on.scrollIntoView({block:"nearest",inline:"center"});
 }
 function renderLive(){
-  var v=VIEWS[cur];
+  var v=viewFor(cur);
   ["live","live2","live3","live4","live5"].forEach(function(id){
     if(!v[id]) return; var h=v[id](); var el=document.getElementById(id); if(el&&h!==null) el.innerHTML=h;});
 }
 function show(k){
   if(!VIEWS[k]) k="plan"; cur=k;
-  viewEl.innerHTML='<div class="view" style="display:flex;flex-direction:column;gap:16px">'+VIEWS[k].stat()+'</div>';
+  viewEl.innerHTML='<div class="view" style="display:flex;flex-direction:column;gap:16px">'+viewFor(k).stat()+'</div>';
   renderLive(); renderSteps();
   var i=ORDER.indexOf(k);
   document.getElementById("prev").disabled=i===0;
@@ -768,6 +782,19 @@ viewEl.addEventListener("change",function(e){
     rd.readAsDataURL(el.files[0]);
   }
 });
+viewEl.addEventListener("submit",function(e){
+  if(e.target.id!=="pinForm")return; e.preventDefault();
+  var inp=document.getElementById("pin"),msg=document.getElementById("pinMsg");
+  var wait=Math.ceil((tcWaitUntil-Date.now())/1000);
+  if(wait>0){msg.textContent="Too many tries. Wait "+wait+" seconds, then try again.";return;}
+  var tries;try{tries=sha256hex("bbsi-teacher-check|"+inp.value.trim());}catch(err){tries=Promise.reject(err);}
+  tries.then(function(h){
+    if(h===TC_HASH){tcOpen=true;tcFails=0;try{sessionStorage.setItem("tcOpen",TC_HASH);}catch(e2){}show("teacher");toast("Teacher Check unlocked");}
+    else{tcFails++;inp.value="";inp.focus();
+      if(tcFails>=5){tcFails=0;tcWaitUntil=Date.now()+30000;msg.textContent="That PIN is not correct. Too many tries: wait 30 seconds.";}
+      else msg.textContent="That PIN is not correct.";}
+  },function(){msg.textContent="This browser cannot check the PIN. Open the app from its https:// link.";});
+});
 viewEl.addEventListener("click",function(e){
   var b=e.target.closest("button"); if(!b) return;
   var m=b.getAttribute("data-method"); if(m){S.method=m;save();show(cur);return;}
@@ -777,6 +804,7 @@ viewEl.addEventListener("click",function(e){
   if(a==="clearYes"){var blank=clone(EXAMPLE);blank.example=false;blank.expense="";blank.unit="use";blank.units="uses";
     blank.o1={name:"",b:"",m:""};blank.o2={name:"",b:"",m:""};blank.budget="";blank.usual="";blank.source="";
     blank.ineq={a:"",b:"",op:"≤",c:"",xdef:"",ydef:"",p1:["",""],p2:["",""]};S=blank;save();location.hash="part-a";show("part-a");toast("Form cleared");}
+  if(a==="tcLock"){tcOpen=false;try{sessionStorage.removeItem("tcOpen");}catch(e3){}location.hash="plan";toast("Teacher Check locked");}
   if(a==="tcClear"){S.tc=clone(EXAMPLE.tc);save();show("teacher");toast("Cleared");}
   if(a==="rmPhoto"){S.photo=null;save();renderLive();}
   if(a==="fillIneq"){var M=model();if(!M.ok){toast("Fill in Part A first");return;}

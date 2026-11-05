@@ -539,6 +539,20 @@ VIEWS["part-f"]={
   live:function(){return wc(S.reflection)+" words";}
 };
 
+/* TEACHER PIN: only a SHA-256 hash of the PIN is kept here */
+var TC_HASH="de1eb175ef518fa562e531a56601cad6b08d1a3979d91559594f687100332128";
+var tcOpen=false; try{tcOpen=sessionStorage.getItem("tcOpen")===TC_HASH;}catch(e){}
+var tcFails=0, tcWaitUntil=0;
+function sha256hex(t){return crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)).then(function(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return ("0"+x.toString(16)).slice(-2);}).join("");});}
+function viewFor(k){return (k==="teacher"&&!tcOpen)?VIEWS["teacher-lock"]:VIEWS[k];}
+VIEWS["teacher-lock"]={stat:function(){
+  return '<div><span class="teacher-tag">For teachers</span><h2>Teacher Check</h2></div>'+
+  '<p class="lead">This screen shows answer keys, so it is locked. Enter the teacher PIN to open it.</p>'+
+  '<form class="card" id="pinForm" autocomplete="off"><label for="pin">Teacher PIN<input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="40"></label>'+
+  '<button type="submit" class="primary">Unlock</button><p class="warn" id="pinMsg" aria-live="polite"></p></form>'+
+  '<p class="count">It stays unlocked on this phone until you close the browser or tap Lock.</p>';
+}};
+
 /* TEACHER CHECK */
 function cnt(v){var n=parseInt(v,10);return isFinite(n)&&n>0?n:0;}
 function withT(fn){
@@ -568,7 +582,7 @@ VIEWS["teacher"]={
       '<div class="grid2">'+field("tc.c.In","Live inside the area (all)","optional, for Part D","number",' min="0"')+field("tc.c.InG","…of those, good signal","optional","number",' min="0"')+'</div></div>'+
     '<div class="card"><h3>Claim (Part D)</h3><div class="grid2"><label for="f-tc-about">The claim is about<select id="f-tc-about" data-k="tc.about"><option value="A"'+(t.about==="A"?" selected":"")+'>Source A</option><option value="B"'+(t.about==="B"?" selected":"")+'>Source B</option></select></label>'+field("tc.pct","Percent it claims","blank if none","number",' min="0" max="100"')+'</div></div>'+
     '<div id="live" style="display:flex;flex-direction:column;gap:16px"></div>'+
-    '<button type="button" data-act="tcClear">Clear for the next student</button>';
+    '<div class="seg"><button type="button" data-act="tcClear">Clear for the next student</button><button type="button" data-act="tcLock">Lock Teacher Check</button></div>';
   },
   lmList:function(){
     var el=document.getElementById("tlmList");if(!el)return;
@@ -611,11 +625,11 @@ function renderSteps(){
   stepsEl.innerHTML=ORDER.map(function(k){var done=CHECKS[k]&&partProgress(k)===1;return '<a href="#'+k+'"'+(k===cur?' class="on" aria-current="page"':'')+'>'+LABEL[k]+(done?'<span class="dot" aria-label="done"></span>':'')+'</a>';}).join("");
   var on=stepsEl.querySelector(".on");if(on&&on.scrollIntoView)on.scrollIntoView({block:"nearest",inline:"center"});
 }
-function renderLive(){var v=VIEWS[cur];["live","live2","live3","live4"].forEach(function(id){if(!v[id])return;var h=v[id]();var el=document.getElementById(id);if(el&&h!==null)el.innerHTML=h;});}
+function renderLive(){var v=viewFor(cur);["live","live2","live3","live4"].forEach(function(id){if(!v[id])return;var h=v[id]();var el=document.getElementById(id);if(el&&h!==null)el.innerHTML=h;});}
 function show(k){
   if(!VIEWS[k])k="plan";cur=k;
-  viewEl.innerHTML='<div class="view" style="display:flex;flex-direction:column;gap:16px">'+VIEWS[k].stat()+'</div>';
-  if(VIEWS[k].lmList)VIEWS[k].lmList();
+  viewEl.innerHTML='<div class="view" style="display:flex;flex-direction:column;gap:16px">'+viewFor(k).stat()+'</div>';
+  if(viewFor(k).lmList)viewFor(k).lmList();
   renderLive();renderSteps();
   var i=ORDER.indexOf(k);document.getElementById("prev").disabled=i===0;
   document.getElementById("next").textContent=(i===ORDER.length-1||i<0)?"Back to Plan":"Next ›";
@@ -637,6 +651,19 @@ viewEl.addEventListener("change",function(e){
   if(el.getAttribute("data-check")){S.checks[el.getAttribute("data-check")]=el.checked;save();renderSteps();renderLive();return;}
   if(el.tagName==="SELECT"){set(el.getAttribute("data-k"),el.value);save();renderLive();}
 });
+viewEl.addEventListener("submit",function(e){
+  if(e.target.id!=="pinForm")return; e.preventDefault();
+  var inp=document.getElementById("pin"),msg=document.getElementById("pinMsg");
+  var wait=Math.ceil((tcWaitUntil-Date.now())/1000);
+  if(wait>0){msg.textContent="Too many tries. Wait "+wait+" seconds, then try again.";return;}
+  var tries;try{tries=sha256hex("bbsi-teacher-check|"+inp.value.trim());}catch(err){tries=Promise.reject(err);}
+  tries.then(function(h){
+    if(h===TC_HASH){tcOpen=true;tcFails=0;try{sessionStorage.setItem("tcOpen",TC_HASH);}catch(e2){}show("teacher");toast("Teacher Check unlocked");}
+    else{tcFails++;inp.value="";inp.focus();
+      if(tcFails>=5){tcFails=0;tcWaitUntil=Date.now()+30000;msg.textContent="That PIN is not correct. Too many tries: wait 30 seconds.";}
+      else msg.textContent="That PIN is not correct.";}
+  },function(){msg.textContent="This browser cannot check the PIN. Open the app from its https:// link.";});
+});
 viewEl.addEventListener("click",function(e){
   var b=e.target.closest("button");if(!b)return;
   if(b.hasAttribute("data-draft")){var key=b.getAttribute("data-draft"),val=b.getAttribute("data-val");draft[key]=key==="n"?val:Number(val);
@@ -648,6 +675,7 @@ viewEl.addEventListener("click",function(e){
   var a=b.getAttribute("data-act");
   if(a==="addLm"){S.lm.push({name:"",x:"",y:""});save();VIEWS["part-a"].lmList();renderLive();var ins=document.querySelectorAll("#lmList input[type=text]");if(ins.length)ins[ins.length-1].focus();}
   if(a==="addTLm"){S.tc.lm.push({name:"",x:"",y:""});save();VIEWS["teacher"].lmList();renderLive();}
+  if(a==="tcLock"){tcOpen=false;try{sessionStorage.removeItem("tcOpen");}catch(e3){}location.hash="plan";toast("Teacher Check locked");}
   if(a==="tcClear"){S.tc=clone(EXAMPLE.tc);save();show("teacher");toast("Cleared");}
   if(a==="addResp"){if(S.exSurvey){S.survey=[];S.exSurvey=false;toast("Example responses removed. Response 1 added");}else toast("Response "+(S.survey.length+1)+" added");
     S.survey.push({n:draft.n,g:draft.g,i:draft.i});save();renderLive();}
