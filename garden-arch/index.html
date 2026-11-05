@@ -126,6 +126,11 @@ nav.pager button{flex:1}
 .warn{color:var(--bad);font-weight:700}
 .muted{color:var(--muted)}
 .count{font-size:.88rem;color:var(--muted)}
+.math[data-tex]{white-space:normal;font-family:var(--f-body);font-size:1.02rem;line-height:1.4}
+.math mjx-container[display="true"]{margin:0!important;text-align:left!important}
+td.calc[data-tex]{white-space:nowrap}
+.eq[data-tex]{font-size:1.1rem}
+mjx-container{color:inherit}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:20px;font-weight:700;z-index:20}
 @media (prefers-reduced-motion: no-preference){.view{animation:rise .25s ease-out}@keyframes rise{from{transform:translateY(6px)}to{transform:none}}}
 </style>
@@ -329,19 +334,19 @@ VIEWS["part-a"]={
     return msg.length?'<p class="warn">'+msg.join(" ")+'</p>':'<p><span class="pill good">Within the limits</span> The arch touches the ground at x = −'+f(w/2)+' and x = '+f(w/2)+'.</p>';},
   live2:function(){var m=M();if(!m)return need();
     var s="Vertex (h, k) = (0, "+f(m.k)+"), so  y = a(x − 0)² + "+f(m.k)+"\nThe arch passes through ("+f(m.half)+", 0):\n0 = a("+f(m.half)+")² + "+f(m.k)+"\n0 = "+f(fv(m.SQ))+"a + "+f(m.k)+"\n−"+f(m.k)+" = "+f(fv(m.SQ))+"a\na = −"+f(m.k)+" ÷ "+f(fv(m.SQ))+"\na = "+aText(m);
-    return '<div class="math">'+esc(s)+'</div><p class="muted">Vertex form</p><p class="eq">'+esc(vertexForm(m))+'</p><p class="muted">Standard form y = ax² + bx + c</p><p class="eq">'+esc(stdForm(m))+'</p><p>So a = '+esc(aText(m))+', b = 0, c = '+f(m.k)+'.</p>';},
+    return '<div class="math">'+esc(s)+'</div><p class="muted">Vertex form</p><p class="eq">'+esc(vertexForm(m))+'</p><p class="muted">Standard form y = ax² + bx + c</p><p class="eq">'+esc(stdForm(m))+'</p><p>So <span class="mx">a = '+esc(aText(m))+'</span>, <span class="mx">b = 0</span>, and <span class="mx">c = '+f(m.k)+'</span>.</p>';},
   live3:function(){var m=M();if(!m)return need();
     var aS=niceDec(m.a)?f(m.a):"(−"+Math.abs(m.A.n)+"/"+m.A.d+")";
     var D=fm(Fr(-4*m.A.n,m.A.d),m.K),rt=fdv(Fr(4*m.K.n,m.K.d),fd(m.w)),den=Fr(2*m.A.n,m.A.d);
     var s1="Method 1 · Extracting square roots\n0 = "+aS+"x² + "+f(m.k)+"\n"+(niceDec(m.a)?f(-m.a):"("+Math.abs(m.A.n)+"/"+m.A.d+")")+"x² = "+f(m.k)+"\nx² = "+f(m.k)+" ÷ "+(niceDec(m.a)?f(-m.a):"("+Math.abs(m.A.n)+"/"+m.A.d+")")+" = "+f(fv(m.SQ))+"\nx = ±√"+f(fv(m.SQ))+"\nx = "+f(m.half)+"  or  x = −"+f(m.half);
-    var s2="Method 2 · Quadratic formula, a = "+(niceDec(m.a)?f(m.a):fts(m.A))+", b = 0, c = "+f(m.k)+"\nx = [−b ± √(b² − 4ac)] / (2a)\nb² − 4ac = 0² − 4("+(niceDec(m.a)?f(m.a):fts(m.A))+")("+f(m.k)+") = "+ft(D)+"\n√(b² − 4ac) = "+ft(rt)+"\n2a = "+ft(den)+"\nx = (0 + "+ft(rt).split(" ≈")[0]+") ÷ ("+fts(den)+") = "+f(fv(fdv(rt,den)))+"\nx = (0 − "+ft(rt).split(" ≈")[0]+") ÷ ("+fts(den)+") = "+f(-fv(fdv(rt,den)));
+    var s2="Method 2 · Quadratic formula\na = "+(niceDec(m.a)?f(m.a):fts(m.A))+", b = 0, c = "+f(m.k)+"\nx = [−b ± √(b² − 4ac)] / (2a)\nb² − 4ac = 0² − 4("+(niceDec(m.a)?f(m.a):fts(m.A))+")("+f(m.k)+") = "+ft(D)+"\n√(b² − 4ac) = "+ft(rt)+"\n2a = "+ft(den)+"\nx = (0 + "+ft(rt).split(" ≈")[0]+") ÷ ("+fts(den)+") = "+f(fv(fdv(rt,den)))+"\nx = (0 − "+ft(rt).split(" ≈")[0]+") ÷ ("+fts(den)+") = "+f(-fv(fdv(rt,den)));
     var chk="Check: distance between the zeros = "+f(m.half)+" − (−"+f(m.half)+") = "+f(m.w)+" m = the width ✓";
     return '<div class="math">'+esc(s1)+'</div><div class="math">'+esc(s2)+'</div><p class="big">Zeros: x = −'+f(m.half)+' and x = '+f(m.half)+'</p><p>'+esc(chk)+'</p>'+
-      '<p class="muted">You may use factoring instead of extracting square roots: '+aS+'(x² − '+f(fv(m.SQ))+') = 0 → '+aS+'(x − '+f(m.half)+')(x + '+f(m.half)+') = 0.</p>';},
+      '<p class="muted">You may use factoring instead of extracting square roots:</p><div class="math">'+esc(aS+'(x² − '+f(fv(m.SQ))+') = 0\n'+aS+'(x − '+f(m.half)+')(x + '+f(m.half)+') = 0')+'</div>';},
   live4:function(){var m=M();if(!m)return need();
     var rows=[["Vertex","(0, "+f(m.k)+")","The top of the arch is "+f(m.k)+" m above the center of the walkway."],
       ["Axis of symmetry","x = 0","The arch is the same on the left and right of the center line."],
-      ["Opening","Downward, since a = "+esc(aText(m))+" < 0","The arch curves down to the ground, like a real arch."],
+      ["Opening",'Downward, since <span class="mx">a = '+esc(aText(m))+' &lt; 0</span>',"The arch curves down to the ground, like a real arch."],
       ["Maximum value","y = "+f(m.k),"No part of the arch is higher than "+f(m.k)+" m."],
       ["Increasing","−"+f(m.half)+" ≤ x ≤ 0","Walking from the left foot to the center, the arch gets higher."],
       ["Decreasing","0 ≤ x ≤ "+f(m.half),"From the center to the right foot, the arch gets lower."]];
@@ -369,8 +374,8 @@ VIEWS["part-b"]={
     if(a2>=0)return '<p class="warn">Use a negative a, so the second arch also opens downward.</p>';
     if(Math.abs(a2-m.a)<1e-9)return '<p class="warn">Choose an a different from yours ('+esc(aText(m))+').</p>';
     var z=Math.sqrt(m.k/Math.abs(a2)),nar=Math.abs(a2)>Math.abs(m.a);
-    return '<p><b>Second arch:</b> y = '+f(a2)+'x² + '+f(m.k)+'. It has the same vertex (0, '+f(m.k)+') but its zeros are x = ±√('+f(m.k)+' ÷ '+f(Math.abs(a2))+') ≈ ±'+f(z,2)+', so it is '+f(2*z,2)+' m wide.</p>'+
-      '<p><b>How the shape changes:</b> |'+f(a2)+'| is '+(nar?'greater':'less')+' than |'+esc(aText(m).split(" ≈")[0])+'|, so the second arch is <b>'+(nar?'narrower and steeper':'wider and flatter')+'</b>. The larger |a| is, the narrower the parabola.</p>';}
+    return '<p><b>Second arch:</b> <span class="mx">y = '+f(a2)+'x² + '+f(m.k)+'</span>. It has the same vertex (0, '+f(m.k)+') but its zeros are <span class="mx">x = ±√('+f(m.k)+' ÷ '+f(Math.abs(a2))+') ≈ ±'+f(z,2)+'</span>, so it is '+f(2*z,2)+' m wide.</p>'+
+      '<p><b>How the shape changes:</b> <span class="mx">|'+f(a2)+'| '+(nar?'>':'<')+' |'+esc(aText(m).split(" ≈")[0])+'|</span>, so the second arch is <b>'+(nar?'narrower and steeper':'wider and flatter')+'</b>. The larger |a| is, the narrower the parabola.</p>';}
 };
 
 /* PART C */
@@ -444,7 +449,7 @@ VIEWS["part-f"]={
   live:function(){var m=M();if(!m)return need();var p=num(S.price);if(p===null)return '<p class="warn">Enter the price per meter.</p>';
     var L=archLen(m,num(S.segs)),b=brace(m),bl=b?2*b.len:0,total=L.sum+bl;
     var seg='<details><summary><b>Arch length by straight pieces</b> ≈ '+f(L.sum,2)+' m</summary><p class="muted">Each piece is the hypotenuse of a right triangle: √(Δx² + Δy²).</p><div class="tablebox"><table><tr><th>From</th><th>To</th><th>Length (m)</th></tr>'+
-      L.rows.map(function(r){return '<tr><td>('+f(r[0][0],2)+', '+f(r[0][1],2)+')</td><td>('+f(r[1][0],2)+', '+f(r[1][1],2)+')</td><td class="calc">√('+f(r[2],3)+'² + '+f(r[3],3)+'²) ≈ <b>'+f(r[4],3)+'</b></td></tr>';}).join("")+
+      L.rows.map(function(r){return '<tr><td>('+f(r[0][0],2)+', '+f(r[0][1],2)+')</td><td>('+f(r[1][0],2)+', '+f(r[1][1],2)+')</td><td class="calc">√('+(r[2]<0?'('+f(r[2],3)+')':f(r[2],3))+'² + '+(r[3]<0?'('+f(r[3],3)+')':f(r[3],3))+'²) ≈ '+f(r[4],3)+'</td></tr>';}).join("")+
       '<tr><th colspan="2">Total</th><th>'+f(L.sum,3)+'</th></tr></table></div><p class="count">You can also measure your model’s arch with a string and multiply by the scale.</p></details>';
     var tb=[1,2,3,4,5].map(function(x){return [f(x)+" m",x];});tb.push(["Arch",L.sum]);if(b)tb.push(["Two braces",bl]);tb.push(["Arch + braces",total]);
     return '<p>Let '+V("C")+' = cost in pesos and '+V("L")+' = length in meters. <b>C = kL</b>, where k = price per meter = '+f2(p)+'.</p><p class="eq">C = '+f2(p)+'L</p>'+seg+
@@ -545,6 +550,82 @@ function show(k){
   document.getElementById("next").textContent=(i===ORDER.length-1||i<0)?"Back to Plan":"Next ›";
   window.scrollTo(0,0);
 }
+/* ---------- math typesetting (MathJax): plain steps -> LaTeX ---------- */
+var TX_SYM={"−":"-","×":"\\times ","÷":"\\div ","≤":"\\le ","≥":"\\ge ","≠":"\\ne ","≈":"\\approx ","±":"\\pm ","∪":"\\cup ","∩":"\\cap ","′":"'","|":"\\mid ","✓":"\\;\\checkmark","✗":"","·":"\\cdot ","→":"\\rightarrow ","…":"\\ldots ","%":"\\%","₱":"\\text{₱}","&":"\\&","#":"\\#","_":"\\_","{":"\\{","}":"\\}","$":"\\$","°":"^\\circ ","\\":"\\backslash "};
+var TX_SUP={"²":"2","³":"3"}, TX_MW={"Ax":1};
+function txText(t){return t.replace(/[\\{}%&#$_]/g,function(c){return "\\"+c;});}
+function txMatch(s,i,open,close){var d=0;for(var j=i;j<s.length;j++){if(s[j]===open)d++;else if(s[j]===close){d--;if(!d)return j;}}return -1;}
+function txOperand(s,i){var m=s.slice(i).match(/^\d+(\.\d+)?/)||s.slice(i).match(/^[A-Za-z]/);return m?m[0]:null;}
+/* "[A] / (B)" or "n(A) / n(B)" written with a slash between bracket groups becomes a stacked fraction */
+function txGroupFrac(s){
+  for(var q=0;q<s.length;q++){
+    if(s[q]!=="/")continue;
+    var a=q-1;while(a>=0&&s[a]===" ")a--;var b=q+1;while(b<s.length&&s[b]===" ")b++;
+    if(a<0||!(s[a]===")"||s[a]==="]"))continue;
+    var op=s[a]===")"?"(":"[",d=0,st=-1;for(var k=a;k>=0;k--){if(s[k]===s[a])d++;else if(s[k]===op){d--;if(!d){st=k;break;}}}
+    if(st<0)continue;if(st>0&&/[A-Za-z]/.test(s[st-1])&&!/[A-Za-z]/.test(s[st-2]||" "))st--;
+    var rb=b;if(/[A-Za-z]/.test(s[rb]||"")&&/[(\[]/.test(s[rb+1]||""))rb++;
+    if(!/[(\[]/.test(s[rb]||""))continue;
+    var cl=txMatch(s,rb,s[rb],s[rb]==="("?")":"]");if(cl<0)continue;
+    return s.slice(0,st)+"\u0001"+s.slice(st,a+1)+"\u0002"+s.slice(b,cl+1)+"\u0003"+txGroupFrac(s.slice(cl+1));
+  }
+  return s;
+}
+function txStrip(g){g=g.trim();if(/^[(\[]/.test(g)&&txMatch(g,0,g[0],g[0]==="("?")":"]")===g.length-1)return g.slice(1,-1);return g;}
+function toTex(s){
+  s=txGroupFrac(s);
+  var r="",i=0,L=s.length,m;
+  while(i<L){
+    var c=s[i],rest=s.slice(i);
+    if(c==="\u0001"){var e2=s.indexOf("\u0002",i),e3=s.indexOf("\u0003",i);r+="\\dfrac{"+toTex(txStrip(s.slice(i+1,e2)))+"}{"+toTex(txStrip(s.slice(e2+1,e3)))+"}";i=e3+1;continue;}
+    if((c==="("||c==="[")){var cg=txMatch(s,i,c,c==="("?")":"]");
+      if(cg>0){var inner=toTex(s.slice(i+1,cg));if(/\\frac|\\sqrt|\\dfrac/.test(inner)){r+=(c==="("?"\\left(":"\\left[")+inner+(c==="("?"\\right)":"\\right]");i=cg+1;continue;}}}
+    if(i===0&&(m=rest.match(/^\((\d)\)\s+/))){r+="("+m[1]+")\\quad ";i+=m[0].length;continue;}
+    if(/\s/.test(c)){m=rest.match(/^\s{2,}(\(\d\))\s*$/);if(m){r+="\\qquad "+m[1];break;}r+=" ";i++;continue;}
+    if((m=rest.match(/^\d+(?:-\d+)+/))){r+="\\text{"+m[0]+"}";i+=m[0].length;continue;}
+    if((m=rest.match(/^\d{1,3}(?:,\d{3})+(?:\.\d+)?|^\d+(?:\.\d+)?/))){
+      var tok=m[0].replace(/,/g,"{,}");i+=m[0].length;
+      if(s[i]==="/"){var den=txOperand(s,i+1);if(den){r+="\\frac{"+tok+"}{"+den+"}";i+=1+den.length;continue;}}
+      r+=tok;continue;}
+    if((m=rest.match(/^[A-Za-z][A-Za-z’'\-]*[A-Za-z’']|^[A-Za-z]/))){
+      var w=m[0],prev=i>0?s[i-1]:" ",nx=s[i+w.length]||" ";
+      if(/^(m|cm|mm|km)$/.test(w)&&/\d\s$/.test(s.slice(Math.max(0,i-2),i))&&!/[A-Za-z(]/.test(nx)){r+="\\,\\text{"+w+"}";i+=w.length;continue;}
+      if(w.length===1||/[0-9)²\]]/.test(prev)||TX_MW[w]){
+        if(w.length===1&&s[i+1]==="/"){var dn=txOperand(s,i+2);if(dn){r+="\\frac{"+w+"}{"+dn+"}";i+=2+dn.length;continue;}}
+        r+=w;i+=w.length;continue;}
+      var j=i+w.length,run=w;
+      while(true){var mm=s.slice(j).match(/^([ ,.:;?!“”"’']*)([A-Za-z][A-Za-z’'\-]*)/);
+        if(mm&&(mm[2].length>1&&!TX_MW[mm[2]])&&!/^[A-Za-z]$/.test(mm[2])){run+=mm[1]+mm[2];j+=mm[0].length;}else break;}
+      var tp=s.slice(j).match(/^[,.:;?!]+/);if(tp){run+=tp[0];j+=tp[0].length;}
+      var pre=(i>0&&/\s/.test(s[i-1])&&r.trim()!=="")?" ":"",post=/\s/.test(s[j]||"")&&s.slice(j).trim()!==""?" ":"";
+      r+="\\text{"+pre+txText(run)+post+"}";i=j;continue;}
+    if(c==="√"){var o=s[i+1];
+      if(o==="["||o==="("){var cl=txMatch(s,i+1,o,o==="["?"]":")");if(cl>0){r+="\\sqrt{"+toTex(s.slice(i+2,cl))+"}";i=cl+1;continue;}}
+      var op=s.slice(i+1).match(/^\d+(\.\d+)?|^[A-Za-z]/);if(op){r+="\\sqrt{"+op[0]+"}";i+=1+op[0].length;continue;}
+      r+="\\sqrt{\\ }";i++;continue;}
+    if(TX_SUP[c]){r+="^{"+TX_SUP[c]+"}";i++;continue;}
+    if(TX_SYM[c]!==undefined){r+=TX_SYM[c];i++;continue;}
+    r+=c;i++;
+  }
+  return r;
+}
+function mathify(root){
+  if(!(window.MathJax&&MathJax.typeset)||!root)return;
+  var els=root.querySelectorAll(".math,.eq,td.calc,.mx"),any=false;
+  Array.prototype.forEach.call(els,function(el){
+    if(el.getAttribute("data-tex"))return;
+    var plain=(el.innerText||el.textContent||"").replace(/ /g," ").replace(/\s+$/,"");if(!plain.trim())return;
+    var lines=plain.split("\n"),tex;
+    if(el.classList.contains("math")){tex="\\[\\begin{aligned}"+lines.map(function(l){if(!l.trim())return "&\\phantom{0}";var t=toTex(l).replace(/^\s*-/,"{-}");return "&"+t;}).join("\\\\")+"\\end{aligned}\\]";}
+    else if(lines.length>1){tex="\\(\\begin{aligned}"+lines.map(function(l){return "&"+toTex(l);}).join("\\\\")+"\\end{aligned}\\)";}
+    else tex="\\("+(el.classList.contains("eq")||el.classList.contains("mx")?"\\displaystyle ":"")+toTex(plain)+"\\)";
+    el.setAttribute("data-plain",plain);el.textContent=tex;el.setAttribute("data-tex","1");any=true;});
+  if(!any)return;
+  try{MathJax.typesetClear([root]);MathJax.typeset([root]);}catch(e){}
+}
+window.__mathify=function(){mathify(document.getElementById("view"));};
+
+var _renderLive=renderLive;renderLive=function(){_renderLive();mathify(viewEl);};
 function route(){show((location.hash||"#plan").slice(1));}
 window.addEventListener("hashchange",route);
 document.getElementById("prev").addEventListener("click",function(){var i=ORDER.indexOf(cur);if(i<0)location.hash="plan";else if(i>0)location.hash=ORDER[i-1];});
@@ -592,6 +673,13 @@ route();
 if("serviceWorker" in navigator&&location.protocol==="https:"&&!/claude\.ai|claudeusercontent/.test(location.hostname)){try{navigator.serviceWorker.register("sw.js").catch(function(){});}catch(e){}}
 })();
 </script>
+<script>
+window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"]]},
+  svg:{fontCache:"global",displayAlign:"left",displayIndent:"0"},
+  options:{enableMenu:false,skipHtmlTags:["script","noscript","style","textarea","pre","code","input","select","option"]},
+  startup:{typeset:false,ready:function(){MathJax.startup.defaultReady();MathJax.startup.promise.then(function(){if(window.__mathify)window.__mathify();});}}};
+</script>
+<script src="../lib/mathjax/tex-svg.js" async></script>
 <!--/APP-->
 </body>
 </html>
