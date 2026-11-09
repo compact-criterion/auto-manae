@@ -898,7 +898,7 @@ viewEl.addEventListener("click",function(e){
 });
 
 route();
-if("serviceWorker" in navigator&&location.protocol==="https:"&&!/claude\.ai|claudeusercontent/.test(location.hostname)){
+if("serviceWorker" in navigator&&location.protocol==="https:"&&!/claude\.ai|claudeusercontent|appassets\.androidplatform\.net/.test(location.hostname)){
   try{navigator.serviceWorker.register("sw.js").catch(function(){});}catch(e){}
 }
 })();

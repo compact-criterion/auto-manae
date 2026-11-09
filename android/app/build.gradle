@@ -1,0 +1,57 @@
+plugins { id "com.android.application" }
+
+// Release signing: put keystore.properties next to this project (never commit it).
+def ksFile = rootProject.file("keystore.properties")
+def ks = new Properties()
+if (ksFile.exists()) { ksFile.withInputStream { ks.load(it) } }
+
+android {
+    namespace "ph.bbsi.helper"
+    compileSdk 35
+
+    defaultConfig {
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        release {
+            if (ksFile.exists()) {
+                storeFile rootProject.file(ks["storeFile"])
+                storePassword ks["storePassword"]
+                keyAlias ks["keyAlias"]
+                keyPassword ks["keyPassword"]
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (ksFile.exists()) signingConfig signingConfigs.release
+        }
+    }
+
+    buildFeatures { buildConfig true }
+
+    // One flavor per performance task. START_PATH is the app folder inside assets/www.
+    flavorDimensions "task"
+    productFlavors {
+        wisechoice    { dimension "task"; applicationId "ph.bbsi.wisechoice";    resValue "string", "app_name", "Wise Choice";    resValue "color", "brand", "#1d2b5e"; buildConfigField "String", "START_PATH", '"wise-choice"' }
+        gardenarch    { dimension "task"; applicationId "ph.bbsi.gardenarch";    resValue "string", "app_name", "Garden Arch";    resValue "color", "brand", "#1e3b2c"; buildConfigField "String", "START_PATH", '"garden-arch"' }
+        signalcheck   { dimension "task"; applicationId "ph.bbsi.signalcheck";   resValue "string", "app_name", "Signal Check";   resValue "color", "brand", "#0f2f45"; buildConfigField "String", "START_PATH", '"signal-check"' }
+        wastewatch    { dimension "task"; applicationId "ph.bbsi.wastewatch";    resValue "string", "app_name", "Waste Watch";    resValue "color", "brand", "#173a3a"; buildConfigField "String", "START_PATH", '"waste-watch"' }
+        investorpitch { dimension "task"; applicationId "ph.bbsi.investorpitch"; resValue "string", "app_name", "Investor Pitch"; resValue "color", "brand", "#4a1d2f"; buildConfigField "String", "START_PATH", '"investor-pitch"' }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation "androidx.webkit:webkit:1.12.1"
+}
