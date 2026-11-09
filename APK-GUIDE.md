@@ -1,45 +1,45 @@
-# Making an Android APK for each app
+# Android APKs
 
-Each app is a web app hosted on GitHub Pages. **PWABuilder** (free, by Microsoft) wraps a
-web app link into an Android package. Do this on a computer, once per app.
+Ready-made, signed APK files for all five apps are in the [`apk/`](apk/) folder:
 
-| App | Link to paste | Suggested package ID |
+| File | App | Package |
 |---|---|---|
-| Grade 8 · Wise Choice Helper | `https://compact-criterion.github.io/auto-manae/wise-choice/` | `ph.bbsi.wisechoice` |
-| Grade 9 · Garden Arch Helper | `https://compact-criterion.github.io/auto-manae/garden-arch/` | `ph.bbsi.gardenarch` |
-| Grade 10 · Signal Check Helper | `https://compact-criterion.github.io/auto-manae/signal-check/` | `ph.bbsi.signalcheck` |
-| Grade 11 · Waste Watch Helper | `https://compact-criterion.github.io/auto-manae/waste-watch/` | `ph.bbsi.wastewatch` |
-| Grade 12 · Investor Pitch Helper | `https://compact-criterion.github.io/auto-manae/investor-pitch/` | `ph.bbsi.investorpitch` |
+| `G8-Wise-Choice.apk` | Grade 8 · The Wise Choice | `ph.bbsi.wisechoice` |
+| `G9-Garden-Arch.apk` | Grade 9 · The Garden Arch | `ph.bbsi.gardenarch` |
+| `G10-Signal-Check.apk` | Grade 10 · Signal Check | `ph.bbsi.signalcheck` |
+| `G11-Waste-Watch.apk` | Grade 11 · Kaytikling Waste Watch | `ph.bbsi.wastewatch` |
+| `G12-Investor-Pitch.apk` | Grade 12 · Investor Proposal | `ph.bbsi.investorpitch` |
 
-## Steps
-
-1. Open **https://www.pwabuilder.com** and paste the app's link. Click **Start**.
-2. When the report card appears, click **Package for stores**, then choose **Android**.
-3. In the options, set the **Package ID** from the table above. Leave the signing key on
-   **Create new** (the default).
-4. Click **Download**. You get a ZIP file. Inside it:
-   - the **`.apk`** file: this is the one to share with students;
-   - an `.aab` file, only needed if you ever publish on the Google Play Store;
-   - a **signing key** and its passwords. **Keep these safe.** You need the same key to
-     make an update that installs over the old version.
-5. Send the `.apk` through your class group chat or Google Drive.
+Each APK contains the whole app and the MathJax library, so it works **fully offline**
+from the first launch (only the Google Fonts typefaces need internet; without them the app
+uses the phone's own font). Android 7.0 or newer.
 
 ## Installing on a student's phone
 
-1. Open the `.apk` file from Messenger, Drive, or the Downloads folder.
+1. Open the `.apk` file from Messenger, Google Drive, or the Downloads folder.
 2. If Android asks, allow **Install unknown apps** for that app (Messenger, Drive, or Files).
-3. Tap **Install**. Google Play Protect may show a warning for apps that are not from the
-   Play Store; tap **Install anyway**.
+3. Tap **Install**. Google Play Protect may warn about an app that is not from the Play
+   Store; tap **More details → Install anyway**.
 
-## Things to know
+Answers are saved inside the app on that phone. The APK and the web link keep separate
+saved data.
 
-- The app opens the GitHub Pages site inside the APK. Students need internet the **first
-  time**; after that it works offline.
-- A thin browser address bar may show at the top. Removing it needs a verification file
-  (`assetlinks.json`) at `https://compact-criterion.github.io/.well-known/`, which lives in a
-  separate repository named `compact-criterion.github.io`. PWABuilder's download includes
-  the file and instructions.
-- When an app is updated on GitHub, students get the change automatically the next time
-  they open it with internet. A new APK is only needed to change the icon or name.
-- iPhones cannot install APKs. iPhone users open the link in Safari and tap
-  **Share → Add to Home Screen**.
+## Updating an app later
+
+The APKs are built from the Android project in [`android/`](android/), which copies the web
+apps into the package:
+
+```
+python3 android/prepare-assets.py
+cd android && gradle assembleRelease
+```
+
+Raise `versionCode` in `android/app/build.gradle` first. An update installs over the old
+version (keeping students' saved answers) **only if it is signed with the same key**. The
+signing key (`bbsi-helpers.jks`) and its passwords (`keystore.properties`) are kept out of
+this public repository; store them somewhere safe.
+
+## iPhone
+
+iPhones cannot install APKs. iPhone users open the GitHub Pages link in Safari and tap
+**Share → Add to Home Screen**.
