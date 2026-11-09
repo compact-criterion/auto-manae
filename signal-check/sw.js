@@ -1,6 +1,6 @@
 // Offline cache so the app keeps working without mobile data.
-const CACHE = "signal-check-v2";
-const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "../lib/mathjax/tex-svg.js"];
+const CACHE = "signal-check-v3";
+const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png", "../lib/mathjax/tex-svg.js"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))));
